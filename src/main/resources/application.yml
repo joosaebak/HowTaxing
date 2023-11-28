@@ -30,9 +30,3 @@ spring:
     custom-uri-logging-filter:
       enabled: true
       level: info
-
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
