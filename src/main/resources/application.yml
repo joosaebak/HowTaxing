@@ -3,16 +3,16 @@ spring:
     basename: i18n/messages
     encoding: UTF-8
 
-  config:
-    location: currentdir/config
-  pid:
-    file: application.pid
+  #config:
+    #location: currentdir/config
+  #pid:
+    #file: application.pid
 
-  jpa:
-    properties:
-      hibernate:
-        physical_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        enable_lazy_load_no_trans: true
+  #jpa:
+    #properties:
+      #hibernate:
+        #physical_naming_strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        #enable_lazy_load_no_trans: true
 
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy

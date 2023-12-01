@@ -2,8 +2,8 @@ server:
   port: 8080
 
 spring:
-  profiles:
-    active: local
+  #profiles:
+    #active: local
   datasource:
     url: jdbc:log4jdbc:mysql://localhost:3306/minitest?useSSL=false&autoReconnect=true&autoReconnection=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Seoul
     username: root
