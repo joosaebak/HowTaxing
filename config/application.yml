@@ -1,11 +1,11 @@
 server:
-  port: 17000
+  port: 8080
 
 spring:
   profiles:
     active: local
   datasource:
-    url: jdbc:log4jdbc:mysql://127.0.0.1:3306/minitest?useSSL=false&autoReconnect=true&autoReconnection=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Seoul
+    url: jdbc:log4jdbc:mysql://localhost:3306/minitest?useSSL=false&autoReconnect=true&autoReconnection=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Seoul
     username: root
     password: 1q2w3e4r%%
     sql-script-encoding: UTF-8
