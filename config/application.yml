@@ -7,7 +7,7 @@ spring:
   datasource:
     url: jdbc:log4jdbc:mysql://localhost:3306/minitest?useSSL=false&autoReconnect=true&autoReconnection=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Seoul
     username: root
-    password: 1q2w3e4r%%
+    password: Xmonster11@@
     sql-script-encoding: UTF-8
   jpa:
     hibernate:
