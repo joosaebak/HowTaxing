@@ -30,3 +30,28 @@ spring:
     custom-uri-logging-filter:
       enabled: true
       level: info
+
+social:
+  client:
+    kakao:
+      rest-api-key: "e094e49e35c61a9da896785b6fee020a"
+      secret-key: "EVUqAgvDALmABayw2DZo2jL0awEhVUH7"
+      redirect-uri: "http://localhost:8080/kakao-login"
+      grant_type: "authorization_code"
+    naver:
+      rest-api-key: "e094e49e35c61a9da896785b6fee020a"
+      secret-key: "DEn_pJGqup"
+      redirect-uri: "http://localhost:8080/naver-login"
+      grant_type: "authorization_code"
+    google:
+      rest-api-key: "e094e49e35c61a9da896785b6fee020a"
+      secret-key: "DEn_pJGqup"
+      redirect-uri: "http://localhost:8080/google-login"
+      grant_type: "authorization_code"
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
