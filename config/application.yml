@@ -7,14 +7,14 @@ social:
       grant_type: authorization_code
 
     naver:
-      rest-api-key:
+      rest-api-key: e094e49e35c61a9da896785b6fee020a
       secret-key: DEn_pJGqup
       redirect-uri: http://localhost:8080/naver-login
       grant_type: authorization_code
 
     google:
-      rest-api-key:
-      secret-key:
+      rest-api-key: e094e49e35c61a9da896785b6fee020a
+      secret-key: DEn_pJGqup
       redirect-uri: http://localhost:8080/google-login
       grant_type: authorization_code
 
