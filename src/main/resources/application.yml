@@ -3,9 +3,9 @@ spring:
     basename: i18n/messages
     encoding: UTF-8
   datasource:
-    url: "jdbc:log4jdbc:mysql://127.0.0.1:3306/minitest?useSSL=false&autoReconnect=true&autoReconnection=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Seoul"
-    username: "root"
-    password: "1q2w3e4r%%"
+    url: jdbc:log4jdbc:mysql://127.0.0.1:3306/minitest?useSSL=false&autoReconnect=true&autoReconnection=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Seoul
+    username: root
+    password: 1q2w3e4r%%
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     tomcat:
       max-active: 50
@@ -34,20 +34,20 @@ spring:
 social:
   client:
     kakao:
-      rest-api-key: "e094e49e35c61a9da896785b6fee020a"
-      secret-key: "EVUqAgvDALmABayw2DZo2jL0awEhVUH7"
-      redirect-uri: "http://localhost:8080/kakao-login"
-      grant_type: "authorization_code"
+      rest-api-key: e094e49e35c61a9da896785b6fee020a
+      secret-key: EVUqAgvDALmABayw2DZo2jL0awEhVUH7
+      redirect-uri: http://localhost:8080/kakao-login
+      grant_type: authorization_code
     naver:
-      rest-api-key: "e094e49e35c61a9da896785b6fee020a"
-      secret-key: "DEn_pJGqup"
-      redirect-uri: "http://localhost:8080/naver-login"
-      grant_type: "authorization_code"
+      rest-api-key:
+      secret-key: DEn_pJGqup
+      redirect-uri: http://localhost:8080/naver-login
+      grant_type: authorization_code
     google:
-      rest-api-key: "e094e49e35c61a9da896785b6fee020a"
-      secret-key: "DEn_pJGqup"
-      redirect-uri: "http://localhost:8080/google-login"
-      grant_type: "authorization_code"
+      rest-api-key:
+      secret-key:
+      redirect-uri: http://localhost:8080/google-login
+      grant_type: authorization_code
 logging:
   level:
     org:
