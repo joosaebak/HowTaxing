@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -69,15 +71,31 @@ public class UserService {
         return new LoginServiceImpl();
     }
 
-    public UserResponse getUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("ERROR_001", "유저 정보를 찾을 수 없습니다."));
+    public Map<String, Object> getUser(Long id) {
+        boolean isError = false;
+        Map<String, Object> resultMap = new HashMap<String, Object>();
 
-        return UserResponse.builder()
-                .id(user.getId())
-                .userId(user.getUserId())
-                .userEmail(user.getUserEmail())
-                .userName(user.getUserName())
-                .build();
+        /*User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("0002", "사용자 정보를 찾을 수 없습니다."));*/
+
+        User user = userRepository.findById(id).orElse(null);
+
+        if(user != null){
+            UserResponse response = UserResponse.builder()
+                    .id(user.getId())
+                    .userId(user.getUserId())
+                    .userEmail(user.getUserEmail())
+                    .userName(user.getUserName())
+                    .build();
+
+            resultMap.put("isError", "false");
+            resultMap.put("data", response);
+        }else{
+            resultMap.put("isError", "true");
+            resultMap.put("errCode", "0002");
+            resultMap.put("errMsg", "사용자 정보를 조회할 수 없습니다.");
+        }
+
+        return resultMap;
     }
 }

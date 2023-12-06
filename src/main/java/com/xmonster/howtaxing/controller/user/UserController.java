@@ -10,23 +10,26 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/social-login")
+    @PostMapping("/user/socialLogin")
     public ResponseEntity<LoginResponse> doSocialLogin(@RequestBody @Valid SocialLoginRequest request) {
-        return ResponseEntity.created(URI.create("/social-login"))
+        return ResponseEntity.created(URI.create("/socialLogin"))
                 .body(userService.doSocialLogin(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable("id") Long id) {
+    @GetMapping("/user/{id}")
+    public Map<String, Object> getUser(@PathVariable("id") Long id) {
+        return userService.getUser(id);
+    }
+    /*public ResponseEntity<UserResponse> getUser(@PathVariable("id") Long id) {
         return ResponseEntity.ok(
                 userService.getUser(id)
         );
-    }
+    }*/
 }

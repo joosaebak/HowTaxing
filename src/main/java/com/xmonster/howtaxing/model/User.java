@@ -29,7 +29,7 @@ public class User extends BaseEntity {
     @Column(length = 50)
     private String userEmail;
 
-    @Column(columnDefinition = "ENUM('KAKAO', 'NAVER', 'FACEBOOK', 'GOOGLE', 'PAYCO', 'NORMAL') DEFAULT 'NORMAL'")
+    @Column(columnDefinition = "ENUM('KAKAO','NAVER','GOOGLE','APPLE','NORMAL') DEFAULT 'NORMAL'")
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
