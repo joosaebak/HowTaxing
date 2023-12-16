@@ -2,15 +2,15 @@ package com.xmonster.howtaxing.dto.tax;
 
 public class CalculateBuyTaxResponse {
 
-    private String calcResultId;
-    private String totTaxPrice;
-    private String buyTaxPrice;
-    private String buyPrice;
-    private String buyTaxRate;
-    private String eduTaxPrice;
-    private String deuTaxRate;
-    private String agrTaxPrice;
-    private String agrTaxRate;
+    private final String calcResultId;
+    private final String totTaxPrice;
+    private final String buyTaxPrice;
+    private final String buyPrice;
+    private final String buyTaxRate;
+    private final String eduTaxPrice;
+    private final String deuTaxRate;
+    private final String agrTaxPrice;
+    private final String agrTaxRate;
 
     // Test Constructor(GGMANYAR)
     public CalculateBuyTaxResponse(){

@@ -10,5 +10,6 @@ public class SocialLoginRequest {
     @NotNull
     private UserType userType;
     @NotNull
-    private String code;
+    private String access_token;
+    //private String code;
 }

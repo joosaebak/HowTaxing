@@ -2,11 +2,11 @@ package com.xmonster.howtaxing.dto.house;
 
 public class HouseInfoResponse {
 
-    private String houseId;
-    private String userId;
-    private String houseType;
-    private String houseName;
-    private String houseDetailName;
+    private final String houseId;
+    private final String userId;
+    private final String houseType;
+    private final String houseName;
+    private final String houseDetailName;
 
     public HouseInfoResponse(String houseId, String userId, String houseType, String houseName, String houseDetailName) {
         this.houseId = houseId;

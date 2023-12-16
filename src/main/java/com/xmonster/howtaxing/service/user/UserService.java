@@ -19,7 +19,39 @@ import java.util.Map;
 public class UserService {
     private final List<SocialLoginService> loginServices;
     private final UserRepository userRepository;
+
+    // AccessToken으로 요청하는 소셜로그인
     public LoginResponse doSocialLogin(SocialLoginRequest request) {
+        SocialLoginService loginService = this.getLoginService(request.getUserType());
+
+        //SocialAuthResponse socialAuthResponse = loginService.getAccessToken(request.getCode());
+
+        //SocialUserResponse socialUserResponse = loginService.getUserInfo(socialAuthResponse.getAccess_token());
+        SocialUserResponse socialUserResponse = loginService.getUserInfo(request.getAccess_token());
+
+        log.info("socialUserResponse {} ", socialUserResponse.toString());
+
+        if (userRepository.findByUserId(socialUserResponse.getId()).isEmpty()) {
+            this.joinUser(
+                    UserJoinRequest.builder()
+                            .userId(socialUserResponse.getId())
+                            .userEmail(socialUserResponse.getEmail())
+                            .userName(socialUserResponse.getName())
+                            .userType(request.getUserType())
+                            .build()
+            );
+        }
+
+        User user = userRepository.findByUserId(socialUserResponse.getId())
+                .orElseThrow(() -> new NotFoundException("ERROR_001", "유저 정보를 찾을 수 없습니다."));
+
+        return LoginResponse.builder()
+                .id(user.getId())
+                .build();
+    }
+
+    // 기존 소셜로그인
+    /*public LoginResponse doSocialLogin(SocialLoginRequest request) {
         SocialLoginService loginService = this.getLoginService(request.getUserType());
 
         SocialAuthResponse socialAuthResponse = loginService.getAccessToken(request.getCode());
@@ -44,7 +76,7 @@ public class UserService {
         return LoginResponse.builder()
                 .id(user.getId())
                 .build();
-    }
+    }*/
 
     private UserJoinResponse joinUser(UserJoinRequest userJoinRequest) {
         User user = userRepository.save(

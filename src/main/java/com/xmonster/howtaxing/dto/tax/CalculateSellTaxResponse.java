@@ -2,22 +2,22 @@ package com.xmonster.howtaxing.dto.tax;
 
 public class CalculateSellTaxResponse {
 
-    private String calcResultId;
-    private String totTaxPrice;
-    private String sellTaxPrice;
-    private String lclTaxPrice;
-    private String sellPrice;
-    private String buyPrice;
-    private String necExpense;
-    private String sellDiffPrice;
-    private String nonTaxPrice;
-    private String taxPrice;
-    private String longTermPrice;
-    private String sellGainPrice;
-    private String basicDeducPrice;
-    private String taxBasePrice;
-    private String taxRate;
-    private String progPrice;
+    private final String calcResultId;
+    private final String totTaxPrice;
+    private final String sellTaxPrice;
+    private final String lclTaxPrice;
+    private final String sellPrice;
+    private final String buyPrice;
+    private final String necExpense;
+    private final String sellDiffPrice;
+    private final String nonTaxPrice;
+    private final String taxPrice;
+    private final String longTermPrice;
+    private final String sellGainPrice;
+    private final String basicDeducPrice;
+    private final String taxBasePrice;
+    private final String taxRate;
+    private final String progPrice;
 
     // Test Constructor(GGMANYAR)
     public CalculateSellTaxResponse(){

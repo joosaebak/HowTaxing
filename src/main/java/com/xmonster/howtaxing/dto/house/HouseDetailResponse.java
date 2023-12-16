@@ -2,22 +2,22 @@ package com.xmonster.howtaxing.dto.house;
 
 public class HouseDetailResponse {
 
-    private String houseId;
-    private String houseType;
-    private String houseName;
-    private String houseDetailName;
-    private String roadnmAdr;
-    private String detailAdr;
-    private String dong;
-    private String hosu;
-    private String pubLandPrice;
-    private String kbMktPrice;
-    private String areaMeter;
-    private String areaPyung;
-    private String ownerCnt;
-    private String userProportion;
-    private String owner1Proportion;
-    private String isMovingInRight;
+    private final String houseId;
+    private final String houseType;
+    private final String houseName;
+    private final String houseDetailName;
+    private final String roadnmAdr;
+    private final String detailAdr;
+    private final String dong;
+    private final String hosu;
+    private final String pubLandPrice;
+    private final String kbMktPrice;
+    private final String areaMeter;
+    private final String areaPyung;
+    private final String ownerCnt;
+    private final String userProportion;
+    private final String owner1Proportion;
+    private final String isMovingInRight;
 
     public HouseDetailResponse(){
         this.houseId = "";
