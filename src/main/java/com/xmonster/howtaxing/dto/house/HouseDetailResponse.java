@@ -6,6 +6,7 @@ public class HouseDetailResponse {
     private final String houseType;
     private final String houseName;
     private final String houseDetailName;
+    private final String legalDstCode;
     private final String roadnmAdr;
     private final String detailAdr;
     private final String dong;
@@ -24,6 +25,7 @@ public class HouseDetailResponse {
         this.houseType = "";
         this.houseName = "";
         this.houseDetailName = "";
+        this.legalDstCode = "";
         this.roadnmAdr = "";
         this.detailAdr = "";
         this.dong = "";
@@ -41,9 +43,10 @@ public class HouseDetailResponse {
     // Test Constructor(GGMANYAR)
     public HouseDetailResponse(String houseId){
         this.houseId = houseId;
-        this.houseType = "아파트";
+        this.houseType = "1";
         this.houseName = "반포센트럴자이아파트";
         this.houseDetailName = "105동 1701호";
+        this.legalDstCode = "1165010600";
         this.roadnmAdr = "서울특별시 서초구 반포대로 310-6";
         this.detailAdr = "반포센트럴자이아파트";
         this.dong = "101";
@@ -58,11 +61,12 @@ public class HouseDetailResponse {
         this.isMovingInRight = "false";
     }
 
-    public HouseDetailResponse(String houseId, String houseType, String houseName, String houseDetailName, String roadnmAdr, String detailAdr, String dong, String hosu, String pubLandPrice, String kbMktPrice, String areaMeter, String areaPyung, String ownerCnt, String userProportion, String owner1Proportion, String isMovingInRight) {
+    public HouseDetailResponse(String houseId, String houseType, String houseName, String houseDetailName, String legalDstCode,String roadnmAdr, String detailAdr, String dong, String hosu, String pubLandPrice, String kbMktPrice, String areaMeter, String areaPyung, String ownerCnt, String userProportion, String owner1Proportion, String isMovingInRight) {
         this.houseId = houseId;
         this.houseType = houseType;
         this.houseName = houseName;
         this.houseDetailName = houseDetailName;
+        this.legalDstCode = legalDstCode;
         this.roadnmAdr = roadnmAdr;
         this.detailAdr = detailAdr;
         this.dong = dong;
@@ -91,6 +95,10 @@ public class HouseDetailResponse {
 
     public String getHouseDetailName() {
         return houseDetailName;
+    }
+
+    public String getLegalDstCode() {
+        return legalDstCode;
     }
 
     public String getRoadnmAdr() {
