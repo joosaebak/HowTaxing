@@ -27,7 +27,7 @@ public class UserService {
         //SocialAuthResponse socialAuthResponse = loginService.getAccessToken(request.getCode());
 
         //SocialUserResponse socialUserResponse = loginService.getUserInfo(socialAuthResponse.getAccess_token());
-        SocialUserResponse socialUserResponse = loginService.getUserInfo(request.getAccess_token());
+        SocialUserResponse socialUserResponse = loginService.getUserInfo(request.getAccessToken());
 
         log.info("socialUserResponse {} ", socialUserResponse.toString());
 
