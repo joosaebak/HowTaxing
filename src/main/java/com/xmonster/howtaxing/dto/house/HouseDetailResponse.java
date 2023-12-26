@@ -20,6 +20,10 @@ public class HouseDetailResponse {
     private final String owner1Proportion;
     private final String isMovingInRight;
 
+    private final String ONE = "1";
+    private final String TWO = "2";
+    private final String THREE = "3";
+
     public HouseDetailResponse(){
         this.houseId = "";
         this.houseType = "";
@@ -43,22 +47,75 @@ public class HouseDetailResponse {
     // Test Constructor(GGMANYAR)
     public HouseDetailResponse(String houseId){
         this.houseId = houseId;
-        this.houseType = "1";
-        this.houseName = "반포센트럴자이아파트";
-        this.houseDetailName = "105동 1701호";
-        this.legalDstCode = "1165010600";
-        this.roadnmAdr = "서울특별시 서초구 반포대로 310-6";
-        this.detailAdr = "반포센트럴자이아파트";
-        this.dong = "101";
-        this.hosu = "501";
-        this.pubLandPrice = "2800000000";
-        this.kbMktPrice = "2700000000";
-        this.areaMeter = "84.893";
-        this.areaPyung = "33";
-        this.ownerCnt = "2";
-        this.userProportion = "50";
-        this.owner1Proportion = "50";
-        this.isMovingInRight = "false";
+        if(ONE.equals(this.houseId)){
+            this.houseType = "1";
+            this.houseName = "반포센트럴자이아파트";
+            this.houseDetailName = "105동 1701호";
+            this.legalDstCode = "1165010600";
+            this.roadnmAdr = "서울특별시 서초구 반포대로 310-6";
+            this.detailAdr = "반포센트럴자이아파트";
+            this.dong = "101";
+            this.hosu = "501";
+            this.pubLandPrice = "2800000000";
+            this.kbMktPrice = "2700000000";
+            this.areaMeter = "84.893";
+            this.areaPyung = "33";
+            this.ownerCnt = "2";
+            this.userProportion = "50";
+            this.owner1Proportion = "50";
+            this.isMovingInRight = "false";
+        }else if(TWO.equals(this.houseId)){
+            this.houseType = "2";
+            this.houseName = "당동다가구주택";
+            this.houseDetailName = "당동 878-3";
+            this.legalDstCode = "4141010100";
+            this.roadnmAdr = "경기 군포시 용호2로20번길 15-5";
+            this.detailAdr = "당동다가구주택";
+            this.dong = "";
+            this.hosu = "";
+            this.pubLandPrice = "700000000";
+            this.kbMktPrice = "750000000";
+            this.areaMeter = "103.234";
+            this.areaPyung = "43";
+            this.ownerCnt = "1";
+            this.userProportion = "100";
+            this.owner1Proportion = "0";
+            this.isMovingInRight = "false";
+        }else if(THREE.equals(this.houseId)){
+            this.houseType = "4";
+            this.houseName = "대경빌라";
+            this.houseDetailName = "101호";
+            this.legalDstCode = "4143010300";
+            this.roadnmAdr = "경기 의왕시 부곡중앙북5길 5";
+            this.detailAdr = "대경빌라";
+            this.dong = "";
+            this.hosu = "101호";
+            this.pubLandPrice = "330000000";
+            this.kbMktPrice = "400000000";
+            this.areaMeter = "59.384";
+            this.areaPyung = "25";
+            this.ownerCnt = "1";
+            this.userProportion = "100";
+            this.owner1Proportion = "0";
+            this.isMovingInRight = "false";
+        }else{
+            this.houseType = "1";
+            this.houseName = "반포센트럴자이아파트";
+            this.houseDetailName = "105동 1701호";
+            this.legalDstCode = "1165010600";
+            this.roadnmAdr = "서울특별시 서초구 반포대로 310-6";
+            this.detailAdr = "반포센트럴자이아파트";
+            this.dong = "101";
+            this.hosu = "501";
+            this.pubLandPrice = "2800000000";
+            this.kbMktPrice = "2700000000";
+            this.areaMeter = "84.893";
+            this.areaPyung = "33";
+            this.ownerCnt = "2";
+            this.userProportion = "50";
+            this.owner1Proportion = "50";
+            this.isMovingInRight = "false";
+        }
     }
 
     public HouseDetailResponse(String houseId, String houseType, String houseName, String houseDetailName, String legalDstCode,String roadnmAdr, String detailAdr, String dong, String hosu, String pubLandPrice, String kbMktPrice, String areaMeter, String areaPyung, String ownerCnt, String userProportion, String owner1Proportion, String isMovingInRight) {
