@@ -17,10 +17,15 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/user/socialLogin")
+    /*@PostMapping("/user/socialLogin")
     public ResponseEntity<LoginResponse> doSocialLogin(@RequestBody @Valid SocialLoginRequest request) {
         return ResponseEntity.created(URI.create("/socialLogin"))
                 .body(userService.doSocialLogin(request));
+    }*/
+
+    @PostMapping("/user/socialLogin")
+    public Map<String, Object> doSocialLogin(@RequestBody @Valid SocialLoginRequest request) {
+        return userService.doSocialLogin(request);
     }
 
     @GetMapping("/user/{id}")
