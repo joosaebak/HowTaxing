@@ -1,10 +1,13 @@
 package com.xmonster.howtaxing.dto.house;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class HouseListResponse {
 
     Map<String, Object> data;

@@ -1,5 +1,8 @@
 package com.xmonster.howtaxing.dto.house;
 
+import lombok.Getter;
+
+@Getter
 public class HouseInfoResponse {
 
     private final String houseId;
@@ -14,25 +17,5 @@ public class HouseInfoResponse {
         this.houseType = houseType;
         this.houseName = houseName;
         this.houseDetailName = houseDetailName;
-    }
-
-    public String getHouseId() {
-        return houseId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getHouseType() {
-        return houseType;
-    }
-
-    public String getHouseName() {
-        return houseName;
-    }
-
-    public String getHouseDetailName() {
-        return houseDetailName;
     }
 }

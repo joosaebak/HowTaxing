@@ -19,9 +19,10 @@ import java.util.Map;
 public class UserService {
     private final List<SocialLoginService> loginServices;
     private final UserRepository userRepository;
+    private final String EMPTY = "";
 
     // AccessToken으로 요청하는 소셜로그인
-    public LoginResponse doSocialLogin(SocialLoginRequest request) {
+    /*public LoginResponse doSocialLogin(SocialLoginRequest request) {
         SocialLoginService loginService = this.getLoginService(request.getUserType());
 
         //SocialAuthResponse socialAuthResponse = loginService.getAccessToken(request.getCode());
@@ -48,6 +49,42 @@ public class UserService {
         return LoginResponse.builder()
                 .id(user.getId())
                 .build();
+    }*/
+
+    public Map<String, Object> doSocialLogin(SocialLoginRequest request) {
+        SocialLoginService loginService = this.getLoginService(request.getUserType());
+        SocialUserResponse socialUserResponse = loginService.getUserInfo(request.getAccessToken());
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        boolean isError = false;
+        String errMsg = EMPTY;
+
+        log.info("socialUserResponse {} ", socialUserResponse.toString());
+
+        if(userRepository.findByUserEmail(socialUserResponse.getEmail()).isEmpty()) {
+            if(userRepository.findByUserId(socialUserResponse.getId()).isEmpty()) {
+                this.joinUser(
+                        UserJoinRequest.builder()
+                                .userId(socialUserResponse.getId())
+                                .userEmail(socialUserResponse.getEmail())
+                                .userName(socialUserResponse.getName())
+                                .userType(request.getUserType())
+                                .build()
+                );
+            }
+        }else{
+            isError = true;
+            errMsg = socialUserResponse.getEmail() + "은 이미 등록된 이메일입니다.";
+        }
+
+        if(!isError){
+            resultMap.put("isError", "false");
+            resultMap.put("id", socialUserResponse.getId());
+        }else{
+            resultMap.put("isError", "true");
+            resultMap.put("errMsg", errMsg);
+        }
+
+        return resultMap;
     }
 
     // 기존 소셜로그인
@@ -94,8 +131,8 @@ public class UserService {
     }
 
     private SocialLoginService getLoginService(UserType userType){
-        for (SocialLoginService loginService: loginServices) {
-            if (userType.equals(loginService.getServiceName())) {
+        for(SocialLoginService loginService: loginServices) {
+            if(userType.equals(loginService.getServiceName())) {
                 log.info("login service name: {}", loginService.getServiceName());
                 return loginService;
             }

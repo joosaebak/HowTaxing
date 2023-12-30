@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 
@@ -32,11 +33,4 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "ENUM('KAKAO','NAVER','GOOGLE','APPLE','NORMAL') DEFAULT 'NORMAL'")
     @Enumerated(EnumType.STRING)
     private UserType userType;
-
-    private String refreshToken;
-
-    public void updateRefreshToken(String updateRefreshToken) {
-        this.refreshToken = updateRefreshToken;
-    }
-
 }

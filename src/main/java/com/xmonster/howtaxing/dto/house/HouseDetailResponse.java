@@ -1,5 +1,8 @@
 package com.xmonster.howtaxing.dto.house;
 
+import lombok.Getter;
+
+@Getter
 public class HouseDetailResponse {
 
     private final String houseId;
@@ -136,73 +139,5 @@ public class HouseDetailResponse {
         this.userProportion = userProportion;
         this.owner1Proportion = owner1Proportion;
         this.isMovingInRight = isMovingInRight;
-    }
-
-    public String getHouseId() {
-        return houseId;
-    }
-
-    public String getHouseType() {
-        return houseType;
-    }
-
-    public String getHouseName() {
-        return houseName;
-    }
-
-    public String getHouseDetailName() {
-        return houseDetailName;
-    }
-
-    public String getLegalDstCode() {
-        return legalDstCode;
-    }
-
-    public String getRoadnmAdr() {
-        return roadnmAdr;
-    }
-
-    public String getDetailAdr() {
-        return detailAdr;
-    }
-
-    public String getDong() {
-        return dong;
-    }
-
-    public String getHosu() {
-        return hosu;
-    }
-
-    public String getPubLandPrice() {
-        return pubLandPrice;
-    }
-
-    public String getKbMktPrice() {
-        return kbMktPrice;
-    }
-
-    public String getAreaMeter() {
-        return areaMeter;
-    }
-
-    public String getAreaPyung() {
-        return areaPyung;
-    }
-
-    public String getOwnerCnt() {
-        return ownerCnt;
-    }
-
-    public String getUserProportion() {
-        return userProportion;
-    }
-
-    public String getOwner1Proportion() {
-        return owner1Proportion;
-    }
-
-    public String getIsMovingInRight() {
-        return isMovingInRight;
     }
 }
