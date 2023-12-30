@@ -60,8 +60,31 @@ public class UserService {
 
         log.info("socialUserResponse {} ", socialUserResponse.toString());
 
-        if(userRepository.findByUserEmail(socialUserResponse.getEmail()).isEmpty()) {
-            if(userRepository.findByUserId(socialUserResponse.getId()).isEmpty()) {
+        // 회원가입
+        if(userRepository.findByUserId(socialUserResponse.getId()).isEmpty()) {
+            String email = socialUserResponse.getEmail();
+
+            // email 정보를 체크하여 중복되지 않으면 회원가입
+            if (email != null) {
+                User user = userRepository.findByUserEmail(email).orElse(null);
+                if(user != null) {
+                    if(!user.getUserType().equals(request.getUserType())){
+                        isError = true;
+                        errMsg = email + "은 이미 등록된 이메일입니다.";
+                    }
+                }else{
+                    this.joinUser(
+                            UserJoinRequest.builder()
+                                    .userId(socialUserResponse.getId())
+                                    .userEmail(socialUserResponse.getEmail())
+                                    .userName(socialUserResponse.getName())
+                                    .userType(request.getUserType())
+                                    .build()
+                    );
+                }
+            }
+            // email 정보가 수집되지 않는다면 email 체크없이 회원가입
+            else {
                 this.joinUser(
                         UserJoinRequest.builder()
                                 .userId(socialUserResponse.getId())
@@ -71,9 +94,6 @@ public class UserService {
                                 .build()
                 );
             }
-        }else{
-            isError = true;
-            errMsg = socialUserResponse.getEmail() + "은 이미 등록된 이메일입니다.";
         }
 
         if(!isError){
