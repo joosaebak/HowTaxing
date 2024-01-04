@@ -71,6 +71,7 @@ public class UserService {
                     if(!user.getUserType().equals(request.getUserType())){
                         isError = true;
                         errMsg = email + "은 이미 등록된 이메일입니다.";
+                        log.info("[GGMANYAR]errMsg : " + errMsg);
                     }
                 }else{
                     this.joinUser(
@@ -99,10 +100,15 @@ public class UserService {
         if(!isError){
             resultMap.put("isError", "false");
             resultMap.put("id", socialUserResponse.getId());
+            log.info("[GGMANYAR]isError false");
         }else{
             resultMap.put("isError", "true");
             resultMap.put("errMsg", errMsg);
+            log.info("[GGMANYAR]isError true");
         }
+
+        log.info("[GGMANYAR]resultMap1 {} ", resultMap.toString());
+        log.info("[GGMANYAR]resultMap2 {} ", resultMap);
 
         return resultMap;
     }
