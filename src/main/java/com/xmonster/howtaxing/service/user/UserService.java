@@ -98,11 +98,11 @@ public class UserService {
         }
 
         if(!isError){
-            resultMap.put("isError", "false");
+            resultMap.put("isError", false);
             resultMap.put("id", socialUserResponse.getId());
             log.info("[GGMANYAR]isError false");
         }else{
-            resultMap.put("isError", "true");
+            resultMap.put("isError", true);
             resultMap.put("errMsg", errMsg);
             log.info("[GGMANYAR]isError true");
         }
