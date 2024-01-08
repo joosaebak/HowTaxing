@@ -54,6 +54,9 @@ public class UserService {
     public Map<String, Object> doSocialLogin(SocialLoginRequest request) {
         SocialLoginService loginService = this.getLoginService(request.getUserType());
         SocialUserResponse socialUserResponse = loginService.getUserInfo(request.getAccessToken());
+        UserJoinResponse userJoinResponse = null;
+        Long id = 0L;
+
         Map<String, Object> resultMap = new HashMap<String, Object>();
         boolean isError = false;
         String errMsg = EMPTY;
@@ -74,7 +77,7 @@ public class UserService {
                         log.info("[GGMANYAR]errMsg : " + errMsg);
                     }
                 }else{
-                    this.joinUser(
+                    userJoinResponse = this.joinUser(
                             UserJoinRequest.builder()
                                     .userId(socialUserResponse.getId())
                                     .userEmail(socialUserResponse.getEmail())
@@ -86,7 +89,7 @@ public class UserService {
             }
             // email 정보가 수집되지 않는다면 email 체크없이 회원가입
             else {
-                this.joinUser(
+                userJoinResponse = this.joinUser(
                         UserJoinRequest.builder()
                                 .userId(socialUserResponse.getId())
                                 .userEmail(socialUserResponse.getEmail())
@@ -98,8 +101,24 @@ public class UserService {
         }
 
         if(!isError){
+            if(userJoinResponse == null){
+                //id = userRepository.findByUserId(socialUserResponse.getId()).
+                User user = userRepository.findByUserId(socialUserResponse.getId()).orElse(null);
+                if(user != null){
+                    id = user.getId();
+                }else{
+                    isError = true;
+                    errMsg = "사용자 정보가 존재하지 않습니다.";
+                }
+            }else{
+                id = userJoinResponse.getId();
+            }
+        }
+
+        if(!isError){
             resultMap.put("isError", false);
-            resultMap.put("id", socialUserResponse.getId());
+            //resultMap.put("id", socialUserResponse.getId());
+            resultMap.put("id", id);
             log.info("[GGMANYAR]isError false");
         }else{
             resultMap.put("isError", true);
