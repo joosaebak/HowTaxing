@@ -7,7 +7,7 @@ import com.xmonster.howtaxing.dto.user.SocialAuthResponse;
 import com.xmonster.howtaxing.dto.user.SocialUserResponse;
 import com.xmonster.howtaxing.feign.kakao.KakaoAuthApi;
 import com.xmonster.howtaxing.feign.kakao.KakaoUserApi;
-import com.xmonster.howtaxing.type.UserType;
+import com.xmonster.howtaxing.type.SocialType;
 import com.xmonster.howtaxing.utils.GsonLocalDateTimeAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,20 +29,20 @@ public class KakaoLoginServiceImpl implements SocialLoginService {
     private final KakaoAuthApi kakaoAuthApi;
     private final KakaoUserApi kakaoUserApi;
 
-    @Value("${social.client.kakao.rest-api-key}")
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoAppKey;
-    @Value("${social.client.kakao.secret-key}")
+    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
     private String kakaoAppSecret;
-    @Value("${social.client.kakao.redirect-uri}")
+    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String kakaoRedirectUri;
-    @Value("${social.client.kakao.grant_type}")
+    @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
     private String kakaoGrantType;
 
 
 
     @Override
-    public UserType getServiceName() {
-        return UserType.KAKAO;
+    public SocialType getServiceName() {
+        return SocialType.KAKAO;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class KakaoLoginServiceImpl implements SocialLoginService {
     @Override
     public SocialUserResponse getUserInfo(String accessToken) {
         Map<String ,String> headerMap = new HashMap<>();
-        headerMap.put("authorization", "Bearer " + accessToken);
+        headerMap.put("authorization", " " + accessToken);
 
         ResponseEntity<?> response = kakaoUserApi.getUserInfo(headerMap);
 

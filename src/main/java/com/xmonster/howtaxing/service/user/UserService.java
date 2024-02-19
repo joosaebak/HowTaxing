@@ -4,7 +4,10 @@ import com.xmonster.howtaxing.NotFoundException;
 import com.xmonster.howtaxing.dto.user.*;
 import com.xmonster.howtaxing.model.User;
 import com.xmonster.howtaxing.repository.user.UserRepository;
-import com.xmonster.howtaxing.type.UserType;
+import com.xmonster.howtaxing.service.house.JwtService;
+import static com.xmonster.howtaxing.constant.CommonConstant.*;
+
+import com.xmonster.howtaxing.type.SocialType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,11 +22,11 @@ import java.util.Map;
 public class UserService {
     private final List<SocialLoginService> loginServices;
     private final UserRepository userRepository;
-    private final String EMPTY = "";
+    private final JwtService jwtService;
 
     // AccessToken으로 요청하는 소셜로그인
     /*public LoginResponse doSocialLogin(SocialLoginRequest request) {
-        SocialLoginService loginService = this.getLoginService(request.getUserType());
+        SocialLoginService loginService = this.getLoginService(request.getSocialType());
 
         //SocialAuthResponse socialAuthResponse = loginService.getAccessToken(request.getCode());
 
@@ -38,7 +41,7 @@ public class UserService {
                             .userId(socialUserResponse.getId())
                             .userEmail(socialUserResponse.getEmail())
                             .userName(socialUserResponse.getName())
-                            .userType(request.getUserType())
+                            .socialType(request.getSocialType())
                             .build()
             );
         }
@@ -52,10 +55,11 @@ public class UserService {
     }*/
 
     public Map<String, Object> doSocialLogin(SocialLoginRequest request) {
-        SocialLoginService loginService = this.getLoginService(request.getUserType());
+        SocialLoginService loginService = this.getLoginService(request.getSocialType());
         SocialUserResponse socialUserResponse = loginService.getUserInfo(request.getAccessToken());
         UserJoinResponse userJoinResponse = null;
         Long id = 0L;
+        String email = EMPTY;
 
         Map<String, Object> resultMap = new HashMap<String, Object>();
         boolean isError = false;
@@ -65,13 +69,13 @@ public class UserService {
 
         // 회원가입
         if(userRepository.findByUserId(socialUserResponse.getId()).isEmpty()) {
-            String email = socialUserResponse.getEmail();
+            email = socialUserResponse.getEmail();
 
             // email 정보를 체크하여 중복되지 않으면 회원가입
             if (email != null) {
                 User user = userRepository.findByUserEmail(email).orElse(null);
                 if(user != null) {
-                    if(!user.getUserType().equals(request.getUserType())){
+                    if(!user.getSocialType().equals(request.getSocialType())){
                         isError = true;
                         errMsg = email + "은 이미 등록된 이메일입니다.";
                         log.info("[GGMANYAR]errMsg : " + errMsg);
@@ -82,7 +86,7 @@ public class UserService {
                                     .userId(socialUserResponse.getId())
                                     .userEmail(socialUserResponse.getEmail())
                                     .userName(socialUserResponse.getName())
-                                    .userType(request.getUserType())
+                                    .socialType(request.getSocialType())
                                     .build()
                     );
                 }
@@ -94,7 +98,7 @@ public class UserService {
                                 .userId(socialUserResponse.getId())
                                 .userEmail(socialUserResponse.getEmail())
                                 .userName(socialUserResponse.getName())
-                                .userType(request.getUserType())
+                                .socialType(request.getSocialType())
                                 .build()
                 );
             }
@@ -106,6 +110,7 @@ public class UserService {
                 User user = userRepository.findByUserId(socialUserResponse.getId()).orElse(null);
                 if(user != null){
                     id = user.getId();
+                    email = user.getUserEmail();
                 }else{
                     isError = true;
                     errMsg = "사용자 정보가 존재하지 않습니다.";
@@ -119,6 +124,7 @@ public class UserService {
             resultMap.put("isError", false);
             //resultMap.put("id", socialUserResponse.getId());
             resultMap.put("id", id);
+
             log.info("[GGMANYAR]isError false");
         }else{
             resultMap.put("isError", true);
@@ -134,7 +140,7 @@ public class UserService {
 
     // 기존 소셜로그인
     /*public LoginResponse doSocialLogin(SocialLoginRequest request) {
-        SocialLoginService loginService = this.getLoginService(request.getUserType());
+        SocialLoginService loginService = this.getLoginService(request.getSocialType());
 
         SocialAuthResponse socialAuthResponse = loginService.getAccessToken(request.getCode());
 
@@ -147,7 +153,7 @@ public class UserService {
                             .userId(socialUserResponse.getId())
                             .userEmail(socialUserResponse.getEmail())
                             .userName(socialUserResponse.getName())
-                            .userType(request.getUserType())
+                            .socialType(request.getSocialType())
                             .build()
             );
         }
@@ -164,7 +170,7 @@ public class UserService {
         User user = userRepository.save(
             User.builder()
                     .userId(userJoinRequest.getUserId())
-                    .userType(userJoinRequest.getUserType())
+                    .socialType(userJoinRequest.getSocialType())
                     .userEmail(userJoinRequest.getUserEmail())
                     .userName(userJoinRequest.getUserName())
                     .build()
@@ -175,9 +181,9 @@ public class UserService {
                 .build();
     }
 
-    private SocialLoginService getLoginService(UserType userType){
+    private SocialLoginService getLoginService(SocialType socialType){
         for(SocialLoginService loginService: loginServices) {
-            if(userType.equals(loginService.getServiceName())) {
+            if(socialType.equals(loginService.getServiceName())) {
                 log.info("login service name: {}", loginService.getServiceName());
                 return loginService;
             }

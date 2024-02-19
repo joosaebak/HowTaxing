@@ -8,7 +8,7 @@ import com.xmonster.howtaxing.dto.user.SocialAuthResponse;
 import com.xmonster.howtaxing.dto.user.SocialUserResponse;
 import com.xmonster.howtaxing.feign.google.GoogleAuthApi;
 import com.xmonster.howtaxing.feign.google.GoogleUserApi;
-import com.xmonster.howtaxing.type.UserType;
+import com.xmonster.howtaxing.type.SocialType;
 import com.xmonster.howtaxing.utils.GsonLocalDateTimeAdapter;
 import java.time.LocalDateTime;
 
@@ -28,18 +28,18 @@ public class GoogleLoginServiceImpl implements SocialLoginService {
   private final GoogleAuthApi googleAuthApi;
   private final GoogleUserApi googleUserApi;
 
-  @Value("${social.client.google.rest-api-key}")
+  @Value("${spring.security.oauth2.client.registration.google.client-id}")
   private String googleAppKey;
-  @Value("${social.client.google.secret-key}")
+  @Value("${spring.security.oauth2.client.registration.google.client-secret}")
   private String googleAppSecret;
-  @Value("${social.client.google.redirect-uri}")
+  @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
   private String googleRedirectUri;
-  @Value("${social.client.google.grant_type}")
+  @Value("${spring.security.oauth2.client.registration.google.authorization-grant-type}")
   private String googleGrantType;
 
   @Override
-  public UserType getServiceName() {
-    return UserType.GOOGLE;
+  public SocialType getServiceName() {
+    return SocialType.GOOGLE;
   }
 
   @Override

@@ -1,21 +1,18 @@
 package com.xmonster.howtaxing.model;
 
-import com.xmonster.howtaxing.type.UserType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.xmonster.howtaxing.type.Role;
+import com.xmonster.howtaxing.type.SocialType;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Table(name = "USERS")
 public class User extends BaseEntity {
-
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +27,19 @@ public class User extends BaseEntity {
     @Column(length = 50)
     private String userEmail;
 
+    private String password; // 비밀번호
+
     @Column(columnDefinition = "ENUM('KAKAO','NAVER','GOOGLE','APPLE','NORMAL') DEFAULT 'NORMAL'")
     @Enumerated(EnumType.STRING)
-    private UserType userType;
+    private SocialType socialType;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column
+    private String refreshToken;
+
+    public void updateRefreshToken(String updateRefreshToken) {
+        this.refreshToken = updateRefreshToken;
+    }
 }

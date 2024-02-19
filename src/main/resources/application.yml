@@ -1,4 +1,8 @@
 spring:
+  profiles:
+    group:
+      "local" : "local, jwt, oauth"
+    active: local
   messages:
     basename: i18n/messages
     encoding: UTF-8
@@ -19,7 +23,7 @@ spring:
       time-between-eviction-runs-millis: 3000
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
@@ -48,6 +52,19 @@ social:
       secret-key:
       redirect-uri: http://localhost:8080/google-login
       grant_type: authorization_code
+hyphen:
+  user_id: cgt2022
+  hkey: b461bceea477f528
+jusogov:
+  confirm-key: devU01TX0FVVEgyMDI0MDEwMTAzNDMwOTExNDM5MzU=
+jwt:
+  secretKey: showmethemoney12345operationcwal67890blacksheepwall12345foodforthought67890
+  access:
+    expiration: 3600000     # 1시간(60분) (1000L(ms -> s) * 60L(s -> m) * 60L(m -> h))
+    header: Authorization
+  refresh:
+    expiration: 1209600000  # (1000L(ms -> s) * 60L(s -> m) * 60L(m -> h) * 24L(h -> 하루) * 14(2주))
+    header: Authorization-refresh
 logging:
   level:
     org:

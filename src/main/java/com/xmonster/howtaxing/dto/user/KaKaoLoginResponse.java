@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class KaKaoLoginResponse {
     private String id;
+
     @Builder.Default
     private KakaoLoginData kakao_account = KakaoLoginData.builder().build();
 
@@ -21,10 +22,13 @@ public class KaKaoLoginResponse {
     public static class KakaoLoginData {
         private String gender;
         private String email;
+
         @Builder.Default
         private KakaoProfile profile = KakaoProfile.builder().build();
+
         @Builder.Default
         private KakaoPropery properties = KakaoPropery.builder().build();
+
         @Builder
         @Data
         @NoArgsConstructor

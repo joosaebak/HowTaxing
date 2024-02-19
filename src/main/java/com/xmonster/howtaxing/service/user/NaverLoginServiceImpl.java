@@ -7,7 +7,7 @@ import com.xmonster.howtaxing.dto.user.SocialAuthResponse;
 import com.xmonster.howtaxing.dto.user.SocialUserResponse;
 import com.xmonster.howtaxing.feign.naver.NaverAuthApi;
 import com.xmonster.howtaxing.feign.naver.NaverUserApi;
-import com.xmonster.howtaxing.type.UserType;
+import com.xmonster.howtaxing.type.SocialType;
 import com.xmonster.howtaxing.utils.GsonLocalDateTimeAdapter;
 
 import java.time.LocalDateTime;
@@ -31,19 +31,19 @@ public class NaverLoginServiceImpl implements SocialLoginService {
   private final NaverAuthApi naverAuthApi;
   private final NaverUserApi naverUserApi;
 
-  @Value("${social.client.naver.rest-api-key}")
+  @Value("${spring.security.oauth2.client.registration.naver.client-id}")
   private String naverAppKey;
-  @Value("${social.client.naver.secret-key}")
+  @Value("${spring.security.oauth2.client.registration.naver.client-secret}")
   private String naverAppSecret;
-  @Value("${social.client.naver.redirect-uri}")
+  @Value("${spring.security.oauth2.client.registration.naver.redirect-uri}")
   private String naverRedirectUri;
-  @Value("${social.client.naver.grant_type}")
+  @Value("${spring.security.oauth2.client.registration.naver.authorization-grant-type}")
   private String naverGrantType;
 
 
   @Override
-  public UserType getServiceName() {
-    return UserType.NAVER;
+  public SocialType getServiceName() {
+    return SocialType.NAVER;
   }
 
   @Override
