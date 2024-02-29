@@ -4,7 +4,7 @@ spring:
       "local" : "local, jwt, oauth, common"
       "dev" : "dev, jwt, oauth, common"
       "real" : "real, jwt, oauth, common"
-    active: local   #활성 프로필 설정(local, dev, real)
+    active: dev   #활성 프로필 설정(local, dev, real)
 
 --- # local 설정
 spring:
@@ -31,11 +31,11 @@ spring:
       enabled: true
       level: info
 
---- # debug 설정
+--- # dev 설정
 spring:
   config:
     activate:
-      on-profile: "debug"
+      on-profile: "dev"
   datasource:
     url: jdbc:log4jdbc:mysql://127.0.0.1:3306/minitest?useSSL=false&autoReconnect=true&autoReconnection=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Seoul
     username: root

@@ -10,7 +10,6 @@ import java.util.List;
 
 @Setter
 @Getter
-@Builder
 public class HouseAddressDto {
     private String address;                 // 주소(원장주소)
     private String detailAddress;           // 상세주소
