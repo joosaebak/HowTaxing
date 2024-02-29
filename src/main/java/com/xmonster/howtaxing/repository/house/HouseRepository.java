@@ -9,6 +9,4 @@ import java.util.Optional;
 public interface HouseRepository extends JpaRepository<House, Long> {
 
     Optional<House> findByHouseId(String houseId);
-
-    Optional<House> findByUserId(String userId);
 }

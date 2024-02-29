@@ -21,10 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -40,7 +37,7 @@ public class HyphenUserHouseService {
     @Value("${hyphen.hkey}")
     private String hKey;
 
-    public HyphenAuthResponse getAccessToken(){
+    public Optional<HyphenAuthResponse> getAccessToken(){
         ResponseEntity<?> response = hyphenAuthApi.getAccessToken(
             HyphenRequestAccessTokenDto.builder()
                 .user_id(userId)
@@ -51,14 +48,15 @@ public class HyphenUserHouseService {
         log.info("hyphen auth info");
         log.info(response.toString());
 
-        return new Gson()
-            .fromJson(
-                response.getBody().toString(),
-                HyphenAuthResponse.class
-            );
+        return Optional.ofNullable(new Gson()
+                .fromJson(
+                        response.getBody().toString(),
+                        HyphenAuthResponse.class
+                )
+        );
     }
 
-    public HyphenUserHouseResponse getUserHouseInfo(String accessToken){
+    public Optional<HyphenUserHouseResponse> getUserHouseInfo(String accessToken){
         Map<String, Object> headerMap = new HashMap<String, Object>();
         headerMap.put("authorization", "Bearer " + accessToken);
 
@@ -79,6 +77,7 @@ public class HyphenUserHouseService {
 
         String jsonString = response.getBody().toString();*/
 
+        // 위 로직이 정상적으로 조회되지만, 비용 절감 차원에서 조회 결과 데이터 하드코딩
         String jsonString = "{\n" +
                 "  \"common\": {\n" +
                 "    \"userTrNo\": \"\",\n" +
@@ -144,7 +143,7 @@ public class HyphenUserHouseService {
 
         System.out.println("[GGMANYAR]hyphenUserHouseResponse : " + hyphenUserHouseResponse);
 
-        return hyphenUserHouseResponse;
+        return Optional.ofNullable(hyphenUserHouseResponse);
     }
 
     public List<HyphenUserHouseResultInfo> setResultDataToHyphenUserHouseResultInfo(HyphenUserHouseResponse responseData){

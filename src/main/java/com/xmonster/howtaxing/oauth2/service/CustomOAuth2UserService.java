@@ -7,6 +7,7 @@ import com.xmonster.howtaxing.repository.user.UserRepository;
 import com.xmonster.howtaxing.type.SocialType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -62,7 +63,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 Collections.singleton(new SimpleGrantedAuthority(createdUser.getRole().getKey())),
                 attributes,
                 extractAttributes.getNameAttributeKey(),
-                createdUser.getUserEmail(),
+                createdUser.getEmail(),
                 createdUser.getRole()
         );
     }
@@ -82,10 +83,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
      * 만약 찾은 회원이 있다면, 그대로 반환하고 없다면 saveUser()를 호출하여 회원을 저장한다.
      */
     private User getUser(OAuthAttributes attributes, SocialType socialType) {
-        User findUser = userRepository.findBySocialTypeAndUserId(socialType,
+        User findUser = userRepository.findBySocialTypeAndSocialId(socialType,
                 attributes.getOauth2UserInfo().getId()).orElse(null);
 
         if(findUser == null) {
+            String email = attributes.getOauth2UserInfo().getEmail();
+            if(socialType != null && email != null){
+                userRepository.findByEmail(email)
+                        .ifPresent(user -> {
+                            if(user.getSocialType() != socialType){
+                                throw new AuthenticationCredentialsNotFoundException(user.getSocialType().toString());
+                            }
+                        });
+            }
             return saveUser(attributes, socialType);
         }
         return findUser;

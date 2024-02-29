@@ -77,10 +77,11 @@ public class OAuthAttributes {
     public User toEntity(SocialType socialType, OAuth2UserInfo oauth2UserInfo) {
         return User.builder()
                 .socialType(socialType)
-                .userId(oauth2UserInfo.getId())
-                .userEmail(UUID.randomUUID() + "@socialUser.com")
-                //.nickname(oauth2UserInfo.getNickname())
-                //.imageUrl(oauth2UserInfo.getImageUrl())
+                .socialId(oauth2UserInfo.getId())
+                //.email(UUID.randomUUID() + "@socialUser.com")
+                .email(oauth2UserInfo.getEmail())
+                .nickname(oauth2UserInfo.getNickname())
+                .imageUrl(oauth2UserInfo.getImageUrl())
                 .role(Role.GUEST)
                 .build();
     }

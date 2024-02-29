@@ -12,11 +12,10 @@ import com.xmonster.howtaxing.oauth2.handler.OAuth2LoginFailureHandler;
 import com.xmonster.howtaxing.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.xmonster.howtaxing.oauth2.service.CustomOAuth2UserService;
 import com.xmonster.howtaxing.repository.user.UserRepository;
-import com.xmonster.howtaxing.service.house.JwtService;
+import com.xmonster.howtaxing.service.jwt.JwtService;
 
 import com.xmonster.howtaxing.service.user.SocialLoginService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -73,7 +72,7 @@ public class SecurityConfig {
                 // 아이콘, css, js 관련
                 // 기본 페이지, css, image, js 하위 폴더에 있는 자료들은 모두 접근 가능, h2-console에 접근 가능
                 .antMatchers("/","/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
-                .antMatchers("/user/socialLogin").permitAll() // 소셜로그인 접근 가능
+                .antMatchers("/user/socialLogin", "/login/oauth2/code/kakao", "/oauth2/loginSuccess", "/oauth2/loginFail").permitAll() // 소셜로그인 접근 가능
                 .antMatchers("/", "/user/availability/**").permitAll()
                 .anyRequest().authenticated() // 위의 경로 이외에는 모두 인증된 사용자만 접근 가능
                 .and()

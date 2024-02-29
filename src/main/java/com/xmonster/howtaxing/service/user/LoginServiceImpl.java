@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class LoginServiceImpl implements SocialLoginService {
     @Override
     public SocialType getServiceName() {
-        return SocialType.NORMAL;
+        return SocialType.EMAIL;
     }
 
     @Override

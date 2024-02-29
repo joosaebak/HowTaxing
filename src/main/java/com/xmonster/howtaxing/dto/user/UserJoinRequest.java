@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class UserJoinRequest {
-    private String userId;
-    private String userName;
+    private String socialId;
+    //private String userName;
     private SocialType socialType;
-    private String userEmail;
+    private String email;
 }

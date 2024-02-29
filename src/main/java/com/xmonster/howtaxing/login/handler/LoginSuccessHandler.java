@@ -1,7 +1,7 @@
 package com.xmonster.howtaxing.login.handler;
 
 import com.xmonster.howtaxing.repository.user.UserRepository;
-import com.xmonster.howtaxing.service.house.JwtService;
+import com.xmonster.howtaxing.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +31,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken); // 응답 헤더에 AccessToken, RefreshToken 실어서 응답
 
-        userRepository.findByUserEmail(email)
+        userRepository.findByEmail(email)
                 .ifPresent(user -> {
                     user.updateRefreshToken(refreshToken);
                     userRepository.saveAndFlush(user);

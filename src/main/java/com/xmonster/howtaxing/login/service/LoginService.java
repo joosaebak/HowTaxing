@@ -19,11 +19,11 @@ public class LoginService implements UserDetailsService {
 
         System.out.println("[GGMANYAR]email : " + email);
 
-        User user = userRepository.findByUserEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 이메일이 존재하지 않습니다."));
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUserEmail())
+                .username(user.getEmail())
                 .password(user.getPassword())
                 .roles(user.getRole().name())
                 .build();

@@ -2,7 +2,7 @@ package com.xmonster.howtaxing.filter;
 
 import com.xmonster.howtaxing.model.User;
 import com.xmonster.howtaxing.repository.user.UserRepository;
-import com.xmonster.howtaxing.service.house.JwtService;
+import com.xmonster.howtaxing.service.jwt.JwtService;
 //import login.oauthtest4.global.oauth2.util.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +48,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (request.getRequestURI().equals(NO_CHECK_URL)) {
-            System.out.println("HERE!!!!!!!!!!!!");
             filterChain.doFilter(request, response); // "/user/socialLogin" 요청이 들어오면, 다음 필터 호출
             return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
         }
@@ -88,7 +87,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         userRepository.findByRefreshToken(refreshToken)
                 .ifPresent(user -> {
                     String reIssuedRefreshToken = reIssueRefreshToken(user);
-                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getUserEmail()),
+                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
                             reIssuedRefreshToken);
                 });
     }
@@ -116,10 +115,11 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
         log.info("checkAccessTokenAndAuthentication() 호출");
+        log.info("request.getRequestURI() : " + request.getRequestURI());
         jwtService.extractAccessToken(request)
                 .filter(jwtService::isTokenValid)
                 .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
-                        .ifPresent(email -> userRepository.findByUserEmail(email)
+                        .ifPresent(email -> userRepository.findByEmail(email)
                                 .ifPresent(this::saveAuthentication)));
 
         filterChain.doFilter(request, response);
@@ -150,7 +150,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         String password = "";
 
         UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-                .username(myUser.getUserEmail())
+                .username(myUser.getEmail())
                 .password(password)
                 .roles(myUser.getRole().name())
                 .build();
