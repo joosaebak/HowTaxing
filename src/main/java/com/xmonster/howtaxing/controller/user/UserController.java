@@ -9,6 +9,7 @@ import static com.xmonster.howtaxing.constant.CommonConstant.*;
 import com.xmonster.howtaxing.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -22,10 +23,20 @@ public class UserController {
     private final UserService userService;
 
     // 미사용
-    @PostMapping("/sign-up")
+    /*@PostMapping("/sign-up")
     public String signUp(@RequestBody UserSignUpDto userSignUpDto) throws Exception {
         userService.signUp(userSignUpDto);
         return "회원가입 성공";
+    }*/
+
+    @PostMapping("/user/signUp")
+    public Object signUp(Authentication authentication, @RequestBody UserSignUpDto userSignUpDto) throws Exception {
+        return userService.signUp(authentication, userSignUpDto);
+    }
+
+    @GetMapping("/user/withdraw")
+    public Object withdraw(Authentication authentication) throws Exception {
+        return userService.withdraw(authentication);
     }
 
     // 미사용

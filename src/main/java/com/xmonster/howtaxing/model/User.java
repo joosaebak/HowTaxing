@@ -43,6 +43,10 @@ public class User extends DateEntity {
         this.role = Role.USER;
     }
 
+    public void setMktAgr(boolean isMktAgr){
+        this.isMktAgr = isMktAgr;
+    }
+
     // 비밀번호 인코딩
     public void passwordEncode(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);

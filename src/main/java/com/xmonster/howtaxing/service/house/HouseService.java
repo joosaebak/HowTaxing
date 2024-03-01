@@ -355,7 +355,11 @@ public class HouseService {
 
     private void filteringTradeHouseList(List<HyphenUserHouseResultInfo> list){
         List<HyphenUserHouseResultInfo> filterList = new ArrayList<>();
+        List<HyphenUserHouseResultInfo> removeQueueList = new ArrayList<>();
+        List<HyphenUserHouseResultInfo> doubleBuyList = new ArrayList<>();
         List<HyphenUserHouseResultInfo> resultList = new ArrayList<>();
+
+        ArrayList<String> removeAddressList = new ArrayList<>();
 
         if(list != null){
             for(HyphenUserHouseResultInfo hyphenUserHouseResultInfo : list){
@@ -363,8 +367,52 @@ public class HouseService {
             }
         }
 
+        /*
+          1. 동일한 주소의 매수 건이 2개 이상 존재하는지 체크(거래유형이 '매수'인 건끼리 비교)
+           1) 동일한 주소의 매수 건이 2개 이상 존재하면 doubleBuyList, removeQueueList 에 추가(doubleBuyList에는 clone 추가)
+           2) 반복부 1 roop가 완료되면, removeQueueList에 있는 객체 remove
+           3) 반복부 전체 roop가 완료되면, doubleBuyList에 있는 객체를 resultList에 복사
+         */
         if(!filterList.isEmpty()){
-            // 동일한 주소의 매수 건이 2개 이상 존재하는지 체크
+            for(int i=0; i<filterList.size(); i++){
+                // 거래유형 : 매수
+                if(ONE.equals(filterList.get(i).getTradeType())){
+                    String address = StringUtils.defaultString(filterList.get(i).getOrgAdr());
+                    boolean isAdd = false;
+
+                    if(removeAddressList.contains(address)) continue;
+
+                    for(int j=i+1; j<filterList.size(); j++){
+                        if(ONE.equals(filterList.get(j).getTradeType())){
+                            // resultList에 추가
+                            if(address.equals(filterList.get(j).getOrgAdr())){
+                                if(!isAdd){
+                                    doubleBuyList.add(filterList.get(i).clone());
+                                    removeAddressList.add(filterList.get(i).getOrgAdr());
+                                    isAdd = true;
+                                }
+                                doubleBuyList.add(filterList.get(j).clone());
+                            }
+                        }
+                    }
+                }
+            }
+
+            for(String compareAddress : removeAddressList){
+                filterList.removeIf(filterInfo -> ONE.equals(filterInfo.getTradeType()) && compareAddress.equals(filterInfo.getOrgAdr()));
+            }
+
+        }
+
+
+        /*
+          1. 동일한 주소의 매수, 매도 건이 쌍으로 존재하는지 체크(거래유형이 '매수'인 건을 기준으로 '매도'인 건들과 비교)
+           1) '매수'건 기준으로 동일한 주소의 '매도'건이 존재하면 removeQueueList 에 추가
+           2) 반복부 1 roop가 완료되면, removeQueueList에 있는 객체 remove
+           3) 반복부 전체 roop가 완료되면, doubleBuyList에 있는 객체를 resultList에 복사
+         */
+
+        if(!filterList.isEmpty()){
             for(int i=0; i<filterList.size(); i++){
                 // 거래유형 : 매수
                 if(ONE.equals(filterList.get(i).getTradeType())){
@@ -382,18 +430,18 @@ public class HouseService {
             }
 
             // resultList에 추가된 데이터가 있다면 동일한 주소가 2개 이상 존재하는 경우이므로, 해당 주소와 동일한 데이터는 filterList에서 삭제
-            if(!resultList.isEmpty()){
+            /*if(!resultList.isEmpty()){
                 for(HyphenUserHouseResultInfo resultInfo : resultList){
                     String compareAddress = StringUtils.defaultString(resultInfo.getOrgAdr());
                     filterList.removeIf(filterInfo -> ONE.equals(filterInfo.getTradeType()) && compareAddress.equals(filterInfo.getOrgAdr()));
                 }
-            }
+            }*/
         }
 
         if(!filterList.isEmpty()){
             List<HyphenUserHouseResultInfo> removeWaitingList = new ArrayList<>();
 
-            // gGmAnYaR
+
         }
 
     }
