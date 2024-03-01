@@ -35,8 +35,8 @@ public class UserController {
     }
 
     @GetMapping("/oauth2/loginSuccess")
-    public Object loginSuccess(@RequestParam String accessToken, @RequestParam String refreshToken){
-        Map<String, Object> tokenMap = new HashMap<String, Object>();
+    public Object loginSuccess(@RequestParam String accessToken, @RequestParam String refreshToken, @RequestParam String role){
+        Map<String, Object> tokenMap = new HashMap<>();
 
         if(accessToken == null || refreshToken == null){
             throw new CustomException(ErrorCode.LOGIN_FAILED_COMMON);
@@ -44,6 +44,7 @@ public class UserController {
 
         tokenMap.put("accessToken", accessToken);
         tokenMap.put("refreshToken", refreshToken);
+        tokenMap.put("role", role);
 
         return ApiResponse.success(tokenMap);
     }

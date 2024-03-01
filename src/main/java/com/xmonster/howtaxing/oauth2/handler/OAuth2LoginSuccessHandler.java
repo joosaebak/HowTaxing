@@ -63,10 +63,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private void loginSuccess(HttpServletResponse response, User user) throws IOException {
-        log.info("[GGMANYAR]loginSuccess start");
 
         String accessToken = jwtService.createAccessToken(user.getEmail());
         String refreshToken = jwtService.createRefreshToken();
+        String role = user.getRole().toString();
 
         response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
         response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
@@ -80,9 +80,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         log.info("로그인에 성공하였습니다. AccessToken : {}", accessToken);
         log.info("발급된 AccessToken 만료 기간 : {}", accessTokenExpiration);
 
-        log.info("[GGMANYAR]loginSuccess end");
-
-        response.sendRedirect("/oauth2/loginSuccess?accessToken=" + accessToken + "&refreshToken=" + refreshToken); // 추가(GGMANYAR)
+        response.sendRedirect("/oauth2/loginSuccess?accessToken=" + accessToken + "&refreshToken=" + refreshToken + "&role=" + role);
     }
 
     // TODO : 소셜 로그인 시에도 무조건 토큰 생성하지 말고 JWT 인증 필터처럼 RefreshToken 유/무에 따라 다르게 처리해보기

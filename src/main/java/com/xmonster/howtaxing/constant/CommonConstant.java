@@ -22,4 +22,7 @@ public final class CommonConstant {
     public final static String EIGHT = "8";
     public final static String NINE = "9";
     public final static String TEN = "10";
+
+    public final static String DEFAULT_DECIMAL = "0.0";
+    public final static String DEFAULT_DATE = "00000000";
 }

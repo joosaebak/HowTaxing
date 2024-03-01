@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.xmonster.howtaxing.constant.CommonConstant.*;
@@ -39,9 +40,18 @@ public class HouseAddressService {
 
     public HouseAddressDto separateAddress(String address){
         HouseAddressDto houseAddressDto = new HouseAddressDto(address);
-        String[] splitAddress = houseAddressDto.getAddress().split(SPACE);
+        String[] splitAddress = houseAddressDto.getAddress().split("\\s | \\(");    // 공백과 '('로 분할
 
         if(splitAddress.length > 0){
+
+            for(int j=0; j<splitAddress.length; j++){
+                String str = splitAddress[j];
+
+                if(str.endsWith(")") && !str.startsWith("(")){
+                    splitAddress[j] = "(" + str;
+                }
+            }
+
             for(int i=0; i<splitAddress.length; i++){
                 String part = splitAddress[i];
 

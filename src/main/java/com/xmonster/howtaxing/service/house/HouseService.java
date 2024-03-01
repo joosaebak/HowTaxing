@@ -18,6 +18,7 @@ import com.xmonster.howtaxing.type.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -186,21 +187,90 @@ public class HouseService {
 
     private void setList1ToHouseEntity(List<DataDetail1> list, List<House> houseList){
 
+        List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = new ArrayList<>();
+
+        if(list != null && !list.isEmpty()){
+            for (DataDetail1 dataDetail1 : list) {
+                HouseAddressDto houseAddressDto = houseAddressService.separateAddress(dataDetail1.getAddress());
+
+                hyphenUserHouseResultInfoList.add(
+                        HyphenUserHouseResultInfo.builder()
+                                .resultListNo(ONE)
+                                .tradeType(ZERO)
+                                .orgAdr(houseAddressDto.getAddress())
+                                .searchAdr(houseAddressDto.getSearchAddress())
+                                .houseType(SIX)
+                                .pubLandPrice(Long.parseLong(StringUtils.defaultString(dataDetail1.getPublishedPrice(), ZERO)))
+                                .area(new BigDecimal(StringUtils.defaultString(dataDetail1.getArea(), DEFAULT_DECIMAL)))
+                                .build());
+            }
+        }
+
+        if(!hyphenUserHouseResultInfoList.isEmpty()){
+            for (HyphenUserHouseResultInfo hyphenUserHouseResultInfo : hyphenUserHouseResultInfoList){
+                JusoDetail jusoDetail = this.searchJusoDetail(hyphenUserHouseResultInfo);
+                this.setHouseList(hyphenUserHouseResultInfo, jusoDetail, houseList);
+            }
+        }
     }
 
     private void setList2ToHouseEntity(List<DataDetail2> list, List<House> houseList){
 
+        List<HyphenUserHouseResultInfo> tempHyphenUserHouseResultInfoList = new ArrayList<>();
+        List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = new ArrayList<>();
+
+        if(list != null && !list.isEmpty()){
+            for (DataDetail2 dataDetail2 : list) {
+                HouseAddressDto houseAddressDto = houseAddressService.separateAddress(dataDetail2.getAddress());
+
+                String tradeType = this.getTradeTypeFromSellBuyClassification(StringUtils.defaultString(dataDetail2.getSellBuyClassification()));
+                String houseType = this.getHouseTypeFromSellBuyClassification(StringUtils.defaultString(dataDetail2.getSellBuyClassification()));
+
+                String buyPrice = ZERO;
+                String sellPrice = ZERO;
+
+                // 매수
+                if(ONE.equals(tradeType)){
+                    buyPrice = StringUtils.defaultString(dataDetail2.getTradingPrice(), ZERO);
+                }
+                // 매도
+                else if(TWO.equals(tradeType)){
+                    sellPrice = StringUtils.defaultString(dataDetail2.getTradingPrice(), ZERO);
+                }
+
+                tempHyphenUserHouseResultInfoList.add(
+                        HyphenUserHouseResultInfo.builder()
+                                .resultListNo(TWO)
+                                .tradeType(tradeType)
+                                .orgAdr(houseAddressDto.getAddress())
+                                .searchAdr(houseAddressDto.getSearchAddress())
+                                .houseType(houseType)
+                                .contractDate(LocalDate.parse(dataDetail2.getContractDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))
+                                .balanceDate(LocalDate.parse(dataDetail2.getBalancePaymentDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))
+                                .buyPrice(Long.parseLong(buyPrice))
+                                .sellPrice(Long.parseLong(sellPrice))
+                                .area(new BigDecimal(StringUtils.defaultString(dataDetail2.getArea(), DEFAULT_DECIMAL)))
+                                .build());
+            }
+            
+            // 거래내역 주택 필터링 작업
+
+            // hyphenUserHouseResultInfoList에 필터링 결과 세팅
+
+            // 도로명주소 검색 API 호출(주소기반산업지원서비스)
+            
+            // House Entity에 데이터 세팅
+        }
     }
 
     private void setList3ToHouseEntity(List<DataDetail3> list, List<House> houseList){
-        //List<HouseAddressDto> houseAddressDtoList = new ArrayList<HouseAddressDto>();
-        List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = new ArrayList<HyphenUserHouseResultInfo>();
 
+        List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = new ArrayList<>();
 
         if(list != null && !list.isEmpty()){
             for (DataDetail3 dataDetail3 : list) {
                 HouseAddressDto houseAddressDto = houseAddressService.separateAddress(dataDetail3.getAddress());
-                //houseAddressDtoList.add(houseAddressDto);
+
                 hyphenUserHouseResultInfoList.add(
                         HyphenUserHouseResultInfo.builder()
                                 .resultListNo(THREE)
@@ -210,13 +280,21 @@ public class HouseService {
                                 .detailAdr(houseAddressDto.getDetailAddress())
                                 .houseType(SIX)
                                 .buyDate(LocalDate.parse(dataDetail3.getAcquisitionDate(), DateTimeFormatter.ofPattern("yyyyMMdd")))
-                                .area(new BigDecimal(dataDetail3.getArea()))
+                                .area(new BigDecimal(StringUtils.defaultString(dataDetail3.getArea(), DEFAULT_DECIMAL)))
                                 .build());
             }
         }
 
         if(!hyphenUserHouseResultInfoList.isEmpty()){
             for (HyphenUserHouseResultInfo hyphenUserHouseResultInfo : hyphenUserHouseResultInfoList){
+                JusoDetail jusoDetail = this.searchJusoDetail(hyphenUserHouseResultInfo);
+                this.setHouseList(hyphenUserHouseResultInfo, jusoDetail, houseList);
+            }
+        }
+
+        /*if(!hyphenUserHouseResultInfoList.isEmpty()){
+            for (HyphenUserHouseResultInfo hyphenUserHouseResultInfo : hyphenUserHouseResultInfoList){
+
                 if(hyphenUserHouseResultInfo.getSearchAdr() != null){
                     // 주소기반산업지원서비스 도로명주소 검색은 한 건당 최대 (3)회 까지로 제한
                     for(int i=0; i<MAX_JUSO_CALL_CNT; i++){
@@ -270,8 +348,140 @@ public class HouseService {
                         }
                     }
                 }
+
+            }
+        }*/
+    }
+
+    private void filteringTradeHouseList(List<HyphenUserHouseResultInfo> list){
+        List<HyphenUserHouseResultInfo> filterList = new ArrayList<>();
+        List<HyphenUserHouseResultInfo> resultList = new ArrayList<>();
+
+        if(list != null){
+            for(HyphenUserHouseResultInfo hyphenUserHouseResultInfo : list){
+                filterList.add(hyphenUserHouseResultInfo.clone());
             }
         }
+
+        if(!filterList.isEmpty()){
+            // 동일한 주소의 매수 건이 2개 이상 존재하는지 체크
+            for(int i=0; i<filterList.size(); i++){
+                // 거래유형 : 매수
+                if(ONE.equals(filterList.get(i).getTradeType())){
+                    String address = StringUtils.defaultString(filterList.get(i).getOrgAdr());
+
+                    for(int j=i+1; j<filterList.size(); j++){
+                        if(ONE.equals(filterList.get(j).getTradeType())){
+                            // resultList에 추가
+                            if(address.equals(filterList.get(j).getOrgAdr())){
+                                resultList.add(filterList.get(j).clone());
+                            }
+                        }
+                    }
+                }
+            }
+
+            // resultList에 추가된 데이터가 있다면 동일한 주소가 2개 이상 존재하는 경우이므로, 해당 주소와 동일한 데이터는 filterList에서 삭제
+            if(!resultList.isEmpty()){
+                for(HyphenUserHouseResultInfo resultInfo : resultList){
+                    String compareAddress = StringUtils.defaultString(resultInfo.getOrgAdr());
+                    filterList.removeIf(filterInfo -> ONE.equals(filterInfo.getTradeType()) && compareAddress.equals(filterInfo.getOrgAdr()));
+                }
+            }
+        }
+
+        if(!filterList.isEmpty()){
+            List<HyphenUserHouseResultInfo> removeWaitingList = new ArrayList<>();
+
+            // gGmAnYaR
+        }
+
+    }
+
+    // (매도/매수구분에서) 거래유형 가져오기
+    private String getTradeTypeFromSellBuyClassification(String sellBuyClassification){
+        String tradeType = ZERO;
+
+        if(sellBuyClassification.contains("매수")){
+            tradeType = ONE;
+        }else if(sellBuyClassification.contains("매도")){
+            tradeType = TWO;
+        }
+
+        return tradeType;
+    }
+
+    // (매도/매수구분에서) 주택유형 가져오기
+    private String getHouseTypeFromSellBuyClassification(String sellBuyClassification){
+        String houseType = SIX;
+
+        if(sellBuyClassification.contains("분양권")){
+            houseType = FIVE;
+        }
+
+        return houseType;
+    }
+
+    // (주소기반산업지원서비스 - 도로명주소 조회) 상세 주소정보 조회
+    private JusoDetail searchJusoDetail(HyphenUserHouseResultInfo hyphenUserHouseResultInfo){
+        JusoDetail jusoDetail = null;
+
+        if(hyphenUserHouseResultInfo.getSearchAdr() != null){
+            // 주소기반산업지원서비스 도로명주소 검색은 한 건당 최대 (3)회 까지로 제한
+            for(int i=0; i<MAX_JUSO_CALL_CNT; i++){
+                if(hyphenUserHouseResultInfo.getSearchAdr().get(i) != null){
+                    StringBuilder searchAddr = new StringBuilder(EMPTY);
+                    if(!EMPTY.contentEquals(searchAddr)){
+                        searchAddr.append(SPACE);
+                    }
+
+                    // hyphenUserHouseResultInfo에서 검색주소 추출(조회 결과가 2건 이상인 경우 파라미터 하나씩 추가하여 재조회)
+                    searchAddr.append(hyphenUserHouseResultInfo.getSearchAdr().get(i));
+
+                    // 도로명주소 검색 API 호출(주소기반산업지원서비스)
+                    JusoGovRoadAdrResponse jusoGovRoadAdrResponse = jusoGovService.getRoadAdrInfo(searchAddr.toString());
+
+                    if(jusoGovRoadAdrResponse != null && jusoGovRoadAdrResponse.getResults() != null && jusoGovRoadAdrResponse.getResults().getCommon() != null){
+                        String totalCount = jusoGovRoadAdrResponse.getResults().getCommon().getTotalCount();
+                        String errorCode = jusoGovRoadAdrResponse.getResults().getCommon().getErrorCode();
+                        String errorMessage = jusoGovRoadAdrResponse.getResults().getCommon().getErrorMessage();
+
+                        // 정상
+                        if(ZERO.equals(errorCode)){
+                            try{
+                                int ttcn = Integer.parseInt(totalCount);
+
+                                // 검색 결과가 1건인 경우 : List<House>에 데이터 세팅
+                                if(ttcn == 1){
+                                    //this.setHouseList(hyphenUserHouseResultInfo, jusoGovRoadAdrResponse.getResults().getJuso().get(0), houseList);
+                                    jusoDetail = jusoGovRoadAdrResponse.getResults().getJuso().get(0);
+                                    break;
+                                }
+                                // 검색 결과가 없는 경우 : PASS
+                                else if(ttcn == 0){
+                                    log.info(searchAddr + "주소의 검색 결과가 없습니다.(주소기반산업지원서비스)");
+                                    break;
+                                }
+                            }catch(NumberFormatException e){
+                                // TODO. 오류 처리 로직 추가
+                                log.error("검색 결과 Count 형변환(Integer) 실패");
+                            }
+                        }
+                        // 오류
+                        else{
+                            // TODO. 오류 처리 로직 추가
+                            log.error("도로명주소 검색 중 오류 발생\n" + errorCode + " : " + errorMessage);
+                        }
+                    }
+                    else{
+                        // TODO. 오류 처리 로직 추가
+                        log.error("도로명주소 검색 API 응답 없음");
+                    }
+                }
+            }
+        }
+
+        return jusoDetail;
     }
 
     // House Entity List 세팅
@@ -279,21 +489,41 @@ public class HouseService {
         if(hyphenUserHouseResultInfo != null && jusoDetail != null && houseList != null){
             // houseList에 동일한 건물관리번호를 가진 House가 존재하는지 체크하여 존재하면 update, 존재하지 않으면 create
             String bdMgtSn = jusoDetail.getBdMgtSn();
+            String resultListNo = hyphenUserHouseResultInfo.getResultListNo();
             boolean isUpdate = false;
+
             for (House house : houseList){
                 // update(동일한 건물관리번호를 가진 House 존재)
                 if(bdMgtSn != null && bdMgtSn.equals(house.getBdMgtSn())){
-                    house.setHouseType(hyphenUserHouseResultInfo.getHouseType());
-                    house.setHouseName(jusoDetail.getBdNm());
-                    house.setDetailAdr(hyphenUserHouseResultInfo.getDetailAdr());
-                    house.setBuyDate(hyphenUserHouseResultInfo.getBuyDate());
-                    house.setJibunAddr(jusoDetail.getJibunAddr());
-                    house.setRoadAddr(jusoDetail.getRoadAddrPart1());
-                    house.setRoadAddrRef(jusoDetail.getRoadAddrPart2());
-                    house.setBdMgtSn(jusoDetail.getBdMgtSn());
-                    house.setAdmCd(jusoDetail.getAdmCd());
-                    house.setRnMgtSn(jusoDetail.getRnMgtSn());
-                    house.setArea(hyphenUserHouseResultInfo.getArea());
+                    // List1 : 건축물대장정보
+                    if(ONE.equals(resultListNo)){
+                        if(house.getPubLandPrice() == null || house.getPubLandPrice() == 0) house.setPubLandPrice(hyphenUserHouseResultInfo.getPubLandPrice());
+                        if(house.getArea() == null) house.setArea(hyphenUserHouseResultInfo.getArea());
+                    }
+                    // List2 : 부동산거래내역
+                    else if(TWO.equals(resultListNo)){
+                        // TODO. 작성예정
+                    }
+                    // List3 : 재산세정보
+                    else if(THREE.equals(resultListNo)){
+                        if(house.getDetailAdr().isBlank()) house.setDetailAdr(hyphenUserHouseResultInfo.getDetailAdr());
+                        if(house.getBuyDate() == null) house.setBuyDate(hyphenUserHouseResultInfo.getBuyDate());
+                        if(house.getArea() == null) house.setArea(hyphenUserHouseResultInfo.getArea());
+                    }
+
+                    // 기존 데이터의 주택유형이 '6'(주택)인 경우에는 업데이트
+                    if(house.getHouseType().isBlank() || (SIX.equals(house.getHouseType()) && !SIX.equals(hyphenUserHouseResultInfo.getHouseType()))){
+                        house.setHouseType(hyphenUserHouseResultInfo.getHouseType());
+                    }
+
+                    if(house.getHouseName().isBlank()) house.setHouseName(jusoDetail.getBdNm());
+                    if(house.getJibunAddr().isBlank()) house.setJibunAddr(jusoDetail.getJibunAddr());
+                    if(house.getRoadAddr().isBlank()) house.setRoadAddr(jusoDetail.getRoadAddrPart1());
+                    if(house.getRoadAddrRef().isBlank()) house.setRoadAddrRef(jusoDetail.getRoadAddrPart2());
+                    if(house.getBdMgtSn().isBlank()) house.setBdMgtSn(jusoDetail.getBdMgtSn());
+                    if(house.getAdmCd().isBlank()) house.setAdmCd(jusoDetail.getAdmCd());
+                    if(house.getRnMgtSn().isBlank()) house.setRnMgtSn(jusoDetail.getRnMgtSn());
+
                     house.setDestruction(false);
                     house.setOwnerCnt(1);
                     house.setUser_proportion(100);
@@ -308,25 +538,49 @@ public class HouseService {
 
             // create(동일한 건물관리번호를 가진 House가 존재하지 않음)
             if(!isUpdate){
-                houseList.add(
-                        House.builder()
-                                .houseType(hyphenUserHouseResultInfo.getHouseType())
-                                .houseName(jusoDetail.getBdNm())
-                                .detailAdr(hyphenUserHouseResultInfo.getDetailAdr())
-                                .buyDate(hyphenUserHouseResultInfo.getBuyDate())
-                                .jibunAddr(jusoDetail.getJibunAddr())
-                                .roadAddr(jusoDetail.getRoadAddrPart1())
-                                .roadAddrRef(jusoDetail.getRoadAddrPart2())
-                                .bdMgtSn(jusoDetail.getBdMgtSn())
-                                .admCd(jusoDetail.getAdmCd())
-                                .rnMgtSn(jusoDetail.getRnMgtSn())
-                                .area(hyphenUserHouseResultInfo.getArea())
-                                .isDestruction(false)
-                                .ownerCnt(1)
-                                .user_proportion(100)
-                                .isMoveInRight(false)
-                                .sourceType(ONE)
-                                .build());
+                if(ONE.equals(resultListNo)){
+                    houseList.add(
+                            House.builder()
+                                    .houseType(hyphenUserHouseResultInfo.getHouseType())
+                                    .houseName(jusoDetail.getBdNm())
+                                    .pubLandPrice(hyphenUserHouseResultInfo.getPubLandPrice())
+                                    .jibunAddr(jusoDetail.getJibunAddr())
+                                    .roadAddr(jusoDetail.getRoadAddrPart1())
+                                    .roadAddrRef(jusoDetail.getRoadAddrPart2())
+                                    .bdMgtSn(jusoDetail.getBdMgtSn())
+                                    .admCd(jusoDetail.getAdmCd())
+                                    .rnMgtSn(jusoDetail.getRnMgtSn())
+                                    .area(hyphenUserHouseResultInfo.getArea())
+                                    .isDestruction(false)
+                                    .ownerCnt(1)
+                                    .user_proportion(100)
+                                    .isMoveInRight(false)
+                                    .sourceType(ONE)
+                                    .build());
+                }else if(TWO.equals(resultListNo)){
+
+                }else if(THREE.equals(resultListNo)){
+                    houseList.add(
+                            House.builder()
+                                    .houseType(hyphenUserHouseResultInfo.getHouseType())
+                                    .houseName(jusoDetail.getBdNm())
+                                    .detailAdr(hyphenUserHouseResultInfo.getDetailAdr())
+                                    .buyDate(hyphenUserHouseResultInfo.getBuyDate())
+                                    .jibunAddr(jusoDetail.getJibunAddr())
+                                    .roadAddr(jusoDetail.getRoadAddrPart1())
+                                    .roadAddrRef(jusoDetail.getRoadAddrPart2())
+                                    .bdMgtSn(jusoDetail.getBdMgtSn())
+                                    .admCd(jusoDetail.getAdmCd())
+                                    .rnMgtSn(jusoDetail.getRnMgtSn())
+                                    .area(hyphenUserHouseResultInfo.getArea())
+                                    .isDestruction(false)
+                                    .ownerCnt(1)
+                                    .user_proportion(100)
+                                    .isMoveInRight(false)
+                                    .sourceType(ONE)
+                                    .build());
+                }
+
                 log.info("House Create : " + jusoDetail.getBdMgtSn() + " : " + jusoDetail.getBdNm());
             }
         }else{
@@ -335,8 +589,8 @@ public class HouseService {
         }
     }
 
-    // 안씀
-    private List<HyphenUserHouseResultInfo> setResultDataToHyphenUserHouseResultInfo(HyphenUserHouseResponse responseData){
+    // 미사용 메소드
+    /*private List<HyphenUserHouseResultInfo> setResultDataToHyphenUserHouseResultInfo(HyphenUserHouseResponse responseData){
 
         List<HyphenUserHouseResultInfo> houseList = new ArrayList<HyphenUserHouseResultInfo>();
 
@@ -492,5 +746,5 @@ public class HouseService {
         }
 
         return houseList;
-    }
+    }*/
 }
