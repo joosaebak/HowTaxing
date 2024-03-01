@@ -2,15 +2,16 @@ package com.xmonster.howtaxing.service.house;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.xmonster.howtaxing.CustomException;
+import com.xmonster.howtaxing.dto.house.HouseListSearchRequest;
 import com.xmonster.howtaxing.dto.hyphen.*;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse.HyphenCommon;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse.HyphenData;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse.HyphenData.*;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse.HyphenCommon;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse.HyphenData.*;
 import com.xmonster.howtaxing.feign.hyphen.HyphenAuthApi;
 import com.xmonster.howtaxing.feign.hyphen.HyphenUserHouseApi;
 import static com.xmonster.howtaxing.constant.CommonConstant.*;
-import com.xmonster.howtaxing.utils.GsonLocalDateTimeAdapter;
+
+import com.xmonster.howtaxing.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -56,28 +56,45 @@ public class HyphenUserHouseService {
         );
     }
 
-    public Optional<HyphenUserHouseResponse> getUserHouseInfo(String accessToken){
-        Map<String, Object> headerMap = new HashMap<String, Object>();
+    public Optional<HyphenUserHouseListResponse> getUserHouseInfo(String accessToken, HouseListSearchRequest houseListSearchRequest){
+        Map<String, Object> headerMap = new HashMap<>();
         headerMap.put("authorization", "Bearer " + accessToken);
 
-        // TEST DATA SET
-        /*ResponseEntity<?> response = hyphenUserHouseApi.getUserHouseInfo(
+        if(houseListSearchRequest == null) throw new CustomException(ErrorCode.HOUSE_FAILED_HYPHEN_INPUT);
+
+        ResponseEntity<?> response = hyphenUserHouseApi.getUserHouseInfo(
             headerMap,
-            HyphenRequestUserHouseDto.builder()
-                .loginMethod("EASY")
-                .loginOrgCd("naver")
-                .bizNo("8901111214111")
-                .userId("ggmanyar")
-                .userPw("1q2w3e4r))")
-                .build()
+            HyphenUserHouseListRequest.builder()
+                    .loginMethod("EASY")
+                    .loginOrgCd(houseListSearchRequest.getCertOrg())
+                    .bizNo(houseListSearchRequest.getRlno())
+                    .userId(houseListSearchRequest.getUserId())
+                    .userPw(houseListSearchRequest.getUserPw())
+                    .mobileNo(houseListSearchRequest.getMobileNo())
+                    .userNm(houseListSearchRequest.getUserNm())
+                    .build()
         );
 
         log.info("hyphen user house response");
         log.info(response.toString());
 
-        String jsonString = response.getBody().toString();*/
+        String jsonString = response.getBody().toString();
 
-        // 위 로직이 정상적으로 조회되지만, 비용 절감 차원에서 조회 결과 데이터 하드코딩
+        System.out.println("[GGMANYAR]jsonString : " + jsonString);
+
+        HyphenUserHouseListResponse hyphenUserHouseListResponse = convertJsonToRealEstateData(jsonString);
+
+        System.out.println("[GGMANYAR]hyphenUserHouseListResponse : " + hyphenUserHouseListResponse);
+
+        return Optional.ofNullable(hyphenUserHouseListResponse);
+    }
+
+    // 비용 절감을 위한 하드코딩 테스트 SET
+    public Optional<HyphenUserHouseListResponse> getUserHouseInfoTest(String accessToken){
+        Map<String, Object> headerMap = new HashMap<String, Object>();
+        headerMap.put("authorization", "Bearer " + accessToken);
+
+        // TEST DATA SET
         String jsonString = "{\n" +
                 "  \"common\": {\n" +
                 "    \"userTrNo\": \"\",\n" +
@@ -139,14 +156,14 @@ public class HyphenUserHouseService {
 
         System.out.println("[GGMANYAR]jsonString : " + jsonString);
 
-        HyphenUserHouseResponse hyphenUserHouseResponse = convertJsonToRealEstateData(jsonString);
+        HyphenUserHouseListResponse hyphenUserHouseListResponse = convertJsonToRealEstateData(jsonString);
 
-        System.out.println("[GGMANYAR]hyphenUserHouseResponse : " + hyphenUserHouseResponse);
+        System.out.println("[GGMANYAR]hyphenUserHouseListResponse : " + hyphenUserHouseListResponse);
 
-        return Optional.ofNullable(hyphenUserHouseResponse);
+        return Optional.ofNullable(hyphenUserHouseListResponse);
     }
 
-    public List<HyphenUserHouseResultInfo> setResultDataToHyphenUserHouseResultInfo(HyphenUserHouseResponse responseData){
+    public List<HyphenUserHouseResultInfo> setResultDataToHyphenUserHouseResultInfo(HyphenUserHouseListResponse responseData){
 
         List<HyphenUserHouseResultInfo> houseList = new ArrayList<HyphenUserHouseResultInfo>();
 
@@ -311,11 +328,11 @@ public class HyphenUserHouseService {
         return houseList;
     }
 
-    private static HyphenUserHouseResponse convertJsonToRealEstateData(String jsonString) {
+    private static HyphenUserHouseListResponse convertJsonToRealEstateData(String jsonString) {
         try {
             // Jackson ObjectMapper를 사용하여 JSON을 자바 객체로 변환
             ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(jsonString, HyphenUserHouseResponse.class);
+            return objectMapper.readValue(jsonString, HyphenUserHouseListResponse.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

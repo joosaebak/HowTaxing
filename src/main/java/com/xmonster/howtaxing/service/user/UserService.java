@@ -4,15 +4,11 @@ import com.xmonster.howtaxing.CustomException;
 import com.xmonster.howtaxing.dto.common.ApiResponse;
 import com.xmonster.howtaxing.dto.user.UserSignUpDto;
 import com.xmonster.howtaxing.model.User;
-import com.xmonster.howtaxing.oauth2.CustomOAuth2User;
 import com.xmonster.howtaxing.repository.user.UserRepository;
 import com.xmonster.howtaxing.type.ErrorCode;
-import com.xmonster.howtaxing.type.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -66,12 +62,28 @@ public class UserService {
         Map<String, Object> resultMap = new HashMap<>();
 
         try{
-
             log.info("[GGMANYAR]회원탈퇴");
             log.info("[GGMANYAR]email : " + authentication.getName());
 
-            userRepository.deleteByEmail(authentication.getName())
-                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+            userRepository.deleteByEmail(authentication.getName());
+
+            resultMap.put("result", "회원탈퇴가 완료되었습니다.");
+
+        }catch(Exception e){
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return ApiResponse.success(resultMap);
+    }
+
+    public Object deleteUser(Authentication authentication) throws Exception {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        try{
+            log.info("[GGMANYAR]회원탈퇴");
+            log.info("[GGMANYAR]email : " + authentication.getName());
+
+            userRepository.deleteByEmail(authentication.getName());
 
             resultMap.put("result", "회원탈퇴가 완료되었습니다.");
 

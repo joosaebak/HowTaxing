@@ -2,57 +2,66 @@ package com.xmonster.howtaxing.service.house;
 
 import com.xmonster.howtaxing.CustomException;
 import com.xmonster.howtaxing.dto.common.ApiResponse;
-import com.xmonster.howtaxing.dto.house.HouseAddressDto;
-import com.xmonster.howtaxing.dto.house.HouseDetailResponse;
-import com.xmonster.howtaxing.dto.house.HouseListResponse;
+import com.xmonster.howtaxing.dto.house.*;
+import com.xmonster.howtaxing.dto.house.HouseListSearchResponse.HouseSimpleInfoResponse;
 import com.xmonster.howtaxing.dto.hyphen.HyphenAuthResponse;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse;
 import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResultInfo;
 import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse;
-import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse.Results.Common;
 import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse.Results.JusoDetail;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse.HyphenCommon;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse.HyphenData.*;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse.HyphenCommon;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse.HyphenData.*;
 import com.xmonster.howtaxing.model.House;
+import com.xmonster.howtaxing.model.User;
+import com.xmonster.howtaxing.repository.house.HouseRepository;
+import com.xmonster.howtaxing.repository.user.UserRepository;
 import com.xmonster.howtaxing.type.ErrorCode;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.xmonster.howtaxing.constant.CommonConstant.*;
-import static com.xmonster.howtaxing.constant.CommonConstant.TWO;
 
-@Slf4j
 @Service
+@Transactional
+@RequiredArgsConstructor
+@Slf4j
 public class HouseService {
 
     private final HyphenUserHouseService hyphenUserHouseService;
     private final JusoGovService jusoGovService;
     private final HouseAddressService houseAddressService;
 
+    private final HouseRepository houseRepository;
+    private final UserRepository userRepository;
+
     private static final int MAX_JUSO_CALL_CNT = 3; // 주소 한건 당 주소기반산업지원서비스 도로명주소 재조회 호출 건수 최대값
 
-    @Autowired
+    /*@Autowired
     public HouseService(HyphenUserHouseService hyphenUserHouseService, JusoGovService jusoGovService, HouseAddressService houseAddressService){
         this.hyphenUserHouseService = hyphenUserHouseService;
         this.jusoGovService = jusoGovService;
         this.houseAddressService = houseAddressService;
-    }
+    }*/
 
     // 보유 주택 정보 조회
     public Object getHouseList(Map<String, Object> requestMap){
 
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        HouseListResponse response = null;
+        HouseListSearchResponse response = null;
 
         if(requestMap != null && !requestMap.isEmpty()){
-            response = new HouseListResponse();
+            response = new HouseListSearchResponse();
         }
 
         if(response != null){
@@ -67,10 +76,11 @@ public class HouseService {
         }
     }
 
-    public Map<String, Object> getUserHouseList(Map<String, Object> requestMap){
-        Map<String, Object> resultMap = new HashMap<String, Object>();
-        HouseListResponse response = null;
-        boolean errFlag = false;
+    // 보유 주택 정보 조회(NEW)
+    public Object getUserHouseList(Authentication authentication, HouseListSearchRequest houseListSearchRequest){
+        // 호출 사용자 조회
+        User findUser = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 1. 하이픈 Access Token 가져오기
         HyphenAuthResponse hyphenAuthResponse = hyphenUserHouseService.getAccessToken()
@@ -78,39 +88,128 @@ public class HouseService {
         String accessToken = hyphenAuthResponse.getAccess_token();
 
         // 2. 하이픈 주택소유정보 조회 호출
-        HyphenUserHouseResponse hyphenUserHouseResponse = hyphenUserHouseService.getUserHouseInfo(accessToken)
+        HyphenUserHouseListResponse hyphenUserHouseListResponse = hyphenUserHouseService.getUserHouseInfo(accessToken, houseListSearchRequest)
                 .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_FAILED_HYPHEN_LIST, "하이픈에서 보유주택정보 데이터를 가져오는데 실패했습니다."));
 
         // 3. 하이픈 보유주택조회 결과가 정상인지 체크하여, 정상인 경우 조회 결과를 정리하여 별도 DTO에 저장
         //List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = null;
-        List<House> houseList = new ArrayList<House>();
-        HyphenCommon hyphenCommon = hyphenUserHouseResponse.getHyphenCommon();
-        List<DataDetail1> list1 = hyphenUserHouseResponse.getHyphenData().getList1();
-        List<DataDetail2> list2 = hyphenUserHouseResponse.getHyphenData().getList2();
-        List<DataDetail3> list3 = hyphenUserHouseResponse.getHyphenData().getList3();
+        List<House> houseList = new ArrayList<>();
+        HyphenCommon hyphenCommon = hyphenUserHouseListResponse.getHyphenCommon();
+        List<DataDetail1> list1 = hyphenUserHouseListResponse.getHyphenData().getList1();
+        List<DataDetail2> list2 = hyphenUserHouseListResponse.getHyphenData().getList2();
+        List<DataDetail3> list3 = hyphenUserHouseListResponse.getHyphenData().getList3();
 
-        // 3 -> 1 -> 2 순서로 호출
-        this.setList3ToHouseEntity(list3, houseList);
-        this.setList1ToHouseEntity(list1, houseList);
-        this.setList2ToHouseEntity(list2, houseList);
+        if(this.isSuccessHyphenUserHouseListResponse(hyphenCommon)){
+            // 3 -> 1 -> 2 순서로 호출
+            this.setList3ToHouseEntity(list3, houseList);
+            this.setList1ToHouseEntity(list1, houseList);
+            this.setList2ToHouseEntity(list2, houseList);
 
-        /*if(this.isSuccessHyphenUserHouseResponse(hyphenCommon)){
-            hyphenUserHouseResultInfoList = this.setResultDataToHyphenUserHouseResultInfo(hyphenUserHouseResponse);
+            // 전체 보유주택에 사용자id 세팅
+            for(House house : houseList){
+                house.setUserId(findUser.getId());
+            }
+
+            // houseList 출력 테스트
+            log.info("----- houseList 출력 테스트 Start -----");
+            for(House house : houseList){
+                log.info("------------------------------------------");
+                log.info("주택유형 : " + house.getHouseType());
+                log.info("주택명 : " + house.getHouseName());
+                log.info("상세주소 : " + house.getDetailAdr());
+                log.info("사용자ID : " + house.getUserId());
+                log.info("------------------------------------------");
+            }
+            log.info("----- houseList 출력 테스트 End -----");
+
+            // house 테이블에 houseList 저장
+            houseRepository.saveAllAndFlush(houseList);
         }else{
             throw new CustomException(ErrorCode.HOUSE_FAILED_HYPHEN_COMMON, "하이픈에서 보유주택정보 조회 중 오류가 발생했습니다.");
-        }*/
+        }
 
+        List<House> houseListFromDB = new ArrayList<>();
 
-        // 3. 조회된 결과를 정리하여 별도 Dto에 저장(HyphenUserHouseResultInfo)
-        //List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = hyphenUserHouseService.setResultDataToHyphenUserHouseResultInfo(hyphenUserHouseResponse);
-        //List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = this.setResultDataToHyphenUserHouseResultInfo(hyphenUserHouseResponse);
+        houseListFromDB = houseRepository.findByUserId(findUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 4. Dto List 내의 주소를 분류하여 주소기반산업지원서비스에서 조회 호출
+        List<HouseSimpleInfoResponse> houseSimpleInfoResponseList = new ArrayList<>();
 
-        // 5. 주소기반산업지원서비스 조회 결과를 Dto List에 세팅
+        for(House house : houseListFromDB){
+            houseSimpleInfoResponseList.add(
+                    HouseSimpleInfoResponse.builder()
+                            .houseId(house.getHouseId())
+                            .houseType(house.getHouseType())
+                            .houseName(house.getHouseName())
+                            .detailAdr(house.getDetailAdr())
+                            .build());
+        }
 
+        return ApiResponse.success(
+                HouseListSearchResponse.builder()
+                        .listCnt(houseSimpleInfoResponseList.size())
+                        .list(houseSimpleInfoResponseList)
+                        .build());
+    }
 
-        //StringBuffer testAddr = new StringBuffer("경기도 수원영통구 매탄동 1217");
+    // 주택 상세정보 조회
+    public Map<String, Object> getHouseDetail(String houseId){
+
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        HouseDetailResponse response = null;
+
+        if(houseId != null && !houseId.isBlank()){
+            response = new HouseDetailResponse(houseId);
+        }
+
+        if(response != null){
+            resultMap.put("isError", "false");
+            resultMap.put("data", response);
+        }else{
+            resultMap.put("isError", "true");
+            resultMap.put("errCode", "1002");
+            resultMap.put("errMsg", "주택 상세정보를 조회할 수 없습니다.");
+        }
+
+        return resultMap;
+    }
+
+    // 선택한 보유주택 삭제
+    public Object deleteHouse(Authentication authentication, HouseListDeleteRequest houseListDeleteRequest) throws Exception{
+        Map<String, Object> resultMap = new HashMap<>();
+
+        try{
+            houseRepository.deleteByHouseId(houseListDeleteRequest.getHouseId());
+        }catch (Exception e){
+            throw new CustomException(ErrorCode.ETC_ERROR);
+        }
+
+        resultMap.put("result", "선택한 보유주택이 삭제되었습니다.");
+
+        return ApiResponse.success(resultMap);
+    }
+
+    // 전체 보유주택 삭제
+    public Object deleteHouseAll(Authentication authentication) throws Exception {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        // 호출 사용자 조회
+        User findUser = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        try{
+            houseRepository.deleteByUserId(findUser.getId());
+        }catch(Exception e){
+            throw new CustomException(ErrorCode.ETC_ERROR);
+        }
+
+        resultMap.put("result", "전체 보유주택이 삭제되었습니다.");
+
+        return ApiResponse.success(resultMap);
+    }
+
+    // TEST
+    public void testJusoSearch(){
         StringBuffer testAddr = new StringBuffer("강원특별자치도 원주시 명륜동 산31");
         List<JusoGovRoadAdrResponse.Results.JusoDetail> jusoList = null;
         JusoGovRoadAdrResponse jusoGovRoadAdrResponse = jusoGovService.getRoadAdrInfo(testAddr.toString());
@@ -144,35 +243,9 @@ public class HouseService {
                 log.info("조회 결과 없음");
             }
         }
-
-        resultMap.put("errYn", false);
-
-        return resultMap;
     }
 
-    // 주택 상세정보 조회
-    public Map<String, Object> getHouseDetail(String houseId){
-
-        Map<String, Object> resultMap = new HashMap<String, Object>();
-        HouseDetailResponse response = null;
-
-        if(houseId != null && !houseId.isBlank()){
-            response = new HouseDetailResponse(houseId);
-        }
-
-        if(response != null){
-            resultMap.put("isError", "false");
-            resultMap.put("data", response);
-        }else{
-            resultMap.put("isError", "true");
-            resultMap.put("errCode", "1002");
-            resultMap.put("errMsg", "주택 상세정보를 조회할 수 없습니다.");
-        }
-
-        return resultMap;
-    }
-
-    private boolean isSuccessHyphenUserHouseResponse(HyphenCommon hyphenCommon){
+    private boolean isSuccessHyphenUserHouseListResponse(HyphenCommon hyphenCommon){
         if(hyphenCommon != null){
             if(NO.equals(hyphenCommon.getErrYn())){
                 return true;
@@ -193,6 +266,11 @@ public class HouseService {
             for (DataDetail1 dataDetail1 : list) {
                 HouseAddressDto houseAddressDto = houseAddressService.separateAddress(dataDetail1.getAddress());
 
+                String publishedPrice = StringUtils.defaultString(dataDetail1.getPublishedPrice(), ZERO);
+                if(!publishedPrice.matches("^[0-9]+$")){
+                    publishedPrice = ZERO;
+                }
+
                 hyphenUserHouseResultInfoList.add(
                         HyphenUserHouseResultInfo.builder()
                                 .resultListNo(ONE)
@@ -200,7 +278,7 @@ public class HouseService {
                                 .orgAdr(houseAddressDto.getAddress())
                                 .searchAdr(houseAddressDto.getSearchAddress())
                                 .houseType(SIX)
-                                .pubLandPrice(Long.parseLong(StringUtils.defaultString(dataDetail1.getPublishedPrice(), ZERO)))
+                                .pubLandPrice(Long.parseLong(publishedPrice))
                                 .area(new BigDecimal(StringUtils.defaultString(dataDetail1.getArea(), DEFAULT_DECIMAL)))
                                 .build());
             }
@@ -253,11 +331,16 @@ public class HouseService {
                                 .build());
             }
             
-            // 거래내역 주택 필터링 작업
-
-            // hyphenUserHouseResultInfoList에 필터링 결과 세팅
+            // 거래내역 주택 필터링 작업하여 hyphenUserHouseResultInfoList에 결과 세팅
+            hyphenUserHouseResultInfoList = this.filteringTradeHouseList(tempHyphenUserHouseResultInfoList);
 
             // 도로명주소 검색 API 호출(주소기반산업지원서비스)
+            if(!hyphenUserHouseResultInfoList.isEmpty()){
+                for (HyphenUserHouseResultInfo hyphenUserHouseResultInfo : hyphenUserHouseResultInfoList){
+                    JusoDetail jusoDetail = this.searchJusoDetail(hyphenUserHouseResultInfo);
+                    this.setHouseList(hyphenUserHouseResultInfo, jusoDetail, houseList);
+                }
+            }
             
             // House Entity에 데이터 세팅
         }
@@ -353,13 +436,14 @@ public class HouseService {
         }*/
     }
 
-    private void filteringTradeHouseList(List<HyphenUserHouseResultInfo> list){
+    // 거래내역 주택 필터링
+    private List<HyphenUserHouseResultInfo> filteringTradeHouseList(List<HyphenUserHouseResultInfo> list){
+        log.info("거래내역 주택 필터링 Method");
+
         List<HyphenUserHouseResultInfo> filterList = new ArrayList<>();
-        List<HyphenUserHouseResultInfo> removeQueueList = new ArrayList<>();
         List<HyphenUserHouseResultInfo> doubleBuyList = new ArrayList<>();
         List<HyphenUserHouseResultInfo> resultList = new ArrayList<>();
-
-        ArrayList<String> removeAddressList = new ArrayList<>();
+        List<String> removeAddressList = new ArrayList<>();
 
         if(list != null){
             for(HyphenUserHouseResultInfo hyphenUserHouseResultInfo : list){
@@ -367,31 +451,28 @@ public class HouseService {
             }
         }
 
-        /*
-          1. 동일한 주소의 매수 건이 2개 이상 존재하는지 체크(거래유형이 '매수'인 건끼리 비교)
-           1) 동일한 주소의 매수 건이 2개 이상 존재하면 doubleBuyList, removeQueueList 에 추가(doubleBuyList에는 clone 추가)
-           2) 반복부 1 roop가 완료되면, removeQueueList에 있는 객체 remove
-           3) 반복부 전체 roop가 완료되면, doubleBuyList에 있는 객체를 resultList에 복사
-         */
+        // Step 1. 동일한 '주소'의 '매수' 건이 2개 이상 존재하면 doubleBuyList에 모두 추가하고, filterList에서 모두 삭제
         if(!filterList.isEmpty()){
+            log.info("Step 1. 동일한 '주소'의 '매수' 건이 2개 이상 존재하면 doubleBuyList에 모두 추가하고, filterList에서 모두 삭제");
             for(int i=0; i<filterList.size(); i++){
-                // 거래유형 : 매수
+                // 거래유형이 '매수'인 건을 비교 대상으로 세팅
                 if(ONE.equals(filterList.get(i).getTradeType())){
-                    String address = StringUtils.defaultString(filterList.get(i).getOrgAdr());
+                    String compareAddress = StringUtils.defaultString(filterList.get(i).getOrgAdr());
                     boolean isAdd = false;
 
-                    if(removeAddressList.contains(address)) continue;
-
-                    for(int j=i+1; j<filterList.size(); j++){
-                        if(ONE.equals(filterList.get(j).getTradeType())){
-                            // resultList에 추가
-                            if(address.equals(filterList.get(j).getOrgAdr())){
-                                if(!isAdd){
-                                    doubleBuyList.add(filterList.get(i).clone());
-                                    removeAddressList.add(filterList.get(i).getOrgAdr());
-                                    isAdd = true;
+                    if(!removeAddressList.contains(compareAddress)){
+                        for(int j=0; j<filterList.size(); j++){
+                            // 거래유형이 '매수'인 건과 비교(같은 index는 제외)
+                            if(j!=i && ONE.equals(filterList.get(j).getTradeType())){
+                                // doubleBuyList에 추가
+                                if(compareAddress.equals(filterList.get(j).getOrgAdr())){
+                                    if(!isAdd){
+                                        doubleBuyList.add(filterList.get(i).clone());
+                                        removeAddressList.add(compareAddress);  // removeAddressList에 주소 추가
+                                        isAdd = true;
+                                    }
+                                    doubleBuyList.add(filterList.get(j).clone());
                                 }
-                                doubleBuyList.add(filterList.get(j).clone());
                             }
                         }
                     }
@@ -402,48 +483,118 @@ public class HouseService {
                 filterList.removeIf(filterInfo -> ONE.equals(filterInfo.getTradeType()) && compareAddress.equals(filterInfo.getOrgAdr()));
             }
 
+            removeAddressList.clear();  // removeList 초기화
         }
 
-
-        /*
-          1. 동일한 주소의 매수, 매도 건이 쌍으로 존재하는지 체크(거래유형이 '매수'인 건을 기준으로 '매도'인 건들과 비교)
-           1) '매수'건 기준으로 동일한 주소의 '매도'건이 존재하면 removeQueueList 에 추가
-           2) 반복부 1 roop가 완료되면, removeQueueList에 있는 객체 remove
-           3) 반복부 전체 roop가 완료되면, doubleBuyList에 있는 객체를 resultList에 복사
-         */
-
+        // Step 2. 동일한 '주소'의 '매수', '매도' 건이 쌍으로 존재하면 filterList에서 둘 다 삭제
         if(!filterList.isEmpty()){
+            log.info("Step 2. 동일한 '주소'의 '매수', '매도' 건이 쌍으로 존재하면 filterList에서 둘 다 삭제");
             for(int i=0; i<filterList.size(); i++){
-                // 거래유형 : 매수
+                // 거래유형이 '매수'인 건을 비교 대상으로 세팅
                 if(ONE.equals(filterList.get(i).getTradeType())){
-                    String address = StringUtils.defaultString(filterList.get(i).getOrgAdr());
+                    String compareAddress = StringUtils.defaultString(filterList.get(i).getOrgAdr());
 
-                    for(int j=i+1; j<filterList.size(); j++){
-                        if(ONE.equals(filterList.get(j).getTradeType())){
-                            // resultList에 추가
-                            if(address.equals(filterList.get(j).getOrgAdr())){
-                                resultList.add(filterList.get(j).clone());
+                    for(int j=0; j<filterList.size(); j++){
+                        // 거래유형이 '매도'인 건과 비교
+                        if(TWO.equals(filterList.get(j).getTradeType())){
+                            if(!removeAddressList.contains(filterList.get(j).getOrgAdr())){
+                                if(compareAddress.equals(filterList.get(j).getOrgAdr())){
+                                    removeAddressList.add(compareAddress);  // removeAddressList에 주소 추가
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // resultList에 추가된 데이터가 있다면 동일한 주소가 2개 이상 존재하는 경우이므로, 해당 주소와 동일한 데이터는 filterList에서 삭제
-            /*if(!resultList.isEmpty()){
-                for(HyphenUserHouseResultInfo resultInfo : resultList){
-                    String compareAddress = StringUtils.defaultString(resultInfo.getOrgAdr());
-                    filterList.removeIf(filterInfo -> ONE.equals(filterInfo.getTradeType()) && compareAddress.equals(filterInfo.getOrgAdr()));
+            for(String compareAddress : removeAddressList){
+                filterList.removeIf(filterInfo -> compareAddress.equals(filterInfo.getOrgAdr()));
+            }
+
+            removeAddressList.clear();  // removeList 초기화
+        }
+
+        // Step 3. filterList에 남은 '매도' 건 중 doubleBuyList와 비교하여 동일한 '주소'가 존재하면 filterList에서 삭제
+        if(!filterList.isEmpty()){
+            log.info("Step 3. filterList에 남은 '매도' 건 중 doubleBuyList와 비교하여 동일한 '주소'가 존재하면 filterList에서 삭제");
+            for(HyphenUserHouseResultInfo filterInfo : filterList){
+                if(TWO.equals(filterInfo.getTradeType())){
+                    String compareAddress = StringUtils.defaultString(filterInfo.getOrgAdr());
+
+                    for(HyphenUserHouseResultInfo resultInfo : doubleBuyList){
+                        if(compareAddress.equals(resultInfo.getOrgAdr())){
+                            removeAddressList.add(compareAddress);
+                        }
+                    }
                 }
-            }*/
+            }
+
+            for(String compareAddress : removeAddressList){
+                filterList.removeIf(filterInfo -> TWO.equals(filterInfo.getTradeType()) && compareAddress.equals(filterInfo.getOrgAdr()));
+            }
+
+            removeAddressList.clear();  // removeList 초기화
+        }
+
+        // Step 4. filterList에 남은 '매도' 건의 '검색주소'와 '매수' 건의 '검색주소'를 비교하여 동일한 주소가 존재하면 함께 삭제
+        if(!filterList.isEmpty()){
+            log.info("Step 4. filterList에 남은 '매도' 건의 '검색주소'와 '매수' 건의 '검색주소'를 비교하여 동일한 주소가 존재하면 함께 삭제");
+            for(int i=0; i<filterList.size(); i++){
+                // 거래유형이 '매도'인 건을 비교 대상으로 세팅
+                if(TWO.equals(filterList.get(i).getTradeType())){
+                    //String compareAddress = StringUtils.defaultString(filterList.get(i).getOrgAdr());
+                    String compareSearchAddress = EMPTY;
+                    if(filterList.get(i).getSearchAdr() != null){
+                        compareSearchAddress = StringUtils.defaultString(filterList.get(i).getSearchAdr().get(0));
+                    }
+
+                    for(int j=0; j<filterList.size(); j++){
+                        // 거래유형이 '매수'인 건과 비교
+                        if(ONE.equals(filterList.get(j).getTradeType())){
+                            if(!removeAddressList.contains(filterList.get(j).getSearchAdr().get(0))){
+                                if(compareSearchAddress.equals(filterList.get(j).getSearchAdr().get(0))){
+                                    removeAddressList.add(compareSearchAddress);  // removeAddressList에 주소 추가
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for(String compareSearchAddress : removeAddressList){
+                filterList.removeIf(filterInfo -> compareSearchAddress.equals(filterInfo.getSearchAdr().get(0)));
+            }
+
+            removeAddressList.clear();  // removeList 초기화
+        }
+
+        // Step 5. filterList에 남은 '매수' 건은 모두 resultList에 추가하고 filterList에서는 삭제
+        if(!filterList.isEmpty()){
+            log.info("Step 5. filterList에 남은 '매수' 건은 모두 resultList에 추가하고 filterList에서는 삭제");
+            for(HyphenUserHouseResultInfo filterInfo : filterList){
+                if(ONE.equals(filterInfo.getHouseType())){
+                    resultList.add(filterInfo.clone());
+                }
+            }
+
+            filterList.removeIf(filterInfo -> ONE.equals(filterInfo.getTradeType()));
         }
 
         if(!filterList.isEmpty()){
-            List<HyphenUserHouseResultInfo> removeWaitingList = new ArrayList<>();
-
-
+            // filterList에 남은 항목 로그 출력
+            log.info("--- FilterList print All Start ---");
+            for(HyphenUserHouseResultInfo filterInfo : filterList){
+                log.info("거래구분 : " + filterInfo.getTradeType());
+                log.info("원장주소 : " + filterInfo.getOrgAdr());
+            }
+            log.info("--- FilterList print All End ---");
         }
 
+        // Step 6. doubleBuyList의 항목을 모두 resultList에 추가
+        log.info("Step 6. doubleBuyList의 항목을 모두 resultList에 추가");
+        resultList.addAll(doubleBuyList);
+
+        return resultList;
     }
 
     // (매도/매수구분에서) 거래유형 가져오기
@@ -550,7 +701,9 @@ public class HouseService {
                     }
                     // List2 : 부동산거래내역
                     else if(TWO.equals(resultListNo)){
-                        // TODO. 작성예정
+                        if(house.getContractDate() == null) house.setContractDate(hyphenUserHouseResultInfo.getContractDate());
+                        if(house.getBalanceDate() == null) house.setBalanceDate(hyphenUserHouseResultInfo.getBalanceDate());
+                        if(house.getBuyPrice() == null || house.getBuyPrice() == 0) house.setBuyPrice(hyphenUserHouseResultInfo.getBuyPrice());
                     }
                     // List3 : 재산세정보
                     else if(THREE.equals(resultListNo)){
@@ -606,7 +759,27 @@ public class HouseService {
                                     .sourceType(ONE)
                                     .build());
                 }else if(TWO.equals(resultListNo)){
-
+                    houseList.add(
+                            House.builder()
+                                    .houseType(hyphenUserHouseResultInfo.getHouseType())
+                                    .houseName(jusoDetail.getBdNm())
+                                    .contractDate(hyphenUserHouseResultInfo.getContractDate())
+                                    .balanceDate(hyphenUserHouseResultInfo.getBalanceDate())
+                                    .buyDate(hyphenUserHouseResultInfo.getBuyDate())
+                                    .buyPrice(hyphenUserHouseResultInfo.getBuyPrice())
+                                    .jibunAddr(jusoDetail.getJibunAddr())
+                                    .roadAddr(jusoDetail.getRoadAddrPart1())
+                                    .roadAddrRef(jusoDetail.getRoadAddrPart2())
+                                    .bdMgtSn(jusoDetail.getBdMgtSn())
+                                    .admCd(jusoDetail.getAdmCd())
+                                    .rnMgtSn(jusoDetail.getRnMgtSn())
+                                    .area(hyphenUserHouseResultInfo.getArea())
+                                    .isDestruction(false)
+                                    .ownerCnt(1)
+                                    .user_proportion(100)
+                                    .isMoveInRight(false)
+                                    .sourceType(ONE)
+                                    .build());
                 }else if(THREE.equals(resultListNo)){
                     houseList.add(
                             House.builder()
@@ -638,7 +811,7 @@ public class HouseService {
     }
 
     // 미사용 메소드
-    /*private List<HyphenUserHouseResultInfo> setResultDataToHyphenUserHouseResultInfo(HyphenUserHouseResponse responseData){
+    /*private List<HyphenUserHouseResultInfo> setResultDataToHyphenUserHouseResultInfo(HyphenUserHouseListResponse responseData){
 
         List<HyphenUserHouseResultInfo> houseList = new ArrayList<HyphenUserHouseResultInfo>();
 
@@ -664,7 +837,7 @@ public class HouseService {
 
             // List2 - 부동산 거래내역(주택분)
             if(list2 != null && !list2.isEmpty()){
-                for(HyphenUserHouseResponse.HyphenData.DataDetail2 dataDetail2 : list2){
+                for(HyphenUserHouseListResponse.HyphenData.DataDetail2 dataDetail2 : list2){
                     String tradeTypeNm = dataDetail2.getSellBuyClassification();
                     String tradeType = EMPTY;
                     String houseType = EMPTY;
@@ -698,7 +871,7 @@ public class HouseService {
 
             // List3 - 재산세정보(주택분)
             if(list3 != null && !list3.isEmpty()){
-                for(HyphenUserHouseResponse.HyphenData.DataDetail3 dataDetail3 : list3){
+                for(HyphenUserHouseListResponse.HyphenData.DataDetail3 dataDetail3 : list3){
                     houseList.add(HyphenUserHouseResultInfo.builder()
                             .resultListNo(THREE)
                             .tradeType(ZERO)

@@ -1,16 +1,31 @@
 package com.xmonster.howtaxing.dto.house;
 
-import lombok.Getter;
+import lombok.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
-public class HouseListResponse {
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class HouseListSearchResponse {
+    private int listCnt;
+    private List<HouseSimpleInfoResponse> list;
 
-    Map<String, Object> data;
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class HouseSimpleInfoResponse {
+        private Long houseId;           // 주택ID
+        private String houseType;       // 주택유형
+        private String houseName;       // 주택명
+        private String detailAdr;       // 상세주소
+    }
+
+    /*Map<String, Object> data;
 
     public HouseListResponse() {
         data = new HashMap<String, Object>();
@@ -30,5 +45,5 @@ public class HouseListResponse {
 
     public Map<String, Object> getData() {
         return data;
-    }
+    }*/
 }

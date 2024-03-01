@@ -16,6 +16,7 @@ public enum ErrorCode {
     LOGIN_FAILED_HAS_EMAIL(HttpStatus.NOT_FOUND, "LOGIN-002", "이미 동일한 이메일 계정으로 가입되어 있습니다."),
 
     HOUSE_FAILED_HYPHEN_TOKEN(HttpStatus.NOT_FOUND, "HOUSE-001", "공공기관에서 보유 주택 정보를 가져오지 못했습니다."),
+    HOUSE_FAILED_HYPHEN_INPUT(HttpStatus.NOT_FOUND, "HOUSE-001", "보유 주택정보 조회 간편인증 입력값이 올바르지 않습니다."),
     HOUSE_FAILED_HYPHEN_LIST(HttpStatus.NOT_FOUND, "HOUSE-002", "공공기관에서 보유 주택 정보를 가져오지 못했습니다."),
     HOUSE_FAILED_HYPHEN_COMMON(HttpStatus.NOT_FOUND, "HOUSE-003", "공공기관에서 보유 주택 정보를 가져오지 못했습니다."),
     HOUSE_FAILED_HYPHEN_DATA(HttpStatus.NOT_FOUND, "HOUSE-004", "공공기관에서 보유 주택 정보를 가져오지 못했습니다."),

@@ -1,57 +1,60 @@
 package com.xmonster.howtaxing.dto.hyphen;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HyphenUserHouseResponse2 {
-    @Builder.Default
-    private HyphenUserHouseCommon hyphenUserHouseCommon = HyphenUserHouseCommon.builder().build();
+public class HyphenUserHouseListResponse {
+    @JsonProperty("common")
+    private HyphenCommon hyphenCommon;
+    @JsonProperty("data")
+    private HyphenData hyphenData;
 
-    @Builder.Default
-    private HyphenUserHouseData hyphenUserHouseData = HyphenUserHouseData.builder().build();
-
-    @Builder
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class HyphenUserHouseCommon {
+    public static class HyphenCommon {
+        @JsonProperty("userTrNo")
         private String userTrNo;
+        @JsonProperty("hyphenTrNo")
         private String hyphenTrNo;
+        @JsonProperty("errYn")
         private String errYn;
+        @JsonProperty("errMsg")
         private String errMsg;
     }
 
-    @Builder
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class HyphenUserHouseData {
+    public static class HyphenData {
+        @JsonProperty("listMsg1")
         private String listMsg1;
+        @JsonProperty("list1")
+        private List<DataDetail1> list1;
 
-        @Builder.Default
-        private List<HyphenUserHouseDataDetail1> list1 = new ArrayList<>();
+        @JsonProperty("listMsg2")
         private String listMsg2;
-        @Builder.Default
-        private List<HyphenUserHouseDataDetail2> list2 = new ArrayList<>();
-        private String listMsg3;
-        @Builder.Default
-        private List<HyphenUserHouseDataDetail3> list3 = new ArrayList<>();
+        @JsonProperty("list2")
+        private List<DataDetail2> list2;
 
-        @Builder
+        @JsonProperty("listMsg3")
+        private String listMsg3;
+        @JsonProperty("list3")
+        private List<DataDetail3> list3;
+
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
         /* 건축물대장정보 */
-        public static class HyphenUserHouseDataDetail1 {
+        public static class DataDetail1 {
             private String name;                        // 성명
             private String address;                     // 주소
             private String area;                        // 면적(m^2)
@@ -63,12 +66,11 @@ public class HyphenUserHouseResponse2 {
             private String baseDate;                    // 기준일자
         }
 
-        @Builder
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
         /* 부동산거래내역(주택분) */
-        public static class HyphenUserHouseDataDetail2 {
+        public static class DataDetail2 {
             private String name;                        // 성명
             private String address;                     // 주소
             private String sellBuyClassification;       // 매도/매수구분
@@ -80,12 +82,11 @@ public class HyphenUserHouseResponse2 {
             private String endDate;                     // 신고분기준 종료일
         }
 
-        @Builder
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
         /* 재산세정보(주택분) */
-        public static class HyphenUserHouseDataDetail3 {
+        public static class DataDetail3 {
             private String name;                        // 성명
             private String address;                     // 주소
             private String area;                        // 전용면적(m^2)

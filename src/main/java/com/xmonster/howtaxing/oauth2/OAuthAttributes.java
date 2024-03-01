@@ -75,11 +75,13 @@ public class OAuthAttributes {
      * role은 GUEST로 설정
      */
     public User toEntity(SocialType socialType, OAuth2UserInfo oauth2UserInfo) {
+        // 사용자 이메일(이메일이 비어있는 경우, UUID를 발급하여 임의로 이메일 계정 생성하여 세팅)
+        String email = (oauth2UserInfo.getEmail().isBlank()) ? UUID.randomUUID() + "@socialUser.com" : oauth2UserInfo.getEmail();
+
         return User.builder()
                 .socialType(socialType)
                 .socialId(oauth2UserInfo.getId())
-                //.email(UUID.randomUUID() + "@socialUser.com")
-                .email(oauth2UserInfo.getEmail())
+                .email(email)
                 .nickname(oauth2UserInfo.getNickname())
                 .imageUrl(oauth2UserInfo.getImageUrl())
                 .role(Role.GUEST)

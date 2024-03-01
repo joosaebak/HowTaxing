@@ -15,7 +15,7 @@ public class HouseAddressDto {
     private String detailAddress;           // 상세주소
     private List<String> searchAddress;     // 검색주소
 
-    private Integer addressType;            // 주소유형(1:지번주소, 2:도로명주소)
+    private int addressType;                // 주소유형(1:지번주소, 2:도로명주소)
     private String siDo;                    // (공통)시도
     private String siGunGu;                 // (공통)시군구
     private String gu;
@@ -35,6 +35,7 @@ public class HouseAddressDto {
     public HouseAddressDto(String address){
         this.address = address;
         this.detailAddress = EMPTY;
+        this.addressType = 0;
         this.searchAddress = new ArrayList<String>();
         this.etcAddress = new ArrayList<String>();
     }

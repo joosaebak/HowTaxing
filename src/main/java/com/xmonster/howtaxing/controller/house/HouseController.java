@@ -1,58 +1,45 @@
 package com.xmonster.howtaxing.controller.house;
 
-import com.xmonster.howtaxing.CustomException;
-import com.xmonster.howtaxing.dto.hyphen.HyphenAuthResponse;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse.HyphenCommon;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse.HyphenData;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResponse.HyphenData.*;
-import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResultInfo;
-import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse;
-import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse.Results.JusoDetail;
+import com.xmonster.howtaxing.dto.house.HouseListDeleteRequest;
+import com.xmonster.howtaxing.dto.house.HouseListSearchRequest;
 import com.xmonster.howtaxing.service.house.HouseService;
-import com.xmonster.howtaxing.service.house.HyphenUserHouseService;
-import com.xmonster.howtaxing.service.house.JusoGovService;
-import static com.xmonster.howtaxing.constant.CommonConstant.*;
 
-import com.xmonster.howtaxing.type.ErrorCode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
 
-@Slf4j
+
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class HouseController {
 
     private final HouseService houseService;
-    private final HyphenUserHouseService hyphenUserHouseService;
-    private final JusoGovService jusoGovService;
 
-    public HouseController(HouseService houseService, HyphenUserHouseService hyphenUserHouseService, JusoGovService jusoGovService){
-        this.houseService = houseService;
-        this.hyphenUserHouseService = hyphenUserHouseService;
-        this.jusoGovService = jusoGovService;
-    }
-
+    // 보유주택 목록 조회
     @PostMapping("/house/list")
-    public Object getHouseList(@RequestBody Map<String, Object> requestMap){
-
-        return houseService.getHouseList(requestMap);
-        //return houseService.getUserHouseList(requestMap);
+    public Object getHouseList(Authentication authentication, @RequestBody HouseListSearchRequest houseListSearchRequest) throws Exception {
+        return houseService.getUserHouseList(authentication, houseListSearchRequest);
     }
 
-    // 주택 상세정보 조회
+    // 보유주택 상세 조회
     @GetMapping("/house/detail")
-    public Map<String, Object> getHouseDetail(String houseId){
+    public Map<String, Object> getHouseDetail(String houseId)  throws Exception {
         return houseService.getHouseDetail(houseId);
+    }
+
+    @DeleteMapping("/house/delete")
+    public Object deleteHouse(Authentication authentication, @RequestBody HouseListDeleteRequest houseListDeleteRequest) throws Exception {
+        return houseService.deleteHouse(authentication, houseListDeleteRequest);
+    }
+
+    // 보유주택 전체 삭제
+    @DeleteMapping("/house/deleteAll")
+    public Object deleteHouseAll(Authentication authentication) throws Exception {
+        return houseService.deleteHouseAll(authentication);
     }
 }
