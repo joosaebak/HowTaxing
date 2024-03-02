@@ -25,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // 회원가입
     public Object signUp(Authentication authentication, UserSignUpDto userSignUpDto) throws Exception {
 
         Map<String, Object> resultMap = new HashMap<>();
@@ -58,6 +59,7 @@ public class UserService {
         return ApiResponse.success(resultMap);
     }
 
+    // 회원탈퇴(미사용)
     public Object withdraw(Authentication authentication) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
 
@@ -76,12 +78,12 @@ public class UserService {
         return ApiResponse.success(resultMap);
     }
 
+    // 회원탈퇴
     public Object deleteUser(Authentication authentication) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
 
         try{
-            log.info("[GGMANYAR]회원탈퇴");
-            log.info("[GGMANYAR]email : " + authentication.getName());
+            log.info("회원탈퇴");
 
             userRepository.deleteByEmail(authentication.getName());
 

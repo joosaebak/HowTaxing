@@ -46,7 +46,7 @@ public class House extends DateEntity {
     private boolean isDestruction;      // 멸실여부
     private boolean isCurOwn;           // 현재소유여부
     private Integer ownerCnt;           // 소유자수
-    private Integer user_proportion;    // 본인지분비율
+    private Integer userProportion;     // 본인지분비율
     private boolean isMoveInRight;      // 입주권여부
     private String sourceType;          // 출처유형
 }

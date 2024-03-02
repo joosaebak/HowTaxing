@@ -20,31 +20,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
-
     private final UserService userService;
 
+    // 회원가입
     @PostMapping("/user/signUp")
     public Object signUp(Authentication authentication, @RequestBody UserSignUpDto userSignUpDto) throws Exception {
         return userService.signUp(authentication, userSignUpDto);
     }
 
-    // 삭제 예정
-    @GetMapping("/user/withdraw")
-    public Object withdraw(Authentication authentication) throws Exception {
-        return userService.withdraw(authentication);
-    }
-
-    @DeleteMapping("/user/delete")
+    // 회원탈퇴
+    @DeleteMapping("/user/withdraw")
     public Object deleteUser(Authentication authentication) throws Exception {
         return userService.deleteUser(authentication);
     }
 
-    // 미사용
-    @GetMapping("/jwt-test")
-    public String jwtTest() {
-        return "jwtTest 요청 성공";
-    }
+    // 로그인 요청
+    // @GetMapping("/oauth2/authorization/kakao")
 
+    // (자동)로그인 성공
     @GetMapping("/oauth2/loginSuccess")
     public Object loginSuccess(@RequestParam String accessToken, @RequestParam String refreshToken, @RequestParam String role){
         Map<String, Object> tokenMap = new HashMap<>();
@@ -60,6 +53,7 @@ public class UserController {
         return ApiResponse.success(tokenMap);
     }
 
+    // (자동)로그인 실패
     @GetMapping("/oauth2/loginFail")
     public Object loginFail(@RequestParam String socialType){
         log.info("socialType : " + socialType);
