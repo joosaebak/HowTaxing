@@ -76,7 +76,7 @@ public class OAuthAttributes {
      */
     public User toEntity(SocialType socialType, OAuth2UserInfo oauth2UserInfo) {
         // 사용자 이메일(이메일이 비어있는 경우, UUID를 발급하여 임의로 이메일 계정 생성하여 세팅)
-        String email = (oauth2UserInfo.getEmail().isBlank()) ? UUID.randomUUID() + "@socialUser.com" : oauth2UserInfo.getEmail();
+        String email = (oauth2UserInfo.getEmail() == null || oauth2UserInfo.getEmail().isBlank()) ? UUID.randomUUID() + "@socialUser.com" : oauth2UserInfo.getEmail();
 
         return User.builder()
                 .socialType(socialType)
