@@ -17,11 +17,11 @@ import com.xmonster.howtaxing.repository.house.HouseRepository;
 import com.xmonster.howtaxing.repository.user.UserRepository;
 import com.xmonster.howtaxing.type.ErrorCode;
 
+import com.xmonster.howtaxing.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.sql.OracleJoinFragment;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,13 +46,16 @@ public class HouseService {
     private final HouseRepository houseRepository;
     private final UserRepository userRepository;
 
+    private final UserUtil userUtil;
+
     private static final int MAX_JUSO_CALL_CNT = 3; // 주소 한건 당 주소기반산업지원서비스 도로명주소 재조회 호출 건수 최대값
 
     // 보유주택 조회(하이픈-청약홈)
-    public Object getHouseListSearch(Authentication authentication, HouseListSearchRequest houseListSearchRequest) {
+    public Object getHouseListSearch(HouseListSearchRequest houseListSearchRequest) {
+        log.info(">> [Service]HouseService getHouseListSearch - 보유주택 조회(하이픈-청약홈)");
+
         // 호출 사용자 조회
-        User findUser = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User findUser = userUtil.findCurrentUser();
 
         // 1. 하이픈 Access Token 가져오기
         HyphenAuthResponse hyphenAuthResponse = hyphenUserHouseService.getAccessToken()
@@ -126,10 +129,11 @@ public class HouseService {
     }
 
     // 보유주택 목록 조회(DB)
-    public Object getHouseList(Authentication authentication) {
+    public Object getHouseList() {
+        log.info(">> [Service]HouseService getHouseList - 보유주택 목록 조회(DB)");
+
         // 호출 사용자 조회
-        User findUser = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User findUser = userUtil.findCurrentUser();
 
         List<House> houseListFromDB = houseRepository.findByUserId(findUser.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -155,6 +159,8 @@ public class HouseService {
 
     // 주택 상세정보 조회
     public Object getHouseDetail(String houseId) throws Exception {
+        log.info(">> [Service]HouseService getHouseDetail - 주택 상세정보 조회");
+
         if(houseId == null || houseId.isBlank()) throw new CustomException(ErrorCode.ETC_ERROR);
 
         House house = houseRepository.findByHouseId(houseId)
@@ -184,8 +190,8 @@ public class HouseService {
     }
 
     // 보유주택 (직접)등록
-    public Object registHouseInfo(Authentication authentication, HouseRegistRequest houseRegistRequest) throws Exception {
-        Map<String, Object> resultMap = new HashMap<>();
+    public Object registHouseInfo(HouseRegistRequest houseRegistRequest) throws Exception {
+        log.info(">> [Service]HouseService registHouseInfo - 보유주택 (직접)등록");
 
         if(houseRegistRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
 
@@ -201,19 +207,18 @@ public class HouseService {
                             .bdMgtSn(houseRegistRequest.getBdMgtSn())
                             .admCd(houseRegistRequest.getAdmCd())
                             .rnMgtSn(houseRegistRequest.getRnMgtSn())
+                            .sourceType(TWO)
                             .build());
         }catch(Exception e){
             throw new CustomException(ErrorCode.ETC_ERROR);
         }
 
-        resultMap.put("result", "주택 정보가 등록되었습니다.");
-
-        return ApiResponse.success(resultMap);
+        return ApiResponse.success(Map.of("result", "주택 정보가 등록되었습니다."));
     }
 
-    //
+    // 보유주택 (정보)수정
     public Object modifyHouseInfo(HouseModifyRequest houseModifyRequest) throws Exception {
-        Map<String, Object> resultMap = new HashMap<>();
+        log.info(">> HouseService modifyHouseInfo - 보유주택 (정보)수정");
 
         if(houseModifyRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
 
@@ -243,14 +248,12 @@ public class HouseService {
             throw new CustomException(ErrorCode.ETC_ERROR);
         }
 
-        resultMap.put("result", "주택 정보가 수정되었습니다.");
-
-        return ApiResponse.success(resultMap);
+        return ApiResponse.success(Map.of("result", "주택 정보가 수정되었습니다."));
     }
 
     // 보유주택 삭제
-    public Object deleteHouse(Authentication authentication, HouseListDeleteRequest houseListDeleteRequest) throws Exception {
-        Map<String, Object> resultMap = new HashMap<>();
+    public Object deleteHouse(HouseListDeleteRequest houseListDeleteRequest) throws Exception {
+        log.info(">> [Service]HouseService deleteHouse - 보유주택 삭제");
 
         if(houseListDeleteRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
 
@@ -260,18 +263,15 @@ public class HouseService {
             throw new CustomException(ErrorCode.ETC_ERROR);
         }
 
-        resultMap.put("result", "보유주택이 삭제되었습니다.");
-
-        return ApiResponse.success(resultMap);
+        return ApiResponse.success(Map.of("result", "보유주택이 삭제되었습니다."));
     }
 
     // 보유주택 전체 삭제
-    public Object deleteHouseAll(Authentication authentication) throws Exception {
-        Map<String, Object> resultMap = new HashMap<>();
+    public Object deleteHouseAll() throws Exception {
+        log.info(">> [Service]HouseService deleteHouse - 보유주택 삭제");
 
         // 호출 사용자 조회
-        User findUser = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User findUser = userUtil.findCurrentUser();
 
         try{
             houseRepository.deleteByUserId(findUser.getId());
@@ -279,12 +279,13 @@ public class HouseService {
             throw new CustomException(ErrorCode.ETC_ERROR);
         }
 
-        resultMap.put("result", "전체 보유주택이 삭제되었습니다.");
-
-        return ApiResponse.success(resultMap);
+        return ApiResponse.success(Map.of("result", "전체 보유주택이 삭제되었습니다."));
     }
 
+    // 하이픈 보유주택 조회 응답 정상여부 확인
     private boolean isSuccessHyphenUserHouseListResponse(HyphenCommon hyphenCommon){
+        log.info(">>> HouseService isSuccessHyphenUserHouseListResponse - 하이픈 보유주택 조회 응답 정상여부 확인");
+
         if(hyphenCommon != null){
             if(NO.equals(hyphenCommon.getErrYn())){
                 return true;
@@ -297,7 +298,10 @@ public class HouseService {
         }
     }
 
+    // 하이픈에서 가져온 List1(건축물대장정보)을 House 엔티티에 필터링하여 세팅
     private void setList1ToHouseEntity(List<DataDetail1> list, List<House> houseList){
+        log.info(">>> HouseService setList1ToHouseEntity - 하이픈에서 가져온 List1(건축물대장정보)을 House 엔티티에 필터링하여 세팅");
+
         List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = new ArrayList<>();
 
         if(list != null && !list.isEmpty()){
@@ -325,15 +329,16 @@ public class HouseService {
         if(!hyphenUserHouseResultInfoList.isEmpty()){
             for (HyphenUserHouseResultInfo hyphenUserHouseResultInfo : hyphenUserHouseResultInfoList){
                 JusoDetail jusoDetail = this.searchJusoDetail(hyphenUserHouseResultInfo);
-                this.setHouseList(hyphenUserHouseResultInfo, jusoDetail, houseList);
+                this.setHouseList(hyphenUserHouseResultInfo, jusoDetail, houseList); // House Entity에 데이터 세팅
             }
         }
     }
 
+    // 하이픈에서 가져온 List2(부동산거래내역)을 House 엔티티에 필터링하여 세팅
     private void setList2ToHouseEntity(List<DataDetail2> list, List<House> houseList){
+        log.info(">>> HouseService setList2ToHouseEntity - 하이픈에서 가져온 List2(부동산거래내역)을 House 엔티티에 필터링하여 세팅");
 
         List<HyphenUserHouseResultInfo> tempHyphenUserHouseResultInfoList = new ArrayList<>();
-        List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = new ArrayList<>();
 
         if(list != null && !list.isEmpty()){
             for (DataDetail2 dataDetail2 : list) {
@@ -370,21 +375,21 @@ public class HouseService {
             }
             
             // 거래내역 주택 필터링 작업하여 hyphenUserHouseResultInfoList에 결과 세팅
-            hyphenUserHouseResultInfoList = this.filteringTradeHouseList(tempHyphenUserHouseResultInfoList);
+            List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = this.filteringTradeHouseList(tempHyphenUserHouseResultInfoList);
 
             // 도로명주소 검색 API 호출(주소기반산업지원서비스)
             if(!hyphenUserHouseResultInfoList.isEmpty()){
                 for (HyphenUserHouseResultInfo hyphenUserHouseResultInfo : hyphenUserHouseResultInfoList){
                     JusoDetail jusoDetail = this.searchJusoDetail(hyphenUserHouseResultInfo);
-                    this.setHouseList(hyphenUserHouseResultInfo, jusoDetail, houseList);
+                    this.setHouseList(hyphenUserHouseResultInfo, jusoDetail, houseList); // House Entity에 데이터 세팅
                 }
             }
-            
-            // House Entity에 데이터 세팅
         }
     }
 
+    // 하이픈에서 가져온 List3(재산세정보)을 House 엔티티에 필터링하여 세팅
     private void setList3ToHouseEntity(List<DataDetail3> list, List<House> houseList){
+        log.info(">>> HouseService setList3ToHouseEntity - 하이픈에서 가져온 List3(재산세정보)을 House 엔티티에 필터링하여 세팅");
 
         List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = new ArrayList<>();
 
@@ -416,7 +421,7 @@ public class HouseService {
 
     // 거래내역 주택 필터링
     private List<HyphenUserHouseResultInfo> filteringTradeHouseList(List<HyphenUserHouseResultInfo> list){
-        log.info("거래내역 주택 필터링 Method");
+        log.info(">>> HouseService filteringTradeHouseList - 거래내역 주택 필터링");
 
         List<HyphenUserHouseResultInfo> filterList = new ArrayList<>();
         List<HyphenUserHouseResultInfo> doubleBuyList = new ArrayList<>();
@@ -577,6 +582,8 @@ public class HouseService {
 
     // (매도/매수구분에서) 거래유형 가져오기
     private String getTradeTypeFromSellBuyClassification(String sellBuyClassification){
+        log.info(">>> HouseService getTradeTypeFromSellBuyClassification - (매도/매수구분에서) 거래유형 가져오기");
+
         String tradeType = ZERO;
 
         if(sellBuyClassification.contains("매수")){
@@ -590,6 +597,8 @@ public class HouseService {
 
     // (매도/매수구분에서) 주택유형 가져오기
     private String getHouseTypeFromSellBuyClassification(String sellBuyClassification){
+        log.info(">>> HouseService getHouseTypeFromSellBuyClassification - (매도/매수구분에서) 주택유형 가져오기");
+
         String houseType = SIX;
 
         if(sellBuyClassification.contains("분양권")){
@@ -601,6 +610,8 @@ public class HouseService {
 
     // (주소기반산업지원서비스 - 도로명주소 조회) 상세 주소정보 조회
     private JusoDetail searchJusoDetail(HyphenUserHouseResultInfo hyphenUserHouseResultInfo){
+        log.info(">>> HouseService searchJusoDetail - (주소기반산업지원서비스 - 도로명주소 조회) 상세 주소정보 조회");
+
         JusoDetail jusoDetail = null;
 
         if(hyphenUserHouseResultInfo.getSearchAdr() != null){
@@ -663,6 +674,8 @@ public class HouseService {
 
     // House Entity List 세팅
     private void setHouseList(HyphenUserHouseResultInfo hyphenUserHouseResultInfo, JusoDetail jusoDetail, List<House> houseList){
+        log.info(">>> HouseService setHouseList - House Entity List 세팅");
+
         if(hyphenUserHouseResultInfo != null && jusoDetail != null && houseList != null){
             // houseList에 동일한 건물관리번호를 가진 House가 존재하는지 체크하여 존재하면 update, 존재하지 않으면 create
             String bdMgtSn = jusoDetail.getBdMgtSn();

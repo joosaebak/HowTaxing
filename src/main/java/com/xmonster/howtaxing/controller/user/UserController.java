@@ -10,7 +10,6 @@ import static com.xmonster.howtaxing.constant.CommonConstant.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,22 +23,26 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/user/signUp")
-    public Object signUp(Authentication authentication, @RequestBody UserSignUpDto userSignUpDto) throws Exception {
-        return userService.signUp(authentication, userSignUpDto);
+    public Object signUp(@RequestBody UserSignUpDto userSignUpDto) throws Exception {
+        log.info(">> [Controller]UserController signUp - 회원가입");
+        return userService.signUp(userSignUpDto);
     }
 
     // 회원탈퇴
     @DeleteMapping("/user/withdraw")
-    public Object deleteUser(Authentication authentication) throws Exception {
-        return userService.deleteUser(authentication);
+    public Object withdraw() throws Exception {
+        log.info(">> [Controller]UserController withdraw - 회원탈퇴");
+        return userService.withdraw();
     }
 
     // 로그인 요청
-    // @GetMapping("/oauth2/authorization/kakao")
+    // @GetMapping("/oauth2/authorization/{socialType}}")
 
     // (자동)로그인 성공
     @GetMapping("/oauth2/loginSuccess")
     public Object loginSuccess(@RequestParam String accessToken, @RequestParam String refreshToken, @RequestParam String role){
+        log.info(">> [Controller]UserController loginSuccess - 로그인 성공");
+
         Map<String, Object> tokenMap = new HashMap<>();
 
         if(accessToken == null || refreshToken == null){
@@ -56,7 +59,7 @@ public class UserController {
     // (자동)로그인 실패
     @GetMapping("/oauth2/loginFail")
     public Object loginFail(@RequestParam String socialType){
-        log.info("socialType : " + socialType);
+        log.info(">> [Controller]UserController loginFail - 로그인 실패");
 
         if(socialType != null && !EMPTY.equals(socialType)){
             throw new CustomException(ErrorCode.LOGIN_FAILED_HAS_EMAIL, socialType + "를 통해 동일한 이메일이 가입되어 있습니다.");

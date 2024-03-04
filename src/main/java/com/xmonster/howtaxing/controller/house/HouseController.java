@@ -17,50 +17,57 @@ public class HouseController {
 
     // 보유주택 조회(하이픈-청약홈-주택소유확인)
     @PostMapping("/house/search")
-    public Object getHouseListSearch(Authentication authentication, @RequestBody HouseListSearchRequest houseListSearchRequest) throws Exception {
-        return houseService.getHouseListSearch(authentication, houseListSearchRequest);
+    public Object getHouseListSearch(@RequestBody HouseListSearchRequest houseListSearchRequest) throws Exception {
+        log.info(">> [Controller]HouseController getHouseListSearch - 보유주택 조회(하이픈-청약홈-주택소유확인)");
+        return houseService.getHouseListSearch(houseListSearchRequest);
     }
 
     // 보유주택 목록 조회
     @GetMapping("/house/list")
-    public Object getHouseList(Authentication authentication) throws Exception {
-        return houseService.getHouseList(authentication);
+    public Object getHouseList() throws Exception {
+        log.info(">> [Controller]HouseController getHouseList - 보유주택 목록 조회");
+        return houseService.getHouseList();
     }
 
     // 보유주택 상세 조회
     @GetMapping("/house/detail")
     public Object getHouseDetail(@RequestParam String houseId)  throws Exception {
+        log.info(">> [Controller]HouseController getHouseDetail - 보유주택 상세 조회");
         return houseService.getHouseDetail(houseId);
     }
 
     // 보유주택 (직접)등록
     @PostMapping("/house/regist")
-    public Object registHouseInfo(Authentication authentication, @RequestBody HouseRegistRequest houseRegistRequest) throws Exception {
-        return houseService.registHouseInfo(authentication, houseRegistRequest);
+    public Object registHouseInfo(@RequestBody HouseRegistRequest houseRegistRequest) throws Exception {
+        log.info(">> [Controller]HouseController registHouseInfo - 보유주택 (직접)등록");
+        return houseService.registHouseInfo(houseRegistRequest);
     }
 
-    // 보유주택 수정
+    // 보유주택 (정보)수정
     @PutMapping("/house/modify")
     public Object modifyHouseInfo(@RequestBody HouseModifyRequest houseModifyRequest) throws Exception {
+        log.info(">> [Controller]HouseController modifyHouseInfo - 보유주택 (정보)수정");
         return houseService.modifyHouseInfo(houseModifyRequest);
     }
 
     // 보유주택 삭제
     @DeleteMapping("/house/delete")
-    public Object deleteHouse(Authentication authentication, @RequestBody HouseListDeleteRequest houseListDeleteRequest) throws Exception {
-        return houseService.deleteHouse(authentication, houseListDeleteRequest);
+    public Object deleteHouse(@RequestBody HouseListDeleteRequest houseListDeleteRequest) throws Exception {
+        log.info(">> [Controller]HouseController deleteHouse - 보유주택 삭제");
+        return houseService.deleteHouse(houseListDeleteRequest);
     }
 
     // 보유주택 전체 삭제
     @DeleteMapping("/house/deleteAll")
-    public Object deleteHouseAll(Authentication authentication) throws Exception {
-        return houseService.deleteHouseAll(authentication);
+    public Object deleteHouseAll() throws Exception {
+        log.info(">> [Controller]HouseController deleteHouseAll - 보유주택 전체 삭제");
+        return houseService.deleteHouseAll();
     }
 
     // TODO. 거주기간 조회(하이픈-정부24-주민등록초본)
     /*@PostMapping("/house/stayPeriod")
-    public Object searchHouseStayPeriod(Authentication authentication, @RequestBody HouseStayPeriodRequest houseStayPeriodRequest){
-        return houseService.getHouseStayPeriod(authentication, houseStayPeriodRequest);
+    public Object searchHouseStayPeriod(@RequestBody HouseStayPeriodRequest houseStayPeriodRequest){
+        return houseService.getHouseStayPeriod(houseStayPeriodRequest);
     }*/
 
 }
