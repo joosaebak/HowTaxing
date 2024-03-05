@@ -1,8 +1,9 @@
 package com.xmonster.howtaxing.dto.house;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+
 import static com.xmonster.howtaxing.constant.CommonConstant.*;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Setter
 @Getter
+@ToString
 public class HouseAddressDto {
     private String address;                 // 주소(원장주소)
     private String detailAddress;           // 상세주소
@@ -36,8 +38,8 @@ public class HouseAddressDto {
         this.address = address;
         this.detailAddress = EMPTY;
         this.addressType = 0;
-        this.searchAddress = new ArrayList<String>();
-        this.etcAddress = new ArrayList<String>();
+        this.searchAddress = new ArrayList<>();
+        this.etcAddress = new ArrayList<>();
     }
 
     public void appendToEtcAddress(String addressComponent){

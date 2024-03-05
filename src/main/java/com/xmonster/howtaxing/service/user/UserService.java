@@ -4,12 +4,12 @@ import com.xmonster.howtaxing.CustomException;
 import com.xmonster.howtaxing.dto.common.ApiResponse;
 import com.xmonster.howtaxing.dto.user.UserSignUpDto;
 import com.xmonster.howtaxing.model.User;
+import com.xmonster.howtaxing.repository.house.HouseRepository;
 import com.xmonster.howtaxing.repository.user.UserRepository;
 import com.xmonster.howtaxing.type.ErrorCode;
 import com.xmonster.howtaxing.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +23,10 @@ import java.util.Map;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final HouseRepository houseRepository;
     private final UserUtil userUtil;
+    //private final PasswordEncoder passwordEncoder;
+
 
     // 회원가입
     public Object signUp(UserSignUpDto userSignUpDto) throws Exception {
@@ -52,8 +54,12 @@ public class UserService {
     public Object withdraw() throws Exception {
         log.info(">> [Service]UserService withdraw - 회원탈퇴");
 
+        // 호출 사용자 조회
+        User findUser = userUtil.findCurrentUser();
+
         try{
-            userRepository.deleteByEmail(userUtil.findCurrentUser().getEmail());
+            userRepository.deleteByEmail(findUser.getEmail());  // 회원 정보 삭제
+            houseRepository.deleteByUserId(findUser.getId());   // 회원의 주택 정보 삭제
         }catch(Exception e){
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }

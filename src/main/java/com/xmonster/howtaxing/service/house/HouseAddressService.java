@@ -38,11 +38,21 @@ public class HouseAddressService {
      * 경기도 부천시 상동 394 한국아파트 ****동-****호
      *****************************************************************************/
 
+    // 주소 분할
     public HouseAddressDto separateAddress(String address){
-        HouseAddressDto houseAddressDto = new HouseAddressDto(address);
-        String[] splitAddress = houseAddressDto.getAddress().split("\\s | \\(");    // 공백과 '('로 분할
+        log.info(">>> HouseAddressService separateAddress - 주소 분할");
+
+        String replaceAddress = address.replaceAll("\\s+", SPACE);
+        HouseAddressDto houseAddressDto = new HouseAddressDto(replaceAddress);
+        String[] splitAddress = houseAddressDto.getAddress().split("\\s+|\\(");    // 공백과 '('로 분할
 
         if(splitAddress.length > 0){
+            log.info("----- splitAddress Print Start -----");
+            for(int i=0; i<splitAddress.length; i++){
+                log.info("Index : " + i);
+                log.info("Data : " + splitAddress[i]);
+            }
+            log.info("----- splitAddress Print End -----");
 
             for(int j=0; j<splitAddress.length; j++){
                 String str = splitAddress[j];
@@ -52,8 +62,11 @@ public class HouseAddressService {
                 }
             }
 
+            log.info("----- Mapping Start -----");
             for(int i=0; i<splitAddress.length; i++){
                 String part = splitAddress[i];
+                log.info("index : " + i);
+                log.info("part : " + part);
 
                 // [1] 시/도
                 if(i==0){
@@ -70,7 +83,7 @@ public class HouseAddressService {
                 // [3] 구 or 읍/면 or 동/리 or 도로명
                 else if(i==2){
                     if(part.endsWith("구")){
-                        if(!houseAddressDto.getSiGunGu().isBlank() && !houseAddressDto.getSiGunGu().endsWith("구")){
+                        if(houseAddressDto.getSiGunGu() != null && !houseAddressDto.getSiGunGu().isBlank() && !houseAddressDto.getSiGunGu().endsWith("구")){
                             houseAddressDto.setGu(part);
                         }
                     } else if(part.endsWith("읍") || part.endsWith("면")){
@@ -160,19 +173,19 @@ public class HouseAddressService {
                     if(houseAddressDto.getAddressType() == 1){
                         // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
                         if(this.isValidFormat(1, part)){
-                            if(!houseAddressDto.getJibun().isBlank()){
+                            if(houseAddressDto.getJibun() == null){
                                 houseAddressDto.setJibun(part);
                             }
                         }else if(part.endsWith("동")){
-                            if(!houseAddressDto.getDetailDong().isBlank()){
+                            if(houseAddressDto.getDetailDong() == null){
                                 houseAddressDto.setDetailDong(this.removeFrontZero(part));
                             }
                         }else if(part.endsWith("호")){
-                            if(!houseAddressDto.getDetailHo().isBlank()){
+                            if(houseAddressDto.getDetailHo() == null){
                                 houseAddressDto.setDetailHo(this.removeFrontZero(part));
                             }
                         }else if(part.endsWith("층")){
-                            if(!houseAddressDto.getDetailCheung().isBlank()){
+                            if(houseAddressDto.getDetailCheung() == null){
                                 houseAddressDto.setDetailCheung(this.removeFrontZero(part));
                             }
                         }else{
@@ -181,19 +194,19 @@ public class HouseAddressService {
                     }else if(houseAddressDto.getAddressType() == 2){
                         // 건물번호(숫자만으로 이루어진 문자열인지 체크)
                         if(this.isValidFormat(2, part)){
-                            if(!houseAddressDto.getBuildingNo().isBlank()){
+                            if(houseAddressDto.getBuildingNo() == null){
                                 houseAddressDto.setBuildingNo(part);
                             }
                         }else if(part.endsWith("동")){
-                            if(!houseAddressDto.getDetailDong().isBlank()){
+                            if(houseAddressDto.getDetailDong() != null){
                                 houseAddressDto.setDetailDong(this.removeFrontZero(part));
                             }
                         }else if(part.endsWith("호")){
-                            if(!houseAddressDto.getDetailHo().isBlank()){
+                            if(houseAddressDto.getDetailHo() != null){
                                 houseAddressDto.setDetailHo(this.removeFrontZero(part));
                             }
                         }else if(part.endsWith("층")){
-                            if(!houseAddressDto.getDetailCheung().isBlank()){
+                            if(houseAddressDto.getDetailCheung() != null){
                                 houseAddressDto.setDetailCheung(this.removeFrontZero(part));
                             }
                         }else{
@@ -204,9 +217,12 @@ public class HouseAddressService {
                     }
                 }
             }
+            log.info("----- Mapping End -----");
 
             houseAddressDto.makeDetailAddress();    // 상세주소 생성
             houseAddressDto.makeSearchAddress();    // 검색 주소(리스트) 생성
+
+            log.info("houseAddressDto.toString() : " + houseAddressDto.toString());
         }
 
         return houseAddressDto;
@@ -234,10 +250,12 @@ public class HouseAddressService {
         String result = EMPTY;
         String regex = "^0+";
 
-        if(!input.isBlank()){
+        if(input != null && !input.isBlank()){
             result = input.replaceFirst(regex, EMPTY);
         }
 
         return result;
     }
+
+
 }

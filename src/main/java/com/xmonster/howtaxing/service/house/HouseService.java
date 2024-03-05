@@ -14,14 +14,12 @@ import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse.HyphenData.
 import com.xmonster.howtaxing.model.House;
 import com.xmonster.howtaxing.model.User;
 import com.xmonster.howtaxing.repository.house.HouseRepository;
-import com.xmonster.howtaxing.repository.user.UserRepository;
 import com.xmonster.howtaxing.type.ErrorCode;
 
 import com.xmonster.howtaxing.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.hibernate.sql.OracleJoinFragment;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,7 +42,6 @@ public class HouseService {
     private final HouseAddressService houseAddressService;
 
     private final HouseRepository houseRepository;
-    private final UserRepository userRepository;
 
     private final UserUtil userUtil;
 
