@@ -1,8 +1,10 @@
 package com.xmonster.howtaxing.service.house;
 
 import com.xmonster.howtaxing.dto.house.HouseAddressDto;
+import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse.Results.JusoDetail;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
@@ -42,8 +44,7 @@ public class HouseAddressService {
     public HouseAddressDto separateAddress(String address){
         log.info(">>> HouseAddressService separateAddress - 주소 분할");
 
-        String replaceAddress = address.replaceAll("\\s+", SPACE);
-        HouseAddressDto houseAddressDto = new HouseAddressDto(replaceAddress);
+        HouseAddressDto houseAddressDto = new HouseAddressDto(this.replaceLongSpace(address));
         String[] splitAddress = houseAddressDto.getAddress().split("\\s+|\\(");    // 공백과 '('로 분할
 
         if(splitAddress.length > 0){
@@ -228,6 +229,40 @@ public class HouseAddressService {
         return houseAddressDto;
     }
 
+    public JusoDetail replaceSpecialCharactersForJusoDetail(JusoDetail jusoDetail){
+        if(jusoDetail != null){
+            jusoDetail.setRoadAddr(this.replaceSpecialCharacters(jusoDetail.getRoadAddr()));
+            jusoDetail.setRoadAddrPart1(this.replaceSpecialCharacters(jusoDetail.getRoadAddrPart1()));
+            jusoDetail.setRoadAddrPart2(this.replaceSpecialCharacters(jusoDetail.getRoadAddrPart2()));
+            jusoDetail.setJibunAddr(this.replaceSpecialCharacters(jusoDetail.getJibunAddr()));
+            jusoDetail.setDetBdNmList(this.replaceSpecialCharacters(jusoDetail.getDetBdNmList()));
+            jusoDetail.setBdNm(this.replaceSpecialCharacters(jusoDetail.getBdNm()));
+        }
+
+        return jusoDetail;
+    }
+
+    private String replaceSpecialCharacters(String address){
+        String replaceAddress = address;
+
+        if(address != null){
+            replaceAddress = replaceAddress.replaceAll("&nbsp;", SPACE);
+            replaceAddress = replaceAddress.replaceAll("&amp;", "&");
+            replaceAddress = replaceAddress.replaceAll("&lt;", "<");
+            replaceAddress = replaceAddress.replaceAll("&gt;", ">");
+        }
+
+        return replaceAddress;
+    }
+
+    private String replaceLongSpace(String address){
+        String replaceAddress = StringUtils.defaultString(address);
+
+        replaceAddress = replaceAddress.replaceAll("\\s+", SPACE);
+
+        return replaceAddress;
+    }
+
     private boolean isValidFormat(int type, String input){
         boolean result = false;
         String regex = EMPTY;
@@ -256,6 +291,4 @@ public class HouseAddressService {
 
         return result;
     }
-
-
 }

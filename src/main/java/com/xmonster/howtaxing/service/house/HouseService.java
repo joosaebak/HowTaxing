@@ -640,6 +640,7 @@ public class HouseService {
                                 if(ttcn == 1){
                                     //this.setHouseList(hyphenUserHouseResultInfo, jusoGovRoadAdrResponse.getResults().getJuso().get(0), houseList);
                                     jusoDetail = jusoGovRoadAdrResponse.getResults().getJuso().get(0);
+                                    jusoDetail = houseAddressService.replaceSpecialCharactersForJusoDetail(jusoDetail);
                                     break;
                                 }
                                 // 검색 결과가 없는 경우 : PASS
