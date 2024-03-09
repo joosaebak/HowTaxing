@@ -37,7 +37,7 @@ public class HouseController {
 
     // 보유주택 상세 조회
     @GetMapping("/house/detail")
-    public Object getHouseDetail(@RequestParam String houseId)  throws Exception {
+    public Object getHouseDetail(@RequestParam Long houseId)  throws Exception {
         log.info(">> [Controller]HouseController getHouseDetail - 보유주택 상세 조회");
         return houseService.getHouseDetail(houseId);
     }

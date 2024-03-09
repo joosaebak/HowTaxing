@@ -239,10 +239,10 @@ public class HouseService {
     }
 
     // 주택 상세정보 조회
-    public Object getHouseDetail(String houseId) throws Exception {
+    public Object getHouseDetail(Long houseId) throws Exception {
         log.info(">> [Service]HouseService getHouseDetail - 주택 상세정보 조회");
 
-        if(houseId == null || houseId.isBlank()) throw new CustomException(ErrorCode.ETC_ERROR);
+        if(houseId == null || houseId == 0) throw new CustomException(ErrorCode.ETC_ERROR);
 
         House house = houseRepository.findByHouseId(houseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ETC_ERROR));
@@ -267,7 +267,8 @@ public class HouseService {
                         .isDestruction(house.isDestruction())
                         .ownerCnt(house.getOwnerCnt())
                         .userProportion(house.getUserProportion())
-                        .isMoveInRight(house.isMoveInRight()));
+                        .isMoveInRight(house.isMoveInRight())
+                        .build());
     }
 
     // 보유주택 (직접)등록
