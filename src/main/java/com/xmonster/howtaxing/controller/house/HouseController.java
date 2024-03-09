@@ -21,6 +21,13 @@ public class HouseController {
         return houseService.getHouseListSearch(houseListSearchRequest);
     }
 
+    // 보유주택 조회(하이픈-청약홈-주택소유확인) 테스트
+    @PostMapping("/house/searchTest")
+    public Object getHouseListSearchTest(@RequestBody HouseListSearchRequest houseListSearchRequest) throws Exception {
+        log.info(">> [Controller]HouseController getHouseListSearchTest - 보유주택 조회(하이픈-청약홈-주택소유확인) 테스트");
+        return houseService.getHouseListSearchTest(houseListSearchRequest);
+    }
+
     // 보유주택 목록 조회
     @GetMapping("/house/list")
     public Object getHouseList() throws Exception {

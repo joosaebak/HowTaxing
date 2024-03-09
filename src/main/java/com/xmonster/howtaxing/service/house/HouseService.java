@@ -125,6 +125,90 @@ public class HouseService {
                         .build());
     }
 
+    // 보유주택 조회(하이픈-청약홈) 테스트(하이픈 조회 데이터만 DUMMY)
+    public Object getHouseListSearchTest(HouseListSearchRequest houseListSearchRequest) {
+        log.info(">> [Service]HouseService getHouseListSearchTest - 보유주택 조회(하이픈-청약홈) 테스트");
+
+        // 호출 사용자 조회
+        User findUser = userUtil.findCurrentUser();
+
+        // 청약홈(하이픈)에서 가져와 house 테이블에 세팅한 해당 사용자의 주택 정보를 모두 삭제
+        houseRepository.deleteByUserIdAndSourceType(findUser.getId(), ONE);
+
+        List<House> houseList = new ArrayList<>();
+
+        // 대경빌라
+        houseList.add(
+                House.builder()
+                        .userId(findUser.getId())
+                        .houseType(SIX)
+                        .houseName("대경빌라")
+                        .detailAdr("1동 8102호")
+                        .contractDate(LocalDate.parse("20220423", DateTimeFormatter.ofPattern("yyyyMMdd")))
+                        .balanceDate(LocalDate.parse("20220519", DateTimeFormatter.ofPattern("yyyyMMdd")))
+                        .buyDate(LocalDate.parse("20220519", DateTimeFormatter.ofPattern("yyyyMMdd")))
+                        .buyPrice(Long.parseLong("270000000"))
+                        .jibunAddr("경기도 의왕시 삼동 192-2 대경빌라")
+                        .roadAddr("경기도 의왕시 부곡중앙북5길 5")
+                        .roadAddrRef(" (삼동, 대경빌라)")
+                        .bdMgtSn("4143010300101920002009839")
+                        .admCd("4143010300")
+                        .rnMgtSn("414304403087")
+                        .area(new BigDecimal(StringUtils.defaultString("60.840", DEFAULT_DECIMAL)))
+                        .isDestruction(false)
+                        .isCurOwn(false)
+                        .ownerCnt(1)
+                        .userProportion(100)
+                        .isMoveInRight(false)
+                        .sourceType(ONE)
+                        .build());
+
+        // 의정부역센트럴자이&위브캐슬
+        houseList.add(
+                House.builder()
+                        .userId(findUser.getId())
+                        .houseType(SIX)
+                        .houseName("의정부역센트럴자이&위브캐슬")
+                        .jibunAddr("경기도 의정부시 의정부동 723 의정부역센트럴자이&위브캐슬")
+                        .roadAddr("경기도 의정부시 경의로 130")
+                        .roadAddrRef(" (의정부동, 의정부역센트럴자이&위브캐슬)")
+                        .bdMgtSn("4115010100103800000015724")
+                        .admCd("4115010100")
+                        .rnMgtSn("411503181004")
+                        .area(new BigDecimal(StringUtils.defaultString("59.948", DEFAULT_DECIMAL)))
+                        .isDestruction(false)
+                        .isCurOwn(false)
+                        .ownerCnt(1)
+                        .userProportion(100)
+                        .isMoveInRight(false)
+                        .sourceType(ONE)
+                        .build());
+
+        // house 테이블에 houseList 저장
+        houseRepository.saveAllAndFlush(houseList);
+
+        List<House> houseListFromDB = houseRepository.findByUserId(findUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<HouseSimpleInfoResponse> houseSimpleInfoResponseList = new ArrayList<>();
+
+        for(House house : houseListFromDB){
+            houseSimpleInfoResponseList.add(
+                    HouseSimpleInfoResponse.builder()
+                            .houseId(house.getHouseId())
+                            .houseType(house.getHouseType())
+                            .houseName(house.getHouseName())
+                            .detailAdr(house.getDetailAdr())
+                            .build());
+        }
+
+        return ApiResponse.success(
+                HouseListSearchResponse.builder()
+                        .listCnt(houseSimpleInfoResponseList.size())
+                        .list(houseSimpleInfoResponseList)
+                        .build());
+    }
+
     // 보유주택 목록 조회(DB)
     public Object getHouseList() {
         log.info(">> [Service]HouseService getHouseList - 보유주택 목록 조회(DB)");
