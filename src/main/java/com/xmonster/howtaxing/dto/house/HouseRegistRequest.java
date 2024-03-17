@@ -11,6 +11,7 @@ public class HouseRegistRequest {
     private String houseType;           // 주택유형
     private String houseName;           // 주택명
     private String detailAdr;           // 상세주소
+
     private String jibunAddr;           // 지번주소
     private String roadAddr;            // 도로명주소
     private String roadAddrRef;         // 도로명주소참고항목

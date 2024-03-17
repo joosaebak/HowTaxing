@@ -17,8 +17,8 @@ public class House extends DateEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long houseId;               // 주택ID
-
     private Long userId;                // 사용자ID
+
     private String houseType;           // 주택유형
     private String houseName;           // 주택명
     private String detailAdr;           // 상세주소

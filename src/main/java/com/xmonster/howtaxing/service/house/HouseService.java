@@ -16,6 +16,7 @@ import com.xmonster.howtaxing.model.User;
 import com.xmonster.howtaxing.repository.house.HouseRepository;
 import com.xmonster.howtaxing.type.ErrorCode;
 
+import com.xmonster.howtaxing.utils.HouseUtil;
 import com.xmonster.howtaxing.utils.UserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class HouseService {
     private final HouseRepository houseRepository;
 
     private final UserUtil userUtil;
+    private final HouseUtil houseUtil;
 
     private static final int MAX_JUSO_CALL_CNT = 3; // 주소 한건 당 주소기반산업지원서비스 도로명주소 재조회 호출 건수 최대값
 
@@ -304,22 +306,41 @@ public class HouseService {
 
         if(houseModifyRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
 
+        // 호출 사용자 조회
+        User findUser = userUtil.findCurrentUser();
+        if(findUser == null) throw new CustomException(ErrorCode.ETC_ERROR);
+
+        Long houseId = houseModifyRequest.getHouseId();
+        Long userId = findUser.getId();
+
+        // (정보)수정 대상 주택 조회
+        House findHouse = houseUtil.findCurrentHouse(houseId);
+        Long houseOwnUserId = findHouse.getUserId();
+
+        if(houseId == null || userId == null || !userId.equals(houseOwnUserId)) throw new CustomException(ErrorCode.ETC_ERROR);
+
         try{
             houseRepository.saveAndFlush(
                     House.builder()
-                            .houseId(houseModifyRequest.getHouseId())
+                            .houseId(houseId)
+                            .userId(userId)
+                            .houseType(houseModifyRequest.getHouseType())
                             .houseName(houseModifyRequest.getHouseName())
                             .detailAdr(houseModifyRequest.getDetailAdr())
+                            .contractDate(houseModifyRequest.getContractDate())
+                            .balanceDate(houseModifyRequest.getBalanceDate())
+                            .buyDate(houseModifyRequest.getBuyDate())
+                            .moveInDate(houseModifyRequest.getMoveInDate())
+                            .moveOutDate(houseModifyRequest.getMoveOutDate())
+                            .buyPrice(houseModifyRequest.getBuyPrice())
+                            .pubLandPrice(houseModifyRequest.getPubLandPrice())
+                            .kbMktPrice(houseModifyRequest.getKbMktPrice())
                             .jibunAddr(houseModifyRequest.getJibunAddr())
                             .roadAddr(houseModifyRequest.getRoadAddr())
                             .roadAddrRef(houseModifyRequest.getRoadAddrRef())
                             .bdMgtSn(houseModifyRequest.getBdMgtSn())
                             .admCd(houseModifyRequest.getAdmCd())
                             .rnMgtSn(houseModifyRequest.getRnMgtSn())
-                            .buyDate(houseModifyRequest.getBuyDate())
-                            .buyPrice(houseModifyRequest.getBuyPrice())
-                            .pubLandPrice(houseModifyRequest.getPubLandPrice())
-                            .kbMktPrice(houseModifyRequest.getKbMktPrice())
                             .area(houseModifyRequest.getArea())
                             .isDestruction(houseModifyRequest.isDestruction())
                             .ownerCnt(houseModifyRequest.getOwnerCnt())
@@ -338,6 +359,8 @@ public class HouseService {
         log.info(">> [Service]HouseService deleteHouse - 보유주택 삭제");
 
         if(houseListDeleteRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
+
+        // TODO. 해당 사용자가 삭제 요청하는 것인지 확인 로직 필요
 
         try{
             houseRepository.deleteByHouseId(houseListDeleteRequest.getHouseId());
