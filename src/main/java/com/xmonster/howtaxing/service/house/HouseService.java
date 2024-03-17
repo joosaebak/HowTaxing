@@ -279,9 +279,17 @@ public class HouseService {
 
         if(houseRegistRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
 
+        // 호출 사용자 조회
+        User findUser = userUtil.findCurrentUser();
+        if(findUser == null) throw new CustomException(ErrorCode.ETC_ERROR);
+
+        Long userId = findUser.getId();
+        if(userId == null) throw new CustomException(ErrorCode.ETC_ERROR);
+
         try{
             houseRepository.saveAndFlush(
                     House.builder()
+                            .userId(userId)
                             .houseType(houseRegistRequest.getHouseType())
                             .houseName(houseRegistRequest.getHouseName())
                             .detailAdr(houseRegistRequest.getDetailAdr())
