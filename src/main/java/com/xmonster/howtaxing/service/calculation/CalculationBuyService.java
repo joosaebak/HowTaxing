@@ -502,6 +502,7 @@ public class CalculationBuyService {
                 // 세율이 상수인 경우
                 if(YES.equals(taxRateInfo.getConstYn())){
                     buyTaxRate = Float.parseFloat(StringUtils.defaultString(taxRateInfo.getTaxRate1(), ZERO));
+                    buyTaxPrice = (long) (buyPrice * buyTaxRate);
                 }
                 // 세율이 상수가 아닌 경우(변수)
                 else{
