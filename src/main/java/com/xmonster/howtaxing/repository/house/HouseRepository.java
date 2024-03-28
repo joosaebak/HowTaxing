@@ -17,4 +17,6 @@ public interface HouseRepository extends JpaRepository<House, Long> {
     void deleteByUserId(Long userId);
 
     void deleteByUserIdAndSourceType(Long userId, String sourceType);
+
+    Long countByUserId(Long userId);
 }

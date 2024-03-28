@@ -1,0 +1,20 @@
+package com.xmonster.howtaxing.dto.calculation;
+
+import lombok.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class CalculationBuyResultResponse {
+    private Long buyPrice;              // 취득가액
+    private Float buyTaxRate;           // 취득세율
+    private Long buyTaxPrice;           // 취득세액
+    private Float eduTaxRate;           // 지방교육세율
+    private Long eduTaxPrice;           // 지방교육세액
+    private Long eduDiscountPrice;      // 지방교육세감면액
+    private Float agrTaxRate;           // 농어촌특별세율
+    private Long agrTaxPrice;           // 농어촌특별세액
+    private Long totalTaxPrice;         // 총납부세액
+}
