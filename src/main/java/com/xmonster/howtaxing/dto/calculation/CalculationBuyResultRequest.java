@@ -11,28 +11,28 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class CalculationBuyResultRequest {
-    private String houseType;           // 주택유형
-    private String houseName;           // 주택명
-    private String detailAdr;           // 상세주소
+    private String houseType;           // [필수] 주택유형
+    private String houseName;           // [필수] 주택명
+    private String detailAdr;           // [필수] 상세주소
 
-    private LocalDate contractDate;     // 계약일자
-    private LocalDate balanceDate;      // 잔금지급일자
-    private LocalDate buyDate;          // 취득일자
-    private Long buyPrice;              // 취득금액
+    private LocalDate contractDate;     // [선택] 계약일자
+    private LocalDate balanceDate;      // [선택] 잔금지급일자
+    private LocalDate buyDate;          // [필수] 취득일자
+    private Long buyPrice;              // [필수] 취득금액
 
-    private Long pubLandPrice;          // 공시지가
+    private Long pubLandPrice;          // [필수] 공시지가
 
-    private String jibunAddr;           // 지번주소
-    private String roadAddr;            // 도로명주소
-    private String roadAddrRef;         // 도로명주소참고항목
-    private String bdMgtSn;             // 건물관리번호
-    private String admCd;               // 행정구역코드
-    private String rnMgtSn;             // 도로명코드
+    private String jibunAddr;           // [선택] 지번주소
+    private String roadAddr;            // [필수] 도로명주소
+    private String roadAddrRef;         // [선택] 도로명주소참고항목
+    private String bdMgtSn;             // [선택] 건물관리번호
+    private String admCd;               // [선택] 행정구역코드
+    private String rnMgtSn;             // [선택] 도로명코드
 
-    private Float area;                 // 전용면적
-    private boolean isDestruction;      // 멸실여부
-    private Integer ownerCnt;           // 소유자수
-    private Integer userProportion;     // 본인지분비율
-    private boolean isMoveInRight;      // 입주권여부
-    private boolean hasSellPlan;        // 양도예정여부
+    private Float area;                 // [필수] 전용면적
+    private boolean isDestruction;      // [필수] 멸실여부
+    private Integer ownerCnt;           // [필수] 소유자수
+    private Integer userProportion;     // [필수] 본인지분비율
+    private boolean isMoveInRight;      // [필수] 입주권여부
+    private boolean hasSellPlan;        // [필수] 양도예정여부
 }

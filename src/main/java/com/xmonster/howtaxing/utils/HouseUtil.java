@@ -15,8 +15,8 @@ public class HouseUtil {
 
     private final HouseRepository houseRepository;
 
-    public House findCurrentHouse(Long houseId) {
+    public House findSelectedHouse(Long houseId) {
         return houseRepository.findByHouseId(houseId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ETC_ERROR));
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_NOT_FOUND_ERROR));
     }
 }

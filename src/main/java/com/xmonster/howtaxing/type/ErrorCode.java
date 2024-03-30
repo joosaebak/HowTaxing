@@ -7,23 +7,39 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+    /* 사용자 관련 */
+    USER_NOT_FOUND(1, HttpStatus.NOT_FOUND, "ACCOUNT-001", "사용자를 찾을 수 없습니다."),
 
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT-001", "사용자를 찾을 수 없습니다."),
-    HAS_EMAIL(HttpStatus.BAD_REQUEST, "ACCOUNT-002", "존재하는 이메일입니다."),
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "ACCOUNT-003", "비밀번호가 일치하지 않습니다."),
+    /* 로그인 관련 */
+    LOGIN_COMMON_ERROR(1, HttpStatus.NOT_FOUND, "LOGIN-001", "로그인 중 오류가 발생했습니다."),
+    LOGIN_HAS_EMAIL_ERROR(1, HttpStatus.NOT_FOUND, "LOGIN-002", "이미 동일한 이메일 계정으로 가입되어 있습니다."),
+    INVALID_PASSWORD(1, HttpStatus.BAD_REQUEST, "LOGIN-003", "비밀번호가 일치하지 않습니다."),
 
-    LOGIN_FAILED_COMMON(HttpStatus.NOT_FOUND, "LOGIN-001", "로그인에 실패하였습니다."),
-    LOGIN_FAILED_HAS_EMAIL(HttpStatus.NOT_FOUND, "LOGIN-002", "이미 동일한 이메일 계정으로 가입되어 있습니다."),
+    /* 주택(보유주택 조회) 관련 */
+    HOUSE_HYPHEN_INPUT_ERROR(1, HttpStatus.BAD_REQUEST, "HOUSE-001", "보유주택 정보 조회를 위한 간편인증 입력값이 올바르지 않습니다."),
+    HOUSE_HYPHEN_OUTPUT_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-002", "공공기관에서 보유주택 정보를 가져오는 중 오류가 발생했습니다."),
+    HOUSE_HYPHEN_SYSTEM_ERROR(1, HttpStatus.INTERNAL_SERVER_ERROR, "HOUSE-003", "공공기관의 시스템에 문제가 발생하여 보유주택 정보를 가져오는 중 오류가 발생했습니다."),
+    HOUSE_NOT_FOUND_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-004", "해당 주택 정보를 찾을 수 없습니다."),
+    HOUSE_REGIST_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-005", "보유주택 등록 중 오류가 발생했습니다."),
+    HOUSE_MODIFY_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-006", "보유주택 수정 중 오류가 발생했습니다."),
+    HOUSE_DELETE_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-007", "보유주택 삭제 중 오류가 발생했습니다."),
+    HOUSE_DELETE_ALL_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-008", "보유주택 전체 삭제 중 오류가 발생했습니다."),
 
-    HOUSE_FAILED_HYPHEN_TOKEN(HttpStatus.NOT_FOUND, "HOUSE-001", "공공기관에서 보유 주택 정보를 가져오지 못했습니다."),
-    HOUSE_FAILED_HYPHEN_INPUT(HttpStatus.NOT_FOUND, "HOUSE-001", "보유 주택정보 조회 간편인증 입력값이 올바르지 않습니다."),
-    HOUSE_FAILED_HYPHEN_LIST(HttpStatus.NOT_FOUND, "HOUSE-002", "공공기관에서 보유 주택 정보를 가져오지 못했습니다."),
-    HOUSE_FAILED_HYPHEN_COMMON(HttpStatus.NOT_FOUND, "HOUSE-003", "공공기관에서 보유 주택 정보를 가져오지 못했습니다."),
-    HOUSE_FAILED_HYPHEN_DATA(HttpStatus.NOT_FOUND, "HOUSE-004", "공공기관에서 보유 주택 정보를 가져오지 못했습니다."),
+    /* 계산 관련 */
+    CALCULATION_BUY_TAX_FAILED(2, HttpStatus.INTERNAL_SERVER_ERROR, "CALCULATION-001", "취득세 계산 중 오류가 발생했습니다."),
+    CALCULATION_SELL_TAX_FAILED(2, HttpStatus.INTERNAL_SERVER_ERROR, "CALCULATION-002", "양도소득세 계산 중 오류가 발생했습니다."),
 
-    ETC_ERROR(HttpStatus.NOT_FOUND, "ETC-001", "오류가 발생했습니다.");
+    /* 리뷰 관련 */
+    REVIEW_REGIST_ERROR(1, HttpStatus.INTERNAL_SERVER_ERROR, "REVIEW-001", "리뷰 등록 중 오류가 발생했습니다."),
 
-    private final HttpStatus httpStatus;	// HttpStatus
-    private final String code;				// ACCOUNT-001
-    private final String message;			// 설명
+    /* 시스템 관련 */
+    SYSTEM_UNKNOWN_ERROR(2, HttpStatus.INTERNAL_SERVER_ERROR, "SYSTEM-001", "알 수 없는 오류가 발생했습니다."),
+
+    /* 기타 */
+    ETC_ERROR(2, HttpStatus.NOT_FOUND, "ETC-001", "오류가 발생했습니다.");
+
+    private final int type;                 // (오류)유형 (1:단순 오류 메시지, 2:상담 연결 메시지)
+    private final HttpStatus httpStatus;	// HttpStatus (400, 404, 500...)
+    private final String code;				// (오류)코드 ("ACCOUNT-001")
+    private final String message;			// (오류)설명 ("사용자를 찾을 수 없습니다.")
 }

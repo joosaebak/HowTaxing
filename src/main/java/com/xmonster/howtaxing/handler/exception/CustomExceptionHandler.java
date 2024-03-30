@@ -28,7 +28,7 @@ public class CustomExceptionHandler {
                 return ErrorResponseEntity.toResponseEntity(errorCode);
             }
         }else{
-            errorCode = ErrorCode.ETC_ERROR;
+            errorCode = ErrorCode.SYSTEM_UNKNOWN_ERROR;
             return ErrorResponseEntity.toResponseEntity(errorCode);
         }
     }

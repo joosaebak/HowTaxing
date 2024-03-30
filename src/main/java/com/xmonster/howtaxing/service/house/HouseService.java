@@ -58,12 +58,12 @@ public class HouseService {
 
         // 1. 하이픈 Access Token 가져오기
         HyphenAuthResponse hyphenAuthResponse = hyphenUserHouseService.getAccessToken()
-                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_FAILED_HYPHEN_TOKEN, "하이픈에서 AccessToken을 가져오는데 실패했습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_HYPHEN_OUTPUT_ERROR, "하이픈에서 AccessToken을 가져오는데 실패했습니다."));
         String accessToken = hyphenAuthResponse.getAccess_token();
 
         // 2. 하이픈 주택소유정보 조회 호출
         HyphenUserHouseListResponse hyphenUserHouseListResponse = hyphenUserHouseService.getUserHouseInfo(accessToken, houseListSearchRequest)
-                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_FAILED_HYPHEN_LIST, "하이픈에서 보유주택정보 데이터를 가져오는데 실패했습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_HYPHEN_OUTPUT_ERROR));
 
         // 3. 하이픈 보유주택조회 결과가 정상인지 체크하여, 정상인 경우 조회 결과를 정리하여 별도 DTO에 저장
         //List<HyphenUserHouseResultInfo> hyphenUserHouseResultInfoList = null;
@@ -102,11 +102,11 @@ public class HouseService {
             // house 테이블에 houseList 저장
             houseRepository.saveAllAndFlush(houseList);
         }else{
-            throw new CustomException(ErrorCode.HOUSE_FAILED_HYPHEN_COMMON, "하이픈에서 보유주택정보 조회 중 오류가 발생했습니다.");
+            throw new CustomException(ErrorCode.HOUSE_HYPHEN_OUTPUT_ERROR, "하이픈 보유주택조회 중 오류가 발생했습니다.");
         }
 
         List<House> houseListFromDB = houseRepository.findByUserId(findUser.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_NOT_FOUND_ERROR));
 
         List<HouseSimpleInfoResponse> houseSimpleInfoResponseList = new ArrayList<>();
 
@@ -190,7 +190,7 @@ public class HouseService {
         houseRepository.saveAllAndFlush(houseList);
 
         List<House> houseListFromDB = houseRepository.findByUserId(findUser.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_NOT_FOUND_ERROR));
 
         List<HouseSimpleInfoResponse> houseSimpleInfoResponseList = new ArrayList<>();
 
@@ -219,7 +219,7 @@ public class HouseService {
         User findUser = userUtil.findCurrentUser();
 
         List<House> houseListFromDB = houseRepository.findByUserId(findUser.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_NOT_FOUND_ERROR));
 
         List<HouseSimpleInfoResponse> houseSimpleInfoResponseList = new ArrayList<>();
 
@@ -244,10 +244,10 @@ public class HouseService {
     public Object getHouseDetail(Long houseId) throws Exception {
         log.info(">> [Service]HouseService getHouseDetail - 주택 상세정보 조회");
 
-        if(houseId == null || houseId == 0) throw new CustomException(ErrorCode.ETC_ERROR);
+        if(houseId == null || houseId == 0) throw new CustomException(ErrorCode.HOUSE_NOT_FOUND_ERROR, "주택ID 값이 입력되지 않았습니다.");
 
         House house = houseRepository.findByHouseId(houseId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ETC_ERROR));
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_NOT_FOUND_ERROR));
 
         return ApiResponse.success(
                 HouseDetailResponse.builder()
@@ -277,14 +277,11 @@ public class HouseService {
     public Object registHouseInfo(HouseRegistRequest houseRegistRequest) throws Exception {
         log.info(">> [Service]HouseService registHouseInfo - 보유주택 (직접)등록");
 
-        if(houseRegistRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
+        if(houseRegistRequest == null){
+            throw new CustomException(ErrorCode.HOUSE_REGIST_ERROR, "등록 주택 정보가 입력되지 않았습니다.");
+        }
 
-        // 호출 사용자 조회
-        User findUser = userUtil.findCurrentUser();
-        if(findUser == null) throw new CustomException(ErrorCode.ETC_ERROR);
-
-        Long userId = findUser.getId();
-        if(userId == null) throw new CustomException(ErrorCode.ETC_ERROR);
+        Long userId = userUtil.findCurrentUser().getId();   // 호출 사용자
 
         try{
             houseRepository.saveAndFlush(
@@ -302,7 +299,7 @@ public class HouseService {
                             .sourceType(TWO)
                             .build());
         }catch(Exception e){
-            throw new CustomException(ErrorCode.ETC_ERROR);
+            throw new CustomException(ErrorCode.HOUSE_REGIST_ERROR);
         }
 
         return ApiResponse.success(Map.of("result", "주택 정보가 등록되었습니다."));
@@ -312,20 +309,14 @@ public class HouseService {
     public Object modifyHouseInfo(HouseModifyRequest houseModifyRequest) throws Exception {
         log.info(">> HouseService modifyHouseInfo - 보유주택 (정보)수정");
 
-        if(houseModifyRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
+        if(houseModifyRequest == null) throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "수정 대상 주택 정보가 입력되지 않았습니다.");
 
-        // 호출 사용자 조회
-        User findUser = userUtil.findCurrentUser();
-        if(findUser == null) throw new CustomException(ErrorCode.ETC_ERROR);
+        Long houseId = houseModifyRequest.getHouseId();                         // 수정 대상 주택 ID
+        Long userId = userUtil.findCurrentUser().getId();                       // 호출 사용자 ID
+        Long houseOwnUserId = houseUtil.findSelectedHouse(houseId).getUserId(); // 주택 소유자 ID
 
-        Long houseId = houseModifyRequest.getHouseId();
-        Long userId = findUser.getId();
-
-        // (정보)수정 대상 주택 조회
-        House findHouse = houseUtil.findCurrentHouse(houseId);
-        Long houseOwnUserId = findHouse.getUserId();
-
-        if(houseId == null || userId == null || !userId.equals(houseOwnUserId)) throw new CustomException(ErrorCode.ETC_ERROR);
+        if(houseId == null) throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "수정 대상 주택 ID가 입력되지 않았습니다.");
+        if(!userId.equals(houseOwnUserId)) throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "주택 소유자 ID와 사용자 ID가 일치하지 않아 보유주택 정보를 수정할 수 없습니다.");
 
         try{
             houseRepository.saveAndFlush(
@@ -356,7 +347,7 @@ public class HouseService {
                             .isMoveInRight(houseModifyRequest.isMoveInRight())
                             .build());
         }catch(Exception e){
-            throw new CustomException(ErrorCode.ETC_ERROR);
+            throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR);
         }
 
         return ApiResponse.success(Map.of("result", "주택 정보가 수정되었습니다."));
@@ -366,14 +357,17 @@ public class HouseService {
     public Object deleteHouse(HouseListDeleteRequest houseListDeleteRequest) throws Exception {
         log.info(">> [Service]HouseService deleteHouse - 보유주택 삭제");
 
-        if(houseListDeleteRequest == null) throw new CustomException(ErrorCode.ETC_ERROR);
+        Long houseId = houseListDeleteRequest.getHouseId();                     // 삭제 대상 주택 ID
+        Long userId = userUtil.findCurrentUser().getId();                       // 호출 사용자 ID
+        Long houseOwnUserId = houseUtil.findSelectedHouse(houseId).getUserId(); // 주택 소유자 ID
 
-        // TODO. 해당 사용자가 삭제 요청하는 것인지 확인 로직 필요
+        if(houseId == null) throw new CustomException(ErrorCode.HOUSE_DELETE_ERROR, "삭제 대상 주택 ID가 입력되지 않았습니다.");
+        if(!userId.equals(houseOwnUserId)) throw new CustomException(ErrorCode.HOUSE_DELETE_ERROR, "주택 소유자 ID와 사용자 ID가 일치하지 않아 보유주택 정보를 삭제할 수 없습니다.");
 
         try{
             houseRepository.deleteByHouseId(houseListDeleteRequest.getHouseId());
         }catch (Exception e){
-            throw new CustomException(ErrorCode.ETC_ERROR);
+            throw new CustomException(ErrorCode.HOUSE_DELETE_ERROR);
         }
 
         return ApiResponse.success(Map.of("result", "보유주택이 삭제되었습니다."));
@@ -381,15 +375,12 @@ public class HouseService {
 
     // 보유주택 전체 삭제
     public Object deleteHouseAll() throws Exception {
-        log.info(">> [Service]HouseService deleteHouse - 보유주택 삭제");
-
-        // 호출 사용자 조회
-        User findUser = userUtil.findCurrentUser();
+        log.info(">> [Service]HouseService deleteHouse - 보유주택 전체 삭제");
 
         try{
-            houseRepository.deleteByUserId(findUser.getId());
+            houseRepository.deleteByUserId(userUtil.findCurrentUser().getId());
         }catch(Exception e){
-            throw new CustomException(ErrorCode.ETC_ERROR);
+            throw new CustomException(ErrorCode.HOUSE_DELETE_ALL_ERROR);
         }
 
         return ApiResponse.success(Map.of("result", "전체 보유주택이 삭제되었습니다."));

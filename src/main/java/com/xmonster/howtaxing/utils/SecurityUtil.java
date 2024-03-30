@@ -13,7 +13,7 @@ public class SecurityUtil {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if(authentication == null || authentication.getName() == null){
-            throw new CustomException(ErrorCode.ETC_ERROR, "사용자 인증에 실패하였습니다.");
+            throw new CustomException(ErrorCode.USER_NOT_FOUND, "사용자 인증 정보가 존재하지 않습니다.");
         }
 
         return authentication.getName();

@@ -4,6 +4,7 @@ public final class CommonConstant {
 
     public final static String EMPTY = "";
     public final static String SPACE = " ";
+    public final static String HYPHEN = "-";
 
     public final static String YES = "Y";
     public final static String NO = "N";
