@@ -66,5 +66,5 @@ public final class CommonConstant {
     public final static String ADJUSTMENT_TARGET_AREA4 = "송파구";
 
     /* 전용면적(m2) */
-    public final static float AREA_85 = 85;
+    public final static double AREA_85 = 85;
 }

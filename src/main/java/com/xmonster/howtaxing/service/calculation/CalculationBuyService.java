@@ -3,6 +3,7 @@ package com.xmonster.howtaxing.service.calculation;
 import com.xmonster.howtaxing.CustomException;
 import com.xmonster.howtaxing.dto.calculation.CalculationBuyResultRequest;
 import com.xmonster.howtaxing.dto.calculation.CalculationBuyResultResponse;
+import com.xmonster.howtaxing.dto.calculation.CalculationBuyResultResponse.CalculationBuyOneResult;
 import com.xmonster.howtaxing.dto.common.ApiResponse;
 
 import com.xmonster.howtaxing.model.*;
@@ -25,6 +26,7 @@ import javax.transaction.Transactional;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.xmonster.howtaxing.constant.CommonConstant.*;
@@ -84,7 +86,7 @@ public class CalculationBuyService {
         Long buyPrice = calculationBuyResultRequest.getBuyPrice();
         Long pubLandPrice = calculationBuyResultRequest.getPubLandPrice();
         String roadAddr = StringUtils.defaultString(calculationBuyResultRequest.getRoadAddr());
-        Float area = calculationBuyResultRequest.getArea();
+        Double area = calculationBuyResultRequest.getArea();
         Integer ownerCnt = calculationBuyResultRequest.getOwnerCnt();
         Integer userProportion = calculationBuyResultRequest.getUserProportion();
 
@@ -130,6 +132,14 @@ public class CalculationBuyService {
 
         if(userProportion == null || userProportion <= 0){
             throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 본인지분비율 정보가 올바르지 않습니다.");
+        }
+
+        if(ownerCnt > 2){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "소유자 수는 1명 또는 2명이어야 합니다.");
+        }
+
+        if(ownerCnt >= 2 && userProportion == 100){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "소유자가 2인 이상인 경우 본인지분비율을 100% 미만이어야 합니다.");
         }
     }
 
@@ -1330,15 +1340,15 @@ public class CalculationBuyService {
         private CalculationBuyResultResponse getCalculationBuyResultResponse(CalculationBuyResultRequest calculationBuyResultRequest, String taxRateCode, String dedCode){
             log.info(">>> CalculationBranch getCalculationBuyResult - 취득세 계산 수행");
 
-            float buyTaxRate = 0;       // 취득세율
-            float taxRate1 = 0;         // 세율1
-            float taxRate2 = 0;         // 세율2
-            float addTaxRate1 = 0;      // 추가세율1
-            float addTaxRate2 = 0;      // 추가세율2
-            float finalTaxRate1 = 0;    // 최종세율1
-            float finalTaxRate2 = 0;    // 최종세율2
-            float agrTaxRate = 0;       // 농어촌특별세
-            float eduTaxRate = 0;       // 지방교육세
+            double buyTaxRate = 0;      // 취득세율
+            double taxRate1 = 0;        // 세율1
+            double taxRate2 = 0;        // 세율2
+            double addTaxRate1 = 0;     // 추가세율1
+            double addTaxRate2 = 0;     // 추가세율2
+            double finalTaxRate1 = 0;   // 최종세율1
+            double finalTaxRate2 = 0;   // 최종세율2
+            double agrTaxRate = 0;      // 농어촌특별세
+            double eduTaxRate = 0;      // 지방교육세
 
             long buyTaxPrice = 0;       // 취득세액
             long agrTaxPrice = 0;       // 농어촌특별세액
@@ -1379,7 +1389,7 @@ public class CalculationBuyService {
             if(taxRateInfo != null){
                 // 세율이 상수인 경우
                 if(YES.equals(taxRateInfo.getConstYn())){
-                    buyTaxRate = Float.parseFloat(StringUtils.defaultString(taxRateInfo.getTaxRate1(), ZERO));
+                    buyTaxRate = Double.parseDouble(StringUtils.defaultString(taxRateInfo.getTaxRate1(), ZERO));
                     buyTaxPrice = (long) (buyPrice * buyTaxRate);
                 }
                 // 세율이 상수가 아닌 경우(변수)
@@ -1393,7 +1403,7 @@ public class CalculationBuyService {
                             }else if(NON_TAX_RATE.equals(taxRateInfo.getTaxRate1())){
                                 taxRate1 = 0;
                             }else{
-                                taxRate1 = Float.parseFloat(StringUtils.defaultString(taxRateInfo.getTaxRate1(), ZERO));
+                                taxRate1 = Double.parseDouble(StringUtils.defaultString(taxRateInfo.getTaxRate1(), ZERO));
                             }
 
                             // 세율2
@@ -1402,17 +1412,17 @@ public class CalculationBuyService {
                             }else if(NON_TAX_RATE.equals(taxRateInfo.getTaxRate2())){
                                 taxRate2 = 0;
                             }else{
-                                taxRate2 = Float.parseFloat(StringUtils.defaultString(taxRateInfo.getTaxRate2(), ZERO));
+                                taxRate2 = Double.parseDouble(StringUtils.defaultString(taxRateInfo.getTaxRate2(), ZERO));
                             }
 
                             // 추가세율1
                             if(taxRateInfo.getAddTaxRate1() != null && !taxRateInfo.getAddTaxRate1().isBlank()){
-                                addTaxRate1 = Float.parseFloat(StringUtils.defaultString(taxRateInfo.getAddTaxRate1(), ZERO));
+                                addTaxRate1 = Double.parseDouble(StringUtils.defaultString(taxRateInfo.getAddTaxRate1(), ZERO));
                             }
 
                             // 추가세율2
                             if(taxRateInfo.getAddTaxRate2() != null && !taxRateInfo.getAddTaxRate2().isBlank()){
-                                addTaxRate2 = Float.parseFloat(StringUtils.defaultString(taxRateInfo.getAddTaxRate2(), ZERO));
+                                addTaxRate2 = Double.parseDouble(StringUtils.defaultString(taxRateInfo.getAddTaxRate2(), ZERO));
                             }
 
                             finalTaxRate1 = taxRate1 + addTaxRate1;
@@ -1436,7 +1446,7 @@ public class CalculationBuyService {
                                     buyTaxPrice = (long)(buyPrice * finalTaxRate1);
                                 }
 
-                                buyTaxRate = (float)(buyTaxPrice / buyPrice); // 취득세액으로 취득세율을 계산
+                                buyTaxRate = (double)(buyTaxPrice / buyPrice); // 취득세액으로 취득세율을 계산
                             }
                         }
                         // 세율이 1개인 경우
@@ -1452,7 +1462,7 @@ public class CalculationBuyService {
 
                             // 추가세율
                             if(taxRateInfo.getAddTaxRate1() != null && !taxRateInfo.getAddTaxRate1().isBlank()){
-                                addTaxRate1 = Float.parseFloat(StringUtils.defaultString(taxRateInfo.getAddTaxRate1(), ZERO));
+                                addTaxRate1 = Double.parseDouble(StringUtils.defaultString(taxRateInfo.getAddTaxRate1(), ZERO));
                             }
 
                             finalTaxRate1 = taxRate1 + addTaxRate1;
@@ -1466,37 +1476,37 @@ public class CalculationBuyService {
             /* 2. 농어촌특별세 계산 */
             log.info("2. 농어촌특별세 계산");
             // 전용면적 85제곱미터 초과만 농어촌특별세 대상
-            float area = calculationBuyResultRequest.getArea();
+            double area = calculationBuyResultRequest.getArea();
             if(area > AREA_85){
                 // 1주택
                 if(ownHouseCount == 1){
-                    agrTaxRate = 0.002f;        // 농어촌특별세율 : 0.2%
+                    agrTaxRate = 0.002;        // 농어촌특별세율 : 0.2%
                 }
                 // 2주택
                 else if(ownHouseCount == 2){
                     // 조정대상지역
                     if(isAdjustmentTargetArea){
-                        agrTaxRate = 0.006f;    // 농어촌특별세율 : 0.6%
+                        agrTaxRate = 0.006;    // 농어촌특별세율 : 0.6%
                     }else{
-                        agrTaxRate = 0.002f;    // 농어촌특별세율 : 0.2%
+                        agrTaxRate = 0.002;    // 농어촌특별세율 : 0.2%
                     }
                 }
                 // 3주택
                 else if(ownHouseCount == 3){
                     // 조정대상지역
                     if(isAdjustmentTargetArea){
-                        agrTaxRate = 0.01f;     // 농어촌특별세율 : 1%
+                        agrTaxRate = 0.01;     // 농어촌특별세율 : 1%
                     }else{
-                        agrTaxRate = 0.006f;    // 농어촌특별세율 : 0.6%
+                        agrTaxRate = 0.006;    // 농어촌특별세율 : 0.6%
                     }
                 }
                 // 4주택 이상
                 else if(ownHouseCount >= 4){
                     // 조정대상지역
                     if(isAdjustmentTargetArea){
-                        agrTaxRate = 0.01f;     // 농어촌특별세율 : 1%
+                        agrTaxRate = 0.01;     // 농어촌특별세율 : 1%
                     }else{
-                        agrTaxRate = 0.006f;    // 농어촌특별세율 : 0.6%
+                        agrTaxRate = 0.006;    // 농어촌특별세율 : 0.6%
                     }
                 }
             }
@@ -1510,7 +1520,7 @@ public class CalculationBuyService {
             if(ownHouseCount == 1){
                 // 6억 이하
                 if(buyPrice <= SIX_HND_MIL){
-                    eduTaxRate = 0.001f;                // 지방교육세율 : 0.1%
+                    eduTaxRate = 0.001;                // 지방교육세율 : 0.1%
                 }
                 // 6억 초과, 9억 이하
                 else if(buyPrice > SIX_HND_MIL && buyPrice <= NINE_HND_MIL){
@@ -1518,18 +1528,18 @@ public class CalculationBuyService {
                 }
                 // 9억 초과
                 else{
-                    eduTaxRate = 0.003f;                // 지방교육세율 : 0.3%
+                    eduTaxRate = 0.003;                // 지방교육세율 : 0.3%
                 }
             }
             // 2주택
             else if(ownHouseCount == 2){
                 // 조정대상지역
                 if(isAdjustmentTargetArea){
-                    eduTaxRate = 0.004f;                // 지방교육세율 : 0.4%
+                    eduTaxRate = 0.004;                // 지방교육세율 : 0.4%
                 }else{
                     // 6억 이하
                     if(buyPrice <= SIX_HND_MIL){
-                        eduTaxRate = 0.001f;            // 지방교육세율 : 0.1%
+                        eduTaxRate = 0.001;            // 지방교육세율 : 0.1%
                     }
                     // 6억 초과, 9억 이하
                     else if(buyPrice > SIX_HND_MIL && buyPrice <= NINE_HND_MIL){
@@ -1537,7 +1547,7 @@ public class CalculationBuyService {
                     }
                     // 9억 초과
                     else{
-                        eduTaxRate = 0.003f;            // 지방교육세율 : 0.3%
+                        eduTaxRate = 0.003;            // 지방교육세율 : 0.3%
                     }
                 }
             }
@@ -1545,18 +1555,18 @@ public class CalculationBuyService {
             else if(ownHouseCount == 3){
                 // 조정대상지역
                 if(isAdjustmentTargetArea){
-                    eduTaxRate = 0.004f;                // 지방교육세율 : 0.4%
+                    eduTaxRate = 0.004;                // 지방교육세율 : 0.4%
                 }else{
-                    eduTaxRate = 0.004f;                // 지방교육세율 : 0.4%
+                    eduTaxRate = 0.004;                // 지방교육세율 : 0.4%
                 }
             }
             // 4주택 이상
             else if(ownHouseCount >= 4){
                 // 조정대상지역
                 if(isAdjustmentTargetArea){
-                    eduTaxRate = 0.004f;                // 지방교육세율 : 0.4%
+                    eduTaxRate = 0.004;                // 지방교육세율 : 0.4%
                 }else{
-                    eduTaxRate = 0.004f;                // 지방교육세율 : 0.4%
+                    eduTaxRate = 0.004;                // 지방교육세율 : 0.4%
                 }
             }
 
@@ -1567,15 +1577,46 @@ public class CalculationBuyService {
             log.info("4. 총납부세액 계산");
             totalTaxPrice = buyTaxPrice + eduTaxPrice + agrTaxPrice;
 
+            // 취득세 계산 결과 세팅
+            List<CalculationBuyOneResult> calculationBuyResultOneList = new ArrayList<>();
+
+            int ownerCount = calculationBuyResultRequest.getOwnerCnt();
+            double userProportion = (double)calculationBuyResultRequest.getUserProportion() / 100;
+            double restProPortion = 1 - userProportion;
+
+            for(int i=0; i<ownerCount; i++){
+                double proportion = 1;
+                if(ownerCount > 1){
+                    if(i == 0) proportion = userProportion;
+                    else proportion = restProPortion;
+                }
+
+                String buyPriceStr = String.format("%.0f", buyPrice*proportion);
+                String buyTaxRateStr = String.format("%.2f", buyTaxRate*proportion*100);
+                String buyTaxPriceStr = String.format("%.0f", buyTaxPrice*proportion);
+                String eduTaxRateStr = String.format("%.2f", eduTaxRate*proportion*100);
+                String eduTaxPriceStr = String.format("%.0f", eduTaxPrice*proportion);
+                String agrTaxRateStr = String.format("%.2f", agrTaxRate*proportion*100);
+                String agrTaxPriceStr = String.format("%.0f", agrTaxPrice*proportion);
+                String totalTaxPriceStr = String.format("%.0f", totalTaxPrice*proportion);
+
+                calculationBuyResultOneList.add(
+                        CalculationBuyOneResult.builder()
+                                .buyPrice(buyPriceStr)
+                                .buyTaxRate(buyTaxRateStr)
+                                .buyTaxPrice(buyTaxPriceStr)
+                                .eduTaxRate(eduTaxRateStr)
+                                .eduTaxPrice(eduTaxPriceStr)
+                                .eduDiscountPrice(ZERO)
+                                .agrTaxRate(agrTaxRateStr)
+                                .agrTaxPrice(agrTaxPriceStr)
+                                .totalTaxPrice(totalTaxPriceStr)
+                                .build());
+            }
+
             return CalculationBuyResultResponse.builder()
-                    .buyPrice(buyPrice)
-                    .buyTaxRate(buyTaxRate)
-                    .buyTaxPrice(buyTaxPrice)
-                    .eduTaxRate(eduTaxRate)
-                    .eduTaxPrice(eduTaxPrice)
-                    .agrTaxRate(agrTaxRate)
-                    .agrTaxPrice(agrTaxPrice)
-                    .totalTaxPrice(totalTaxPrice)
+                    .listCnt(ownerCount)
+                    .list(calculationBuyResultOneList)
                     .build();
         }
 
@@ -1611,25 +1652,25 @@ public class CalculationBuyService {
         }
 
         // (취득세)일반과세(일반세율) 계산
-        private float calculateGeneralTaxRate(CalculationBuyResultRequest calculationBuyResultRequest, long ownHouseCount, long buyPrice, boolean isAdjustmentTargetArea){
-            float taxRate = 0;
+        private double calculateGeneralTaxRate(CalculationBuyResultRequest calculationBuyResultRequest, long ownHouseCount, long buyPrice, boolean isAdjustmentTargetArea){
+            double taxRate = 0;
 
             // 1주택
             if(ownHouseCount == 1){
                 // 6억 이하
                 if(buyPrice <= SIX_HND_MIL){
                     // 취득세율 : 1%
-                    taxRate = 0.01f;
+                    taxRate = 0.01;
                 }
                 // 6억 초과, 9억 이하
                 else if(buyPrice > SIX_HND_MIL && buyPrice <= NINE_HND_MIL){
                     // 취득세율 : (((취득가액 / 1억) x 2 / 3 - 3) x 1)%
-                    taxRate = (float)((buyPrice / ONE_HND_MIL) * 2 / 3 - 3) / 100;
+                    taxRate = (double)((buyPrice / ONE_HND_MIL) * 2 / 3 - 3) / 100;
                 }
                 // 9억 초과
                 else{
                     // 취득세율 : 3%
-                    taxRate = 0.03f;
+                    taxRate = 0.03;
                 }
             }
             // 2주택
@@ -1639,17 +1680,17 @@ public class CalculationBuyService {
                     // 6억 이하
                     if(buyPrice <= SIX_HND_MIL){
                         // 취득세율 : 1%
-                        taxRate = 0.01f;
+                        taxRate = 0.01;
                     }
                     // 6억 초과, 9억 이하
                     else if(buyPrice > SIX_HND_MIL && buyPrice <= NINE_HND_MIL){
                         // 취득세율 : (((취득가액 / 1억) x 2 / 3 - 3) x 1)%
-                        taxRate = (float)((buyPrice / ONE_HND_MIL) * 2 / 3 - 3) / 100;
+                        taxRate = (double)((buyPrice / ONE_HND_MIL) * 2 / 3 - 3) / 100;
                     }
                     // 9억 초과
                     else{
                         // 취득세율 : 3%
-                        taxRate = 0.03f;
+                        taxRate = 0.03;
                     }
                 }
             }
