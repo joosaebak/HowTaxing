@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.xmonster.howtaxing.constant.CommonConstant.*;
 
@@ -85,65 +86,83 @@ public class VworldService {
 
         log.info(response.toString());
 
-        if(ONE.equals(bdKdcd)){
-            ApartHousingPriceResponse apartHousingPriceResponse = (ApartHousingPriceResponse) convertJsonToHouseData(response.getBody().toString(), ONE);
+        VworldPubLandPriceAndAreaResponse vworldPubLandPriceAndAreaResponse = null;
 
-            if(apartHousingPriceResponse == null
-                    || apartHousingPriceResponse.getApartHousingPrices() == null
-                    || apartHousingPriceResponse.getApartHousingPrices().getField() == null
-                    || apartHousingPriceResponse.getApartHousingPrices().getTotalCount() == null
-                    || apartHousingPriceResponse.getApartHousingPrices().getResultCode() == null
-            ){
-                throw new CustomException(ErrorCode.HOUSE_JUSOGOV_OUTPUT_ERROR, "공공기관에서 응답값을 받지 못했습니다.");
-            }
+        String responseData = StringUtils.defaultString(response.getBody().toString());
 
-            String resultCode = StringUtils.defaultString(apartHousingPriceResponse.getApartHousingPrices().getResultCode());
-            String resultMsg = StringUtils.defaultString(apartHousingPriceResponse.getApartHousingPrices().getResultMsg());
-            int totalCount = Integer.parseInt(apartHousingPriceResponse.getApartHousingPrices().getTotalCount());
-            List<ApartHousingPriceResponse.Field> fieldList = apartHousingPriceResponse.getApartHousingPrices().getField();
+        // 정상 응답 케이스
+        if(responseData.matches("apartHousingPrices") || responseData.matches("indvdHousingPrices")){
+            if(ONE.equals(bdKdcd)){
+                ApartHousingPriceResponse apartHousingPriceResponse = (ApartHousingPriceResponse) convertJsonToHouseData(response.getBody().toString(), ONE);
 
-            if(!EMPTY.equals(resultCode)){
-                log.info("Vworld resultMsg : " + resultMsg);
-                throw new CustomException(ErrorCode.HOUSE_JUSOGOV_OUTPUT_ERROR, "공시가격 및 전용면적 조회 중 오류가 발생했습니다.(공공기관 오류)");
-            }
+                if(apartHousingPriceResponse == null
+                        || apartHousingPriceResponse.getApartHousingPrices() == null
+                        || apartHousingPriceResponse.getApartHousingPrices().getField() == null
+                        || apartHousingPriceResponse.getApartHousingPrices().getTotalCount() == null
+                        || apartHousingPriceResponse.getApartHousingPrices().getResultCode() == null
+                ){
+                    throw new CustomException(ErrorCode.HOUSE_JUSOGOV_OUTPUT_ERROR, "공공기관에서 응답값을 받지 못했습니다.");
+                }
 
-            long pubLandPrice = 0;
-            double area = 0;
-            int stdrYear = 0;
+                String resultCode = StringUtils.defaultString(apartHousingPriceResponse.getApartHousingPrices().getResultCode());
+                String resultMsg = StringUtils.defaultString(apartHousingPriceResponse.getApartHousingPrices().getResultMsg());
+                int totalCount = Integer.parseInt(apartHousingPriceResponse.getApartHousingPrices().getTotalCount());
+                List<ApartHousingPriceResponse.Field> fieldList = apartHousingPriceResponse.getApartHousingPrices().getField();
 
-            if(totalCount > 0){
-                for(ApartHousingPriceResponse.Field field : fieldList){
-                    if(stdrYear < Integer.parseInt(field.getStdrYear())){
-                        pubLandPrice = field.getPblntfPc();
-                        area = field.getPrvuseAr();
-                        stdrYear = Integer.parseInt(field.getStdrYear());
+                if(!EMPTY.equals(resultCode)){
+                    log.info("Vworld resultMsg : " + resultMsg);
+                    throw new CustomException(ErrorCode.HOUSE_JUSOGOV_OUTPUT_ERROR, "공시가격 및 전용면적 조회 중 오류가 발생했습니다.(공공기관 오류)");
+                }
+
+                long pubLandPrice = 0;
+                double area = 0;
+                int stdrYear = 0;
+
+                if(totalCount > 0){
+                    for(ApartHousingPriceResponse.Field field : fieldList){
+                        if(stdrYear < Integer.parseInt(field.getStdrYear())){
+                            pubLandPrice = field.getPblntfPc();
+                            area = field.getPrvuseAr();
+                            stdrYear = Integer.parseInt(field.getStdrYear());
+                        }
                     }
                 }
+
+                vworldPubLandPriceAndAreaResponse = VworldPubLandPriceAndAreaResponse.builder()
+                        .hasPubLandPrice(pubLandPrice!=0)
+                        .pubLandPrice(pubLandPrice)
+                        .hasArea(area!=0)
+                        .area(area)
+                        .stdrYear(Integer.toString(stdrYear))
+                        .build();
+
+
+            }else{
+                // 개별주택은 전용면적과 공시가격을 확인할 수 있는 방법이 없어서 일단 아래와 같이 응답 처리
+                //IndvdHousingPriceResponse indvdHousingPriceResponse = (IndvdHousingPriceResponse) convertJsonToHouseData(response.getBody().toString(), TWO);
+
+                vworldPubLandPriceAndAreaResponse = VworldPubLandPriceAndAreaResponse.builder()
+                        .hasPubLandPrice(false)
+                        .pubLandPrice(null)
+                        .hasArea(false)
+                        .area(null)
+                        .stdrYear(ZERO)
+                        .build();
             }
-
-            return ApiResponse.success(
-                    VworldPubLandPriceAndAreaResponse.builder()
-                            .hasPubLandPrice(pubLandPrice!=0)
-                            .pubLandPrice(pubLandPrice)
-                            .hasArea(area!=0)
-                            .area(area)
-                            .stdrYear(Integer.toString(stdrYear))
-                            .build());
-
-
-        }else{
-            // 개별주택은 전용면적과 공시가격을 확인할 수 있는 방법이 없어서 일단 아래와 같이 응답 처리
-            //IndvdHousingPriceResponse indvdHousingPriceResponse = (IndvdHousingPriceResponse) convertJsonToHouseData(response.getBody().toString(), TWO);
-
-            return ApiResponse.success(
-                    VworldPubLandPriceAndAreaResponse.builder()
-                            .hasPubLandPrice(false)
-                            .pubLandPrice(null)
-                            .hasArea(false)
-                            .area(null)
-                            .stdrYear(ZERO)
-                            .build());
         }
+        // 비정상 응답 케이스(데이터가 없는 경우)
+        else{
+            vworldPubLandPriceAndAreaResponse = VworldPubLandPriceAndAreaResponse.builder()
+                    .hasPubLandPrice(false)
+                    .pubLandPrice(null)
+                    .hasArea(false)
+                    .area(null)
+                    .stdrYear(ZERO)
+                    .build();
+        }
+
+        return ApiResponse.success(vworldPubLandPriceAndAreaResponse);
+
 
         //return convertJsonToHouseData(response.getBody().toString(), bdKdcd);
     }

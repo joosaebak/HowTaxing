@@ -173,6 +173,10 @@ public class JusoGovService {
         validationCheckForGetHouseRoadAddrDetail(jusoGovRoadAddrDetailRequest);
 
         String searchType = jusoGovRoadAddrDetailRequest.getSearchType();
+        String dongName = StringUtils.defaultString(jusoGovRoadAddrDetailRequest.getDongNm());
+        if(!dongName.endsWith("동")){
+            dongName += "동";
+        }
 
         ResponseEntity<?> response = jusoGovRoadAdrDetailApi.getRoadAdrDetailInfo(
                 confmKey_roadAddrDetail,
@@ -182,7 +186,7 @@ public class JusoGovService {
                 jusoGovRoadAddrDetailRequest.getBuldMnnm(),
                 jusoGovRoadAddrDetailRequest.getBuldSlno(),
                 ONE.equals(searchType) ? DONG : FLOOR_HO,
-                jusoGovRoadAddrDetailRequest.getDongNm(),
+                dongName,
                 JSON
         );
 
