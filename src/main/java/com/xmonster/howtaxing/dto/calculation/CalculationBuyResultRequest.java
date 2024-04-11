@@ -29,7 +29,7 @@ public class CalculationBuyResultRequest {
     private String admCd;               // [선택] 행정구역코드
     private String rnMgtSn;             // [선택] 도로명코드
 
-    private Double area;                 // [필수] 전용면적
+    private Double area;                // [필수] 전용면적
     private boolean isDestruction;      // [필수] 멸실여부
     private Integer ownerCnt;           // [필수] 소유자수
     private Integer userProportion;     // [필수] 본인지분비율

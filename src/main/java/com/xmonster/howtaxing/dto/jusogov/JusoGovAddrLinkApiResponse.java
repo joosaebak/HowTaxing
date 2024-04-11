@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class JusoGovRoadAdrResponse {
+public class JusoGovAddrLinkApiResponse {
 
     private Results results;
 
@@ -25,8 +25,8 @@ public class JusoGovRoadAdrResponse {
         @AllArgsConstructor
         public static class Common {
             private String totalCount;      // 총 검색 데이터 수
-            private int currentPage;        // 페이지 번호
-            private int countPerPage;       // 페이지당 출력할 결과 Row수
+            private Integer currentPage;    // 페이지 번호
+            private Integer countPerPage;   // 페이지당 출력할 결과 Row수
             private String errorCode;       // 에러 코드
             private String errorMessage;    // 에러 메시지
         }

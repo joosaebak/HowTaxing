@@ -15,7 +15,11 @@ hyphen:
   user_id: cgt2022
   hkey: b461bceea477f528
 jusogov:
-  confirm-key: devU01TX0FVVEgyMDI0MDQwMjIzMzA0OTExNDY1NTY=
+  confirm-key:
+    road_addr: devU01TX0FVVEgyMDI0MDQwMjIzMzA0OTExNDY1NTY=
+    road_addr_detail : devU01TX0FVVEgyMDI0MDQwMjIzMzI1NzExNDY1NTc=
+vworld:
+  key: E3422A28-9B67-3BCF-912F-5B7BBE6C8318
 logging:
   level:
     org:

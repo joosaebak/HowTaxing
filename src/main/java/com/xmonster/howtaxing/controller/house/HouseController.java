@@ -1,8 +1,13 @@
 package com.xmonster.howtaxing.controller.house;
 
 import com.xmonster.howtaxing.dto.house.*;
+import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAddrDetailRequest;
+import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAddrListRequest;
+import com.xmonster.howtaxing.dto.vworld.VworldPubLandPriceAndAreaRequest;
 import com.xmonster.howtaxing.service.house.HouseService;
 
+import com.xmonster.howtaxing.service.house.JusoGovService;
+import com.xmonster.howtaxing.service.house.VworldService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,6 +18,29 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class HouseController {
     private final HouseService houseService;
+    private final JusoGovService jusoGovService;
+    private final VworldService vworldService;
+
+    // (취득)주택 도로명주소 조회
+    @PostMapping("/house/roadAddr")
+    public Object getHouseRoadAddrList(@RequestBody JusoGovRoadAddrListRequest jusoGovRoadAddrListRequest) throws Exception {
+        log.info(">> [Controller]HouseController getHouseRoadAddrList - 주택 도로명주소 조회(주소기반산업지원서비스-도로명주소)");
+        return jusoGovService.getHouseRoadAddrList(jusoGovRoadAddrListRequest);
+    }
+
+    // (취득)주택 도로명주소 상세주소 조회
+    @PostMapping("/house/roadAddrDetail")
+    public Object getHouseRoadAddrDetail(@RequestBody JusoGovRoadAddrDetailRequest jusoGovRoadAddrDetailRequest) throws Exception {
+        log.info(">> [Controller]HouseController getHouseRoadAddrDetail - 주택 도로명주소 상세주소 조회(주소기반산업지원서비스-도로명주소)");
+        return jusoGovService.getHouseRoadAddrDetail(jusoGovRoadAddrDetailRequest);
+    }
+
+    // (취득)주택 공시가격 및 전용면적 조회
+    @PostMapping("/house/pubLandPriceAndArea")
+    public Object getPubLandPriceAndArea(@RequestBody VworldPubLandPriceAndAreaRequest vworldPubLandPriceAndAreaRequest) throws Exception {
+        log.info(">> [Controller]HouseController getPubLandPriceAndArea - 주택 공시가격 및 전용면적 조회(브이월드-공동,개별 주택가격속성조회)");
+        return vworldService.getPubLandPriceAndArea(vworldPubLandPriceAndAreaRequest);
+    }
 
     // 보유주택 조회(하이픈-청약홈-주택소유확인)
     @PostMapping("/house/search")
