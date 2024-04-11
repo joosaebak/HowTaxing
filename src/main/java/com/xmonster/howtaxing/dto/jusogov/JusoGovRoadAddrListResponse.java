@@ -23,6 +23,9 @@ public class JusoGovRoadAddrListResponse {
     @Builder
     public static class Juso {
         private String roadAddr;        // 도로명 주소
+        private String roadAddrPart1;   // 도로명주소(참고항목 제외)
+        private String roadAddrPart2;   // 도로명주소 참고항목
+        private String jibunAddr;       // 지번주소
         private String admCd;           // 행정구역코드
         private String rnMgtSn;         // 도로명코드
         private String bdMgtSn;         // 건물관리번호

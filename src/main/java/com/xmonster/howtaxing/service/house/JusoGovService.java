@@ -114,7 +114,10 @@ public class JusoGovService {
 
         if(totalCount > 0){
             for(JusoDetail jusoDetail : jusoDetailList){
-                String roadAddr = StringUtils.defaultString(jusoDetail.getRoadAddrPart1());
+                String roadAddr = StringUtils.defaultString(jusoDetail.getRoadAddr());
+                String roadAddrPart1 = StringUtils.defaultString(jusoDetail.getRoadAddrPart1());
+                String roadAddrPart2 = StringUtils.defaultString(jusoDetail.getRoadAddrPart2());
+                String jibunAddr = StringUtils.defaultString(jusoDetail.getJibunAddr());
                 String admCd = StringUtils.defaultString(jusoDetail.getAdmCd());
                 String rnMgtSn = StringUtils.defaultString(jusoDetail.getRnMgtSn());
                 String detBdNmList = StringUtils.defaultString(jusoDetail.getDetBdNmList());
@@ -141,8 +144,12 @@ public class JusoGovService {
                     bdNm = buldMnnm + HYPHEN + buldSlno;
                 }
 
-                jusoList.add(Juso.builder()
+                jusoList.add(
+                        Juso.builder()
                                 .roadAddr(roadAddr)
+                                .roadAddrPart1(roadAddrPart1)
+                                .roadAddrPart2(roadAddrPart2)
+                                .jibunAddr(jibunAddr)
                                 .admCd(admCd)
                                 .rnMgtSn(rnMgtSn)
                                 .detBdNmList(detBdNmList)
