@@ -21,7 +21,7 @@ public class CalculationBuyResultRequest {
     private Long buyPrice;                      // [필수] 취득금액
 
     private Long pubLandPrice;                  // [선택] 공시지가
-    private boolean isPubLandPriceOver100Mil;   // [필수] 공시지가1억초과여부
+    private Boolean isPubLandPriceOver100Mil;   // [필수] 공시지가1억초과여부
 
     private String jibunAddr;                   // [선택] 지번주소
     private String roadAddr;                    // [필수] 도로명주소
@@ -31,10 +31,10 @@ public class CalculationBuyResultRequest {
     private String rnMgtSn;                     // [선택] 도로명코드
 
     private Double area;                        // [선택] 전용면적
-    private boolean isAreaOver85;               // [필수] 전용면적85제곱미터초과여부
-    private boolean isDestruction;              // [필수] 멸실여부
+    private Boolean isAreaOver85;               // [필수] 전용면적85제곱미터초과여부
+    private Boolean isDestruction;              // [필수] 멸실여부
     private Integer ownerCnt;                   // [필수] 소유자수
     private Integer userProportion;             // [필수] 본인지분비율
-    private boolean isMoveInRight;              // [필수] 입주권여부
-    private boolean hasSellPlan;                // [필수] 양도예정여부
+    private Boolean isMoveInRight;              // [필수] 입주권여부
+    private Boolean hasSellPlan;                // [필수] 양도예정여부
 }

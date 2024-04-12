@@ -84,9 +84,7 @@ public class CalculationBuyService {
         String detailAdr = StringUtils.defaultString(calculationBuyResultRequest.getDetailAdr());
         LocalDate buyDate = calculationBuyResultRequest.getBuyDate();
         Long buyPrice = calculationBuyResultRequest.getBuyPrice();
-        Long pubLandPrice = calculationBuyResultRequest.getPubLandPrice();
         String roadAddr = StringUtils.defaultString(calculationBuyResultRequest.getRoadAddr());
-        Double area = calculationBuyResultRequest.getArea();
         Integer ownerCnt = calculationBuyResultRequest.getOwnerCnt();
         Integer userProportion = calculationBuyResultRequest.getUserProportion();
 
@@ -114,16 +112,8 @@ public class CalculationBuyService {
             throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 취득금액 정보가 올바르지 않습니다.");
         }
 
-        if(pubLandPrice == null || pubLandPrice <= 0){
-            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 공시지가 정보가 올바르지 않습니다.");
-        }
-
         if(EMPTY.equals(roadAddr)){
             throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 도로명주소 정보가 입력되지 않았습니다.");
-        }
-
-        if(area == null || area <= 0){
-            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 전용면적 정보가 올바르지 않습니다.");
         }
 
         if(ownerCnt == null || ownerCnt <= 0){
@@ -524,7 +514,7 @@ public class CalculationBuyService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             // 주택멸실여부
-            boolean isDestruction = calculationBuyResultRequest.isDestruction();
+            Boolean isDestruction = calculationBuyResultRequest.getIsDestruction();
 
             if(isDestruction){
                 selectNo = 1;
@@ -576,12 +566,37 @@ public class CalculationBuyService {
             int selectNo = 0;
 
             // 공시지가
+            Boolean isPubLandPriceOver100Mil = calculationBuyResultRequest.getIsPubLandPriceOver100Mil();
+            log.info("isPubLandPriceOver100Mil : " + isPubLandPriceOver100Mil);
             Long pubLandPrice = calculationBuyResultRequest.getPubLandPrice();
 
             List<CalculationProcess> list = calculationProcessRepository.findByCalcTypeAndBranchNo(CALC_TYPE_BUY, "008")
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
+            // 공시지가 1억 이하
+            if(!isPubLandPriceOver100Mil){
+                selectNo = 1;
+            }
+            // 공시지가 1억 초과
+            else{
+                selectNo = 2;
+            }
+
             for(CalculationProcess calculationProcess : list){
+                if(selectNo == calculationProcess.getCalculationProcessId().getSelectNo()){
+                    log.info("selectNo : " + selectNo + ", selectContent : " + calculationProcess.getSelectContent());
+                    if(calculationProcess.isHasNextBranch()){
+                        nextBranchNo = calculationProcess.getNextBranchNo();
+                        hasNext = true;
+                    }else{
+                        taxRateCode = calculationProcess.getTaxRateCode();
+                        dedCode = calculationProcess.getDedCode();
+                    }
+                    break;
+                }
+            }
+
+            /*for(CalculationProcess calculationProcess : list){
                 String dataMethod = StringUtils.defaultString(calculationProcess.getDataMethod());
                 String variableData = StringUtils.defaultString(calculationProcess.getVariableData(), ZERO);
 
@@ -597,7 +612,7 @@ public class CalculationBuyService {
                         dedCode = calculationProcess.getDedCode();
                     }
                 }
-            }
+            }*/
 
             if(hasNext){
                 try{
@@ -832,7 +847,7 @@ public class CalculationBuyService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             // (사용자 입력)완공 후 n년 이내 신규주택 양도 예정 여부
-            boolean hasSellPlan = calculationBuyResultRequest.isHasSellPlan();
+            Boolean hasSellPlan = calculationBuyResultRequest.getHasSellPlan();
 
             if(hasSellPlan){
                 selectNo = 1;
@@ -1080,7 +1095,7 @@ public class CalculationBuyService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             // (사용자 입력)완공 후 n년 이내 종전 또는 신규 주택 양도 예정 여부
-            boolean hasSellPlan = calculationBuyResultRequest.isHasSellPlan();
+            Boolean hasSellPlan = calculationBuyResultRequest.getHasSellPlan();
 
             if(hasSellPlan){
                 selectNo = 1;
@@ -1245,7 +1260,7 @@ public class CalculationBuyService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             // (사용자 입력)취득후 n년 이내 종전주택 양도 에정 여부
-            boolean hasSellPlan = calculationBuyResultRequest.isHasSellPlan();
+            Boolean hasSellPlan = calculationBuyResultRequest.getHasSellPlan();
 
             if(hasSellPlan){
                 selectNo = 1;
@@ -1476,8 +1491,10 @@ public class CalculationBuyService {
             /* 2. 농어촌특별세 계산 */
             log.info("2. 농어촌특별세 계산");
             // 전용면적 85제곱미터 초과만 농어촌특별세 대상
-            double area = calculationBuyResultRequest.getArea();
-            if(area > AREA_85){
+            Boolean isAreaOver85 = calculationBuyResultRequest.getIsAreaOver85();
+            //double area = calculationBuyResultRequest.getArea();
+            //if(area > AREA_85){
+            if(isAreaOver85){
                 // 1주택
                 if(ownHouseCount == 1){
                     agrTaxRate = 0.002;        // 농어촌특별세율 : 0.2%
