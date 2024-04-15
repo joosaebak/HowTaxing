@@ -22,6 +22,7 @@ public class HouseListSearchResponse {
         private Long houseId;           // 주택ID
         private String houseType;       // 주택유형
         private String houseName;       // 주택명
+        private String roadAddr;        // 도로명주소
         private String detailAdr;       // 상세주소
     }
 }

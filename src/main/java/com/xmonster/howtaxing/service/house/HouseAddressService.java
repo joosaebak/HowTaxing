@@ -81,7 +81,7 @@ public class HouseAddressService {
                         houseAddressDto.setSiGunGu(part);
                     }
                 }
-                // [3] 구 or 읍/면 or 동/리 or 도로명
+                // [3] 구 or 읍/면 or 동/리/가 or 도로명
                 else if(i==2){
                     if(part.endsWith("구")){
                         if(houseAddressDto.getSiGunGu() != null && !houseAddressDto.getSiGunGu().isBlank() && !houseAddressDto.getSiGunGu().endsWith("구")){
@@ -89,7 +89,7 @@ public class HouseAddressService {
                         }
                     } else if(part.endsWith("읍") || part.endsWith("면")){
                         houseAddressDto.setEupMyun(part);
-                    }else if(part.endsWith("동") || part.endsWith("리")){
+                    }else if(part.endsWith("동") || part.endsWith("리") || part.endsWith("가")){
                         houseAddressDto.setDongRi(part);
                         houseAddressDto.setAddressType(1);  // 지번주소로 세팅
                     }else if(part.endsWith("로") || part.endsWith("길")){
@@ -100,7 +100,7 @@ public class HouseAddressService {
                 // [4] 3가지 케이스
                 // [지번주소] 지번
                 // [도로명주소] 건물번호
-                // [모름] 읍/면 or 동/리 or 로/길
+                // [모름] 읍/면 or 동/리/가 or 로/길
                 else if(i==3){
                     if(houseAddressDto.getAddressType() == 1){
                         // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
@@ -115,7 +115,7 @@ public class HouseAddressService {
                     }else{
                         if(part.endsWith("읍") || part.endsWith("면")){
                             houseAddressDto.setEupMyun(part);
-                        }else if(part.endsWith("동") || part.endsWith("리")){
+                        }else if(part.endsWith("동") || part.endsWith("리") || part.endsWith("가")){
                             houseAddressDto.setDongRi(part);
                             houseAddressDto.setAddressType(1);  // 지번주소로 세팅
                         }else if(part.endsWith("로") || part.endsWith("길")){
@@ -127,7 +127,7 @@ public class HouseAddressService {
                 // [5] 3가지 케이스
                 // [지번주소] 지번 or 동/호/층 or ELSE
                 // [도로명주소] 건물번호 or 동/호/층 / or ELSE
-                // [모름] 동/리 or 로/길
+                // [모름] 동/리/가 or 로/길
                 else if(i==4){
                     if(houseAddressDto.getAddressType() == 1){
                         // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
@@ -156,7 +156,7 @@ public class HouseAddressService {
                             houseAddressDto.appendToEtcAddress(part);
                         }
                     }else{
-                        if(part.endsWith("동") || part.endsWith("리")){
+                        if(part.endsWith("동") || part.endsWith("리") || part.endsWith("가")){
                             houseAddressDto.setDongRi(part);
                             houseAddressDto.setAddressType(1);  // 지번주소로 세팅
                         }else if(part.endsWith("로") || part.endsWith("길")){
