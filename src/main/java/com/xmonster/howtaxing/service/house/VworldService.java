@@ -91,7 +91,8 @@ public class VworldService {
         String responseData = StringUtils.defaultString(response.getBody().toString());
 
         // 정상 응답 케이스
-        if(responseData.matches("apartHousingPrices") || responseData.matches("indvdHousingPrices")){
+        if(responseData.contains("apartHousingPrices") || responseData.contains("indvdHousingPrices")){
+            log.info("공공기관 응답 정상");
             if(ONE.equals(bdKdcd)){
                 ApartHousingPriceResponse apartHousingPriceResponse = (ApartHousingPriceResponse) convertJsonToHouseData(response.getBody().toString(), ONE);
 
@@ -152,6 +153,7 @@ public class VworldService {
         }
         // 비정상 응답 케이스(데이터가 없는 경우)
         else{
+            log.info("공공기관 응답 오류");
             vworldPubLandPriceAndAreaResponse = VworldPubLandPriceAndAreaResponse.builder()
                     .hasPubLandPrice(false)
                     .pubLandPrice(null)
