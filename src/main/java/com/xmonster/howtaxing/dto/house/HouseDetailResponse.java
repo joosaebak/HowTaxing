@@ -26,8 +26,8 @@ public class HouseDetailResponse {
     private String roadAddrRef;         // 도로명주소참고항목
     private String bdMgtSn;             // 건물관리번호
     private BigDecimal area;            // 전용면적
-    private boolean isDestruction;      // 멸실여부
+    private Boolean isDestruction;      // 멸실여부
     private Integer ownerCnt;           // 소유자수
     private Integer userProportion;     // 본인지분비율
-    private boolean isMoveInRight;      // 입주권여부
+    private Boolean isMoveInRight;      // 입주권여부
 }
