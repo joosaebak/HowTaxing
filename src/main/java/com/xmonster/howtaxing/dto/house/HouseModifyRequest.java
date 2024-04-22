@@ -35,8 +35,8 @@ public class HouseModifyRequest {
     private String rnMgtSn;             // 도로명코드
 
     private BigDecimal area;            // 전용면적
-    private boolean isDestruction;      // 멸실여부
+    private Boolean isDestruction;      // 멸실여부
     private Integer ownerCnt;           // 소유자수
     private Integer userProportion;     // 본인지분비율
-    private boolean isMoveInRight;      // 입주권여부
+    private Boolean isMoveInRight;      // 입주권여부
 }

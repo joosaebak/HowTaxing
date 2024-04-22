@@ -344,10 +344,10 @@ public class HouseService {
                             .admCd(houseModifyRequest.getAdmCd())
                             .rnMgtSn(houseModifyRequest.getRnMgtSn())
                             .area(houseModifyRequest.getArea())
-                            .isDestruction(houseModifyRequest.isDestruction())
+                            .isDestruction(houseModifyRequest.getIsDestruction())
                             .ownerCnt(houseModifyRequest.getOwnerCnt())
                             .userProportion(houseModifyRequest.getUserProportion())
-                            .isMoveInRight(houseModifyRequest.isMoveInRight())
+                            .isMoveInRight(houseModifyRequest.getIsMoveInRight())
                             .build());
         }catch(Exception e){
             throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR);

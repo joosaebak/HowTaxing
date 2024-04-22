@@ -8,9 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class VworldPubLandPriceAndAreaResponse {
-    private boolean hasPubLandPrice;    // 공시가격 존재여부
+    private Boolean hasPubLandPrice;    // 공시가격 존재여부
     private Long pubLandPrice;          // 공시가격
-    private boolean hasArea;            // 전용면적 존재여부
+    private Boolean hasArea;            // 전용면적 존재여부
     private Double area;                // 전용면적
     private String stdrYear;            // 기준연도
 }
