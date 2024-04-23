@@ -181,7 +181,7 @@ public class JusoGovService {
 
         String searchType = jusoGovRoadAddrDetailRequest.getSearchType();
         String dongName = StringUtils.defaultString(jusoGovRoadAddrDetailRequest.getDongNm());
-        if(!dongName.endsWith("동")){
+        if(!EMPTY.equals(dongName) && !dongName.endsWith("동")){
             dongName += "동";
         }
 
