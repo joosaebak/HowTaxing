@@ -269,10 +269,10 @@ public class HouseService {
                         .roadAddrRef(house.getRoadAddrRef())
                         .bdMgtSn(house.getBdMgtSn())
                         .area(house.getArea())
-                        .isDestruction(house.isDestruction())
+                        .isDestruction(house.getIsDestruction())
                         .ownerCnt(house.getOwnerCnt())
                         .userProportion(house.getUserProportion())
-                        .isMoveInRight(house.isMoveInRight())
+                        .isMoveInRight(house.getIsMoveInRight())
                         .build());
     }
 
@@ -387,6 +387,15 @@ public class HouseService {
         }
 
         return ApiResponse.success(Map.of("result", "전체 보유주택이 삭제되었습니다."));
+    }
+
+    // (양도주택)거주기간 조회
+    public Object getHouseStayPeriod(HouseStayPeriodRequest houseStayPeriodRequest) throws Exception {
+        log.info(">> [Service]HouseService getHouseStayPeriod - (양도주택)거주기간 조회");
+
+        //TODO.......WHAT TO DO.....
+
+        return ApiResponse.success(null);
     }
 
     // 하이픈 보유주택 조회 응답 정상여부 확인
@@ -824,10 +833,10 @@ public class HouseService {
                     if(house.getAdmCd().isBlank()) house.setAdmCd(jusoDetail.getAdmCd());
                     if(house.getRnMgtSn().isBlank()) house.setRnMgtSn(jusoDetail.getRnMgtSn());
 
-                    house.setDestruction(false);
+                    house.setIsDestruction(false);
                     house.setOwnerCnt(1);
                     house.setUserProportion(100);
-                    house.setMoveInRight(false);
+                    house.setIsMoveInRight(false);
                     house.setSourceType(ONE);
 
                     isUpdate = true;
