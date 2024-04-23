@@ -312,14 +312,23 @@ public class HouseService {
     public Object modifyHouseInfo(HouseModifyRequest houseModifyRequest) throws Exception {
         log.info(">> HouseService modifyHouseInfo - 보유주택 (정보)수정");
 
-        if(houseModifyRequest == null) throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "수정 대상 주택 정보가 입력되지 않았습니다.");
+        if(houseModifyRequest == null){
+            log.error("수정 대상 주택 정보가 입력되지 않았습니다.");
+            throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "수정 대상 주택 정보가 입력되지 않았습니다.");
+        }
 
         Long houseId = houseModifyRequest.getHouseId();                         // 수정 대상 주택 ID
         Long userId = userUtil.findCurrentUser().getId();                       // 호출 사용자 ID
         Long houseOwnUserId = houseUtil.findSelectedHouse(houseId).getUserId(); // 주택 소유자 ID
 
-        if(houseId == null) throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "수정 대상 주택 ID가 입력되지 않았습니다.");
-        if(!userId.equals(houseOwnUserId)) throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "주택 소유자 ID와 사용자 ID가 일치하지 않아 보유주택 정보를 수정할 수 없습니다.");
+        if(houseId == null){
+            log.error("수정 대상 주택 ID가 입력되지 않았습니다.");
+            throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "수정 대상 주택 ID가 입력되지 않았습니다.");
+        }
+        if(!userId.equals(houseOwnUserId)){
+            log.error("주택 소유자 ID와 사용자 ID가 일치하지 않아 보유주택 정보를 수정할 수 없습니다.");
+            throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR, "주택 소유자 ID와 사용자 ID가 일치하지 않아 보유주택 정보를 수정할 수 없습니다.");
+        }
 
         try{
             houseRepository.saveAndFlush(
@@ -350,6 +359,7 @@ public class HouseService {
                             .isMoveInRight(houseModifyRequest.getIsMoveInRight())
                             .build());
         }catch(Exception e){
+            log.error("주택 테이블 update 중 오류가 발생했습니다.");
             throw new CustomException(ErrorCode.HOUSE_MODIFY_ERROR);
         }
 
