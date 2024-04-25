@@ -299,6 +299,7 @@ public class HouseService {
                             .bdMgtSn(houseRegistRequest.getBdMgtSn())
                             .admCd(houseRegistRequest.getAdmCd())
                             .rnMgtSn(houseRegistRequest.getRnMgtSn())
+                            .isMoveInRight(houseRegistRequest.getIsMoveInRight())
                             .sourceType(TWO)
                             .build());
         }catch(Exception e){
