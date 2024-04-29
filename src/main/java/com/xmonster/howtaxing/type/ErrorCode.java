@@ -25,12 +25,17 @@ public enum ErrorCode {
     HOUSE_HYPHEN_OUTPUT_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-005", "공공기관에서 보유주택 정보를 가져오는 중 오류가 발생했습니다."),
     HOUSE_HYPHEN_SYSTEM_ERROR(1, HttpStatus.INTERNAL_SERVER_ERROR, "HOUSE-006", "공공기관의 시스템에 문제가 발생하여 보유주택 정보를 가져오는 중 오류가 발생했습니다."),
 
+    /* 주택(양도주택 거주기간 조회) 관련 */
+    HYPHEN_STAY_PERIOD_INPUT_ERROR(1, HttpStatus.BAD_REQUEST, "HOUSE-007", "주택 거주기간 조회를 위한 입력값이 올바르지 않습니다."),
+    HYPHEN_STAY_PERIOD_OUTPUT_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-008", "공공기관에서 거주기간 정보를 가져오는 중 오류가 발생했습니다."),
+    HYPHEN_STAY_PERIOD_SYSTEM_ERROR(1, HttpStatus.INTERNAL_SERVER_ERROR, "HOUSE-009", "공공기관의 시스템에 문제가 발생하여 거주기간 정보를 가져오는 중 오류가 발생했습니다."),
+
     /* 주택(내부 데이터) 관련 */
-    HOUSE_NOT_FOUND_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-007", "해당 주택 정보를 찾을 수 없습니다."),
-    HOUSE_REGIST_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-008", "보유주택 등록 중 오류가 발생했습니다."),
-    HOUSE_MODIFY_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-009", "보유주택 수정 중 오류가 발생했습니다."),
-    HOUSE_DELETE_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-010", "보유주택 삭제 중 오류가 발생했습니다."),
-    HOUSE_DELETE_ALL_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-011", "보유주택 전체 삭제 중 오류가 발생했습니다."),
+    HOUSE_NOT_FOUND_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-010", "해당 주택 정보를 찾을 수 없습니다."),
+    HOUSE_REGIST_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-011", "보유주택 등록 중 오류가 발생했습니다."),
+    HOUSE_MODIFY_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-012", "보유주택 수정 중 오류가 발생했습니다."),
+    HOUSE_DELETE_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-013", "보유주택 삭제 중 오류가 발생했습니다."),
+    HOUSE_DELETE_ALL_ERROR(1, HttpStatus.NOT_FOUND, "HOUSE-014", "보유주택 전체 삭제 중 오류가 발생했습니다."),
 
     /* 계산 관련 */
     CALCULATION_BUY_TAX_FAILED(2, HttpStatus.INTERNAL_SERVER_ERROR, "CALCULATION-001", "취득세 계산 중 오류가 발생했습니다."),

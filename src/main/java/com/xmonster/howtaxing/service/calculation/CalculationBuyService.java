@@ -84,9 +84,15 @@ public class CalculationBuyService {
         String detailAdr = StringUtils.defaultString(calculationBuyResultRequest.getDetailAdr());
         LocalDate buyDate = calculationBuyResultRequest.getBuyDate();
         Long buyPrice = calculationBuyResultRequest.getBuyPrice();
+        Boolean isPubLandPriceOver100Mil = calculationBuyResultRequest.getIsPubLandPriceOver100Mil();
         String roadAddr = StringUtils.defaultString(calculationBuyResultRequest.getRoadAddr());
+        Boolean isAreaOver85 = calculationBuyResultRequest.getIsAreaOver85();
+        Boolean isDestruction = calculationBuyResultRequest.getIsDestruction();
         Integer ownerCnt = calculationBuyResultRequest.getOwnerCnt();
         Integer userProportion = calculationBuyResultRequest.getUserProportion();
+        Boolean isMoveInRight = calculationBuyResultRequest.getIsMoveInRight();
+        Boolean hasSellPlan = calculationBuyResultRequest.getHasSellPlan();
+        Boolean isOwnHouseCntRegist = calculationBuyResultRequest.getIsOwnHouseCntRegist();
 
         if(EMPTY.equals(houseType)){
             throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 주택유형 정보가 입력되지 않았습니다.");
@@ -112,16 +118,24 @@ public class CalculationBuyService {
             throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 취득금액 정보가 올바르지 않습니다.");
         }
 
+        if(isPubLandPriceOver100Mil == null){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 공시지가1억초과여부 정보가 입력되지 않았습니다.");
+        }
+
         if(EMPTY.equals(roadAddr)){
             throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 도로명주소 정보가 입력되지 않았습니다.");
         }
 
-        if(ownerCnt == null || ownerCnt <= 0){
-            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 소유자수 정보가 올바르지 않습니다.");
+        if(isAreaOver85 == null){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 전용면적85제곱미터초과여부 정보가 입력되지 않았습니다.");
         }
 
-        if(userProportion == null || userProportion <= 0){
-            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 본인지분비율 정보가 올바르지 않습니다.");
+        if(isDestruction == null){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 멸실여부 정보가 입력되지 않았습니다.");
+        }
+
+        if(ownerCnt == null || ownerCnt <= 0){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 소유자수 정보가 올바르지 않습니다.");
         }
 
         if(ownerCnt > 2){
@@ -130,6 +144,22 @@ public class CalculationBuyService {
 
         if(ownerCnt >= 2 && userProportion == 100){
             throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "소유자가 2인 이상인 경우 본인지분비율을 100% 미만이어야 합니다.");
+        }
+
+        if(userProportion == null || userProportion <= 0){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 본인지분비율 정보가 올바르지 않습니다.");
+        }
+
+        if(isMoveInRight == null){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 입주권여부 정보가 입력되지 않았습니다.");
+        }
+
+        if(hasSellPlan == null){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 양도예정여부 정보가 입력되지 않았습니다.");
+        }
+
+        if(isOwnHouseCntRegist == null){
+            throw new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득주택의 보유주택수직접입력여부 정보가 입력되지 않았습니다.");
         }
     }
 
@@ -280,7 +310,7 @@ public class CalculationBuyService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             // (취득주택 포함)보유주택 수
-            long ownHouseCount = getOwnHouseCount();
+            long ownHouseCount = getOwnHouseCount(calculationBuyResultRequest);
 
             // 1~3주택
             if(ownHouseCount >= 1 && ownHouseCount <= 3){
@@ -338,7 +368,7 @@ public class CalculationBuyService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             // (취득주택 포함)보유주택 수
-            long ownHouseCount = getOwnHouseCount();
+            long ownHouseCount = getOwnHouseCount(calculationBuyResultRequest);
 
             // 1주택
             if(ownHouseCount == 1){
@@ -647,7 +677,7 @@ public class CalculationBuyService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             // (취득분양권 포함)보유주택 수
-            long ownHouseCount = getOwnHouseCount();
+            long ownHouseCount = getOwnHouseCount(calculationBuyResultRequest);
 
             // 1주택
             if(ownHouseCount == 1){
@@ -764,23 +794,32 @@ public class CalculationBuyService {
             String dedCode = EMPTY;
             int selectNo = 0;
 
+            String houseType = EMPTY;
+            String buyDate = EMPTY;
+
             List<CalculationProcess> list = calculationProcessRepository.findByCalcTypeAndBranchNo(CALC_TYPE_BUY, "011")
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
-            // 종전주택이 2020.08.12 이후 취득한 분양권이나 지방세법상 입주권인 경우(재개발, 재건축, 소규모재건축)
-            House lastOwnHouse = getLastOwnHouse();
-            String houseType = EMPTY;
-            String buyDate = EMPTY;
-            if(calculationBuyResultRequest != null && calculationBuyResultRequest.getBuyDate() != null){
-                buyDate = calculationBuyResultRequest.getBuyDate().toString().replace(HYPHEN, EMPTY);
+            // 보유주택 수를 직접 입력한 경우
+            if(calculationBuyResultRequest.getIsOwnHouseCntRegist()){
+                selectNo = 1;
             }
+            // 보유주택 정보를 조회하여 가져오는 경우
+            else{
+                // 종전주택이 2020.08.12 이후 취득한 분양권이나 지방세법상 입주권인 경우(재개발, 재건축, 소규모재건축)
+                House lastOwnHouse = getLastOwnHouse();
 
-            if(lastOwnHouse != null){
-                houseType = lastOwnHouse.getHouseType();
+                if(calculationBuyResultRequest != null && calculationBuyResultRequest.getBuyDate() != null){
+                    buyDate = calculationBuyResultRequest.getBuyDate().toString().replace(HYPHEN, EMPTY);
+                }
 
-                // 일반 주택인 경우(3:입주권, 5:분양권)
-                if(!THREE.equals(houseType) && !FIVE.equals(houseType)){
-                    selectNo = 1;
+                if(lastOwnHouse != null){
+                    houseType = lastOwnHouse.getHouseType();
+
+                    // 일반 주택인 경우(3:입주권, 5:분양권)
+                    if(!THREE.equals(houseType) && !FIVE.equals(houseType)){
+                        selectNo = 1;
+                    }
                 }
             }
 
@@ -957,7 +996,7 @@ public class CalculationBuyService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             // (취득주택 포함)보유주택 수
-            long ownHouseCount = getOwnHouseCount();
+            long ownHouseCount = getOwnHouseCount(calculationBuyResultRequest);
 
             if(ownHouseCount == 1){
                 selectNo = 1;
@@ -1012,23 +1051,32 @@ public class CalculationBuyService {
             String dedCode = EMPTY;
             int selectNo = 0;
 
+            String houseType = EMPTY;
+            String buyDate = EMPTY;
+
             List<CalculationProcess> list = calculationProcessRepository.findByCalcTypeAndBranchNo(CALC_TYPE_BUY, "015")
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_BUY_TAX_FAILED, "취득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
-            // 종전주택이 2020.08.12 이후 취득한 분양권이나 지방세법상 입주권인 경우(재개발, 재건축, 소규모재건축)
-            House lastOwnHouse = getLastOwnHouse();
-            String houseType = EMPTY;
-            String buyDate = EMPTY;
-            if(calculationBuyResultRequest != null && calculationBuyResultRequest.getBuyDate() != null){
-                buyDate = calculationBuyResultRequest.getBuyDate().toString().replace(HYPHEN, EMPTY);
+            // 보유주택 수를 직접 입력한 경우
+            if(calculationBuyResultRequest.getIsOwnHouseCntRegist()){
+                selectNo = 1;
             }
+            // 보유주택 정보를 조회하여 가져오는 경우
+            else{
+                // 종전주택이 2020.08.12 이후 취득한 분양권이나 지방세법상 입주권인 경우(재개발, 재건축, 소규모재건축)
+                House lastOwnHouse = getLastOwnHouse();
 
-            if(lastOwnHouse != null){
-                houseType = lastOwnHouse.getHouseType();
+                if(calculationBuyResultRequest != null && calculationBuyResultRequest.getBuyDate() != null){
+                    buyDate = calculationBuyResultRequest.getBuyDate().toString().replace(HYPHEN, EMPTY);
+                }
 
-                // 일반 주택인 경우(3:입주권, 5:분양권)
-                if(!THREE.equals(houseType) && !FIVE.equals(houseType)){
-                    selectNo = 1;
+                if(lastOwnHouse != null){
+                    houseType = lastOwnHouse.getHouseType();
+
+                    // 일반 주택인 경우(3:입주권, 5:분양권)
+                    if(!THREE.equals(houseType) && !FIVE.equals(houseType)){
+                        selectNo = 1;
+                    }
                 }
             }
 
@@ -1371,7 +1419,7 @@ public class CalculationBuyService {
             long totalTaxPrice = 0;     // 총납부세액
 
             // (취득주택 포함)보유주택 수
-            long ownHouseCount = getOwnHouseCount();
+            long ownHouseCount = getOwnHouseCount(calculationBuyResultRequest);
 
             // 취득가액
             long buyPrice = calculationBuyResultRequest.getBuyPrice();
@@ -1638,10 +1686,17 @@ public class CalculationBuyService {
         }
 
         // (취득주택 포함)보유주택 수 가져오기
-        private long getOwnHouseCount(){
-            // 호출 사용자 조회
-            User findUser = userUtil.findCurrentUser();
-            return houseRepository.countByUserId(findUser.getId()) + 1;
+        private long getOwnHouseCount(CalculationBuyResultRequest calculationBuyResultRequest){
+            log.info(">>> CalculationBranch getOwnHouseCount - (취득주택 포함)보유주택 수 가져오기");
+
+            if(calculationBuyResultRequest.getIsOwnHouseCntRegist()){
+                log.info("보유주택 수 직접입력을 통한 보유주택 수 가져오기");
+                return calculationBuyResultRequest.getOwnHouseCnt() + 1;    // 취득주택 포함이므로 +1
+            }else{
+                log.info("보유주택 수 조회(청약홈)를 통한 보유주택 수 가져오기");
+                User findUser = userUtil.findCurrentUser(); // 호출 사용자 조회
+                return houseRepository.countByUserId(findUser.getId()) + 1; // 취득주택 포함이므로 +1
+            }
         }
 
         // 종전주택 가져오기

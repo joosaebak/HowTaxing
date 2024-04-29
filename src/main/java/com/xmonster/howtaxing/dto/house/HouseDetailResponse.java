@@ -18,6 +18,8 @@ public class HouseDetailResponse {
     private LocalDate contractDate;     // 계약일자
     private LocalDate balanceDate;      // 잔금지급일자
     private LocalDate buyDate;          // 취득일자
+    private LocalDate moveInDate;       // 전입일자
+    private LocalDate moveOutDate;      // 전출일자
     private Long buyPrice;              // 취득금액
     private Long pubLandPrice;          // 공시지가
     private Long kbMktPrice;            // KB시세

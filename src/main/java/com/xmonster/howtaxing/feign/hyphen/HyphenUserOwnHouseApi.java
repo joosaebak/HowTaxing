@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.Map;
 
-@FeignClient(value = "hyphenUserHouse", url="https://api.hyphen.im", configuration = {FeignConfiguration.class})
-public interface HyphenUserHouseApi {
+@FeignClient(value = "hyphenUserOwnHouse", url="https://api.hyphen.im", configuration = {FeignConfiguration.class})
+public interface HyphenUserOwnHouseApi {
     @PostMapping("/in0148001055")
-    ResponseEntity<String> getUserHouseInfo(@RequestHeader Map<String, Object> requestHeader, @RequestBody HyphenUserHouseListRequest requestBody);
+    ResponseEntity<String> getUserOwnHouseInfo(@RequestHeader Map<String, Object> requestHeader, @RequestBody HyphenUserHouseListRequest requestBody);
 }

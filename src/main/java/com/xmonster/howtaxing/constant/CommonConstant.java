@@ -29,6 +29,29 @@ public final class CommonConstant {
     public final static String JSON = "json";
     public final static String XML = "xml";
 
+    /* 하이픈 관련 상수 */
+    public final static String EASY = "EASY";
+
+    public final static String INCLUDE = "01";
+    public final static String NOT_INCLUDE = "02";
+
+    public final static String INDVD_LOCAL = "01";
+    public final static String CORPORATION = "02";
+    public final static String INDVD_FOREIGNER = "03";
+
+    public final static String PASS = "pass";
+    public final static String KAKAO = "kakao";
+    public final static String PAYCO = "payco";
+    public final static String KICA = "kica";
+    public final static String KB = "kb";
+
+    public final static String SKT = "S";
+    public final static String KT = "K";
+    public final static String LGU = "L";
+
+    public final static String INIT = "1";
+    public final static String SIGN = "2";
+
     public final static String DEFAULT_DECIMAL = "0.0";
     public final static String DEFAULT_DATE = "00000000";
 

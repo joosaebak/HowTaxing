@@ -7,6 +7,7 @@ import com.xmonster.howtaxing.dto.house.HouseListSearchResponse.HouseSimpleInfoR
 import com.xmonster.howtaxing.dto.hyphen.HyphenAuthResponse;
 import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse;
 import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResultInfo;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserResidentRegistrationResponse;
 import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse;
 import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse.Results.JusoDetail;
 import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse.HyphenCommon;
@@ -38,7 +39,7 @@ import static com.xmonster.howtaxing.constant.CommonConstant.*;
 @Slf4j
 public class HouseService {
 
-    private final HyphenUserHouseService hyphenUserHouseService;
+    private final HyphenService hyphenService;
     private final JusoGovService jusoGovService;
     private final HouseAddressService houseAddressService;
 
@@ -57,12 +58,12 @@ public class HouseService {
         User findUser = userUtil.findCurrentUser();
 
         // 1. 하이픈 Access Token 가져오기
-        HyphenAuthResponse hyphenAuthResponse = hyphenUserHouseService.getAccessToken()
+        HyphenAuthResponse hyphenAuthResponse = hyphenService.getAccessToken()
                 .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_HYPHEN_OUTPUT_ERROR, "하이픈에서 AccessToken을 가져오는데 실패했습니다."));
         String accessToken = hyphenAuthResponse.getAccess_token();
 
         // 2. 하이픈 주택소유정보 조회 호출
-        HyphenUserHouseListResponse hyphenUserHouseListResponse = hyphenUserHouseService.getUserHouseInfo(accessToken, houseListSearchRequest)
+        HyphenUserHouseListResponse hyphenUserHouseListResponse = hyphenService.getUserHouseInfo(accessToken, houseListSearchRequest)
                 .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_HYPHEN_OUTPUT_ERROR));
 
         // 3. 하이픈 보유주택조회 결과가 정상인지 체크하여, 정상인 경우 조회 결과를 정리하여 별도 DTO에 저장
@@ -262,6 +263,8 @@ public class HouseService {
                         .balanceDate(house.getBalanceDate())
                         .buyDate(house.getBuyDate())
                         .buyPrice(house.getBuyPrice())
+                        .moveInDate(house.getMoveInDate())
+                        .moveOutDate(house.getMoveOutDate())
                         .pubLandPrice(house.getPubLandPrice())
                         .kbMktPrice(house.getKbMktPrice())
                         .jibunAddr(house.getJibunAddr())
@@ -400,11 +403,14 @@ public class HouseService {
         return ApiResponse.success(Map.of("result", "전체 보유주택이 삭제되었습니다."));
     }
 
-    // (양도주택)거주기간 조회
+    // (양도주택)거주기간 조회(GGMANYAR)
     public Object getHouseStayPeriod(HouseStayPeriodRequest houseStayPeriodRequest) throws Exception {
         log.info(">> [Service]HouseService getHouseStayPeriod - (양도주택)거주기간 조회");
 
-        //TODO.......WHAT TO DO.....
+        HyphenUserResidentRegistrationResponse hyphenUserResidentRegistrationResponse = hyphenService.getUserStayPeriodInfo(houseStayPeriodRequest)
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_HYPHEN_OUTPUT_ERROR));
+
+
 
         return ApiResponse.success(null);
     }

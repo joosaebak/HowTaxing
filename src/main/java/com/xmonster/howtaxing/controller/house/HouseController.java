@@ -98,10 +98,9 @@ public class HouseController {
         return houseService.deleteHouseAll();
     }
 
-    // TODO. 거주기간 조회(하이픈-정부24-주민등록초본)
-    /*@PostMapping("/house/stayPeriod")
-    public Object searchHouseStayPeriod(@RequestBody HouseStayPeriodRequest houseStayPeriodRequest){
+    // (양도)주택 거주기간 조회(하이픈-정부24-주민등록초본)
+    @PostMapping("/house/stayPeriod")
+    public Object searchHouseStayPeriod(@RequestBody HouseStayPeriodRequest houseStayPeriodRequest) throws Exception {
         return houseService.getHouseStayPeriod(houseStayPeriodRequest);
-    }*/
-
+    }
 }

@@ -37,4 +37,7 @@ public class CalculationBuyResultRequest {
     private Integer userProportion;             // [필수] 본인지분비율
     private Boolean isMoveInRight;              // [필수] 입주권여부
     private Boolean hasSellPlan;                // [필수] 양도예정여부
+
+    private Boolean isOwnHouseCntRegist;        // [필수] 보유주택수직접입력여부
+    private Integer ownHouseCnt;                // [선택] 보유주택수
 }
