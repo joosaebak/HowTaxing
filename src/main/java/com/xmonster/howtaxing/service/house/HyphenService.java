@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import com.xmonster.howtaxing.CustomException;
 import com.xmonster.howtaxing.dto.house.HouseListSearchRequest;
 import com.xmonster.howtaxing.dto.house.HouseStayPeriodRequest;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserResidentRegistrationResponse;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserResidentRegistrationResponse.HyphenUserResidentRegistrationCommon;
 import com.xmonster.howtaxing.dto.hyphen.*;
 import com.xmonster.howtaxing.feign.hyphen.HyphenAuthApi;
 import com.xmonster.howtaxing.feign.hyphen.HyphenUserOwnHouseApi;
@@ -89,6 +91,7 @@ public class HyphenService {
 
     public Optional<HyphenUserResidentRegistrationResponse> getUserStayPeriodInfo(HouseStayPeriodRequest houseStayPeriodRequest){
         Map<String, Object> headerMap = new HashMap<>();
+        // TODO. headerMap 추가 필요
 
         validationCheckForGetUserStayPeriodInfo(houseStayPeriodRequest);
 
@@ -129,7 +132,19 @@ public class HyphenService {
         HyphenUserResidentRegistrationResponse hyphenUserResidentRegistrationResponse = (HyphenUserResidentRegistrationResponse) convertJsonToData(jsonString, 2);
         System.out.println("hyphenUserResidentRegistrationResponse : " + hyphenUserResidentRegistrationResponse);
 
-        return Optional.ofNullable(hyphenUserResidentRegistrationResponse);
+        if(hyphenUserResidentRegistrationResponse == null
+                || hyphenUserResidentRegistrationResponse.getHyphenUserResidentRegistrationCommon() == null
+                || hyphenUserResidentRegistrationResponse.getHyphenUserResidentRegistrationCommon().getErrYn() == null
+                || hyphenUserResidentRegistrationResponse.getHyphenUserResidentRegistrationData() == null
+        ){
+            throw new CustomException(ErrorCode.HYPHEN_STAY_PERIOD_OUTPUT_ERROR, "공공기관에서 응답값을 받지 못했습니다.");
+        }
+
+        if(YES.equals(hyphenUserResidentRegistrationResponse.getHyphenUserResidentRegistrationCommon().getErrYn())){
+            throw new CustomException(ErrorCode.HYPHEN_STAY_PERIOD_OUTPUT_ERROR, "주택 거주기간 조회 중 오류가 발생했습니다.(공공기관 오류)");
+        }
+
+        return Optional.of(hyphenUserResidentRegistrationResponse);
     }
 
     private void validationCheckForGetUserStayPeriodInfo(HouseStayPeriodRequest houseStayPeriodRequest){

@@ -8,6 +8,7 @@ import com.xmonster.howtaxing.dto.hyphen.HyphenAuthResponse;
 import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse;
 import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseResultInfo;
 import com.xmonster.howtaxing.dto.hyphen.HyphenUserResidentRegistrationResponse;
+import com.xmonster.howtaxing.dto.hyphen.HyphenUserResidentRegistrationResponse.HyphenUserResidentRegistrationData;
 import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse;
 import com.xmonster.howtaxing.dto.jusogov.JusoGovRoadAdrResponse.Results.JusoDetail;
 import com.xmonster.howtaxing.dto.hyphen.HyphenUserHouseListResponse.HyphenCommon;
@@ -410,7 +411,31 @@ public class HouseService {
         HyphenUserResidentRegistrationResponse hyphenUserResidentRegistrationResponse = hyphenService.getUserStayPeriodInfo(houseStayPeriodRequest)
                 .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_HYPHEN_OUTPUT_ERROR));
 
+        HyphenUserResidentRegistrationData hyphenUserResidentRegistrationData = hyphenUserResidentRegistrationResponse.getHyphenUserResidentRegistrationData();
 
+        Long houseId = houseStayPeriodRequest.getHouseId();
+
+        if(houseId == null || houseId == 0) throw new CustomException(ErrorCode.HOUSE_NOT_FOUND_ERROR, "주택ID 값이 입력되지 않았습니다.");
+
+        House house = houseRepository.findByHouseId(houseId)
+                .orElseThrow(() -> new CustomException(ErrorCode.HOUSE_NOT_FOUND_ERROR));
+
+        HouseStayPeriodResponse houseStayPeriodResponse = null;
+
+        String step = houseStayPeriodRequest.getStep();
+
+        // 로그인 단계 : 1(init)
+        if(INIT.equals(step)){
+            houseStayPeriodResponse = HouseStayPeriodResponse.builder()
+                    .houseId(houseId)
+                    .step(step)
+                    .stepData(hyphenUserResidentRegistrationData.getStepData())
+                    .build();
+        }
+        // 로그인 단계 : 2(sign)
+        else if(SIGN.equals(step)){
+            // TODO. 양도주택과 동일한 주택을 찾아 거주기간을 계산(GGMANYAR)
+        }
 
         return ApiResponse.success(null);
     }

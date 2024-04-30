@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class HouseStayPeriodRequest {
+    private Long houseId;           // [필수] (양도)주택 ID
     private String userName;        // [필수] 이름
     private String mobileNo;        // [필수] 휴대폰번호
     private String rlno;            // [필수] 주민등록번호
