@@ -279,10 +279,15 @@ public class JusoGovService {
 
         if(jusoGovRoadAddrListRequest == null) throw new CustomException(ErrorCode.HOUSE_JUSOGOV_INPUT_ERROR, "도로명주소 조회를 위한 요청 값이 입력되지 않았습니다.");
 
+        String sido = StringUtils.defaultString(jusoGovRoadAddrListRequest.getSido());
+        String sigungu = StringUtils.defaultString(jusoGovRoadAddrListRequest.getSigungu());
         String keyword = StringUtils.defaultString(jusoGovRoadAddrListRequest.getKeyword());
 
-        if(EMPTY.equals(keyword)){
-            throw new CustomException(ErrorCode.HOUSE_JUSOGOV_INPUT_ERROR, "도로명주소 조회를 위한 검색어가 입력되지 않았습니다.");
+        if(EMPTY.equals(sido) || EMPTY.equals(sigungu)){
+            if(EMPTY.equals(keyword)){
+                //throw new CustomException(ErrorCode.HOUSE_JUSOGOV_INPUT_ERROR, "도로명주소 조회를 위한 검색어가 입력되지 않았습니다.");
+                throw new CustomException(ErrorCode.HOUSE_JUSOGOV_INPUT_ERROR, "도로명주소 조회를 위해 시/도 및 시/군/구를 모두 입력하거나, 검색어를 입력해주세요.");
+            }
         }
     }
 
