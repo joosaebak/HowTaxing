@@ -103,9 +103,12 @@ public class HouseAddressService {
                 // [모름] 읍/면 or 동/리/가 or 로/길
                 else if(i==3){
                     if(houseAddressDto.getAddressType() == 1){
-                        // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
-                        if(this.isValidFormat(1, part)){
-                            houseAddressDto.setJibun(part);
+                        // 지번을 아직 세팅하지 않은 경우
+                        if(EMPTY.equals(StringUtils.defaultString(houseAddressDto.getJibun()))){
+                            // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
+                            if(this.isValidFormat(1, part)){
+                                houseAddressDto.setJibun(part);
+                            }
                         }
                     }else if(houseAddressDto.getAddressType() == 2){
                         // 건물번호(숫자만으로 이루어진 문자열인지 체크)
@@ -130,17 +133,32 @@ public class HouseAddressService {
                 // [모름] 동/리/가 or 로/길
                 else if(i==4){
                     if(houseAddressDto.getAddressType() == 1){
-                        // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
-                        if(this.isValidFormat(1, part)){
-                            houseAddressDto.setJibun(part);
-                        }else if(part.endsWith("동")){
-                            houseAddressDto.setDetailDong(this.removeFrontZero(part));
-                        }else if(part.endsWith("호")){
-                            houseAddressDto.setDetailHo(this.removeFrontZero(part));
-                        }else if(part.endsWith("층")){
-                            houseAddressDto.setDetailCheung(this.removeFrontZero(part));
-                        }else{
-                            houseAddressDto.appendToEtcAddress(part);
+                        // 지번을 아직 세팅하지 않은 경우
+                        if(EMPTY.equals(StringUtils.defaultString(houseAddressDto.getJibun()))){
+                            // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
+                            if(this.isValidFormat(1, part)){
+                                houseAddressDto.setJibun(part);
+                            }else{
+                                houseAddressDto.appendToEtcAddress(part);
+                            }
+                        }
+                        // 지번을 이미 세팅한 경우
+                        else{
+                            if(part.endsWith("동")){
+                                houseAddressDto.setDetailDong(this.removeFrontZero(part));
+                            }else if(part.endsWith("호")){
+                                houseAddressDto.setDetailHo(this.removeFrontZero(part));
+                            }else if(part.endsWith("층")){
+                                houseAddressDto.setDetailCheung(this.removeFrontZero(part));
+                            }else if(this.isValidFormat(1, part)){
+                                String[] detailAddr = part.split(HYPHEN);
+                                if(detailAddr != null && detailAddr.length == 2){
+                                    houseAddressDto.setDetailDong(this.removeFrontZero(detailAddr[0])); // 동
+                                    houseAddressDto.setDetailHo(this.removeFrontZero(detailAddr[1]));   // 호
+                                }
+                            }else{
+                                houseAddressDto.appendToEtcAddress(part);
+                            }
                         }
                     }else if(houseAddressDto.getAddressType() == 2){
                         // 건물번호(숫자만으로 이루어진 문자열인지 체크)
@@ -172,25 +190,40 @@ public class HouseAddressService {
                 // [도로명주소] 건물번호 or 동/호/층 / or ELSE
                 else{
                     if(houseAddressDto.getAddressType() == 1){
-                        // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
-                        if(this.isValidFormat(1, part)){
-                            if(houseAddressDto.getJibun() == null){
-                                houseAddressDto.setJibun(part);
+                        // 지번을 아직 세팅하지 않은 경우
+                        if(EMPTY.equals(StringUtils.defaultString(houseAddressDto.getJibun()))){
+                            // 지번(숫자와 하이픈만으로 이루어진 문자열인지 체크)
+                            if(this.isValidFormat(1, part)){
+                                if(houseAddressDto.getJibun() == null){
+                                    houseAddressDto.setJibun(part);
+                                }
+                            }else{
+                                houseAddressDto.appendToEtcAddress(part);
                             }
-                        }else if(part.endsWith("동")){
-                            if(houseAddressDto.getDetailDong() == null){
-                                houseAddressDto.setDetailDong(this.removeFrontZero(part));
+                        }
+                        // 지번을 이미 세팅한 경우
+                        else{
+                            if(part.endsWith("동")){
+                                if(houseAddressDto.getDetailDong() == null){
+                                    houseAddressDto.setDetailDong(this.removeFrontZero(part));
+                                }
+                            }else if(part.endsWith("호")){
+                                if(houseAddressDto.getDetailHo() == null){
+                                    houseAddressDto.setDetailHo(this.removeFrontZero(part));
+                                }
+                            }else if(part.endsWith("층")){
+                                if(houseAddressDto.getDetailCheung() == null){
+                                    houseAddressDto.setDetailCheung(this.removeFrontZero(part));
+                                }
+                            }else if(this.isValidFormat(1, part)){
+                                String[] detailAddr = part.split(HYPHEN);
+                                if(detailAddr != null && detailAddr.length == 2){
+                                    houseAddressDto.setDetailDong(this.removeFrontZero(detailAddr[0])); // 동
+                                    houseAddressDto.setDetailHo(this.removeFrontZero(detailAddr[1]));   // 호
+                                }
+                            }else{
+                                houseAddressDto.appendToEtcAddress(part);
                             }
-                        }else if(part.endsWith("호")){
-                            if(houseAddressDto.getDetailHo() == null){
-                                houseAddressDto.setDetailHo(this.removeFrontZero(part));
-                            }
-                        }else if(part.endsWith("층")){
-                            if(houseAddressDto.getDetailCheung() == null){
-                                houseAddressDto.setDetailCheung(this.removeFrontZero(part));
-                            }
-                        }else{
-                            houseAddressDto.appendToEtcAddress(part);
                         }
                     }else if(houseAddressDto.getAddressType() == 2){
                         // 건물번호(숫자만으로 이루어진 문자열인지 체크)
@@ -240,6 +273,42 @@ public class HouseAddressService {
         }
 
         return jusoDetail;
+    }
+
+    // 주소 비교
+    public Boolean compareAddress(HouseAddressDto houseAddressDto1, HouseAddressDto houseAddressDto2){
+        List<String> searchAddr1 = houseAddressDto1.getSearchAddress();
+        List<String> searchAddr2 = houseAddressDto2.getSearchAddress();
+        String detailAddr1 = StringUtils.defaultString(houseAddressDto1.getDetailAddress());
+        String detailAddr2 = StringUtils.defaultString(houseAddressDto2.getDetailAddress());
+
+        boolean isSame = true;
+
+        if(searchAddr1 != null && !searchAddr1.isEmpty() && searchAddr2 != null && !searchAddr2.isEmpty()){
+            if(searchAddr1.size() != searchAddr2.size()){
+                isSame = false;
+            }else{
+                for(int i=0; i<searchAddr1.size(); i++){
+                    if(!searchAddr1.get(i).equals(searchAddr2.get(i))){
+                        isSame = false;
+                    }
+                }
+            }
+        }else{
+            isSame = false;
+        }
+
+        if(isSame){
+            if(EMPTY.equals(detailAddr1) || EMPTY.equals(detailAddr2)){
+                isSame = false;
+            }else{
+                if(!detailAddr1.equals(detailAddr2)){
+                    isSame = false;
+                }
+            }
+        }
+
+        return isSame;
     }
 
     private String replaceSpecialCharacters(String address){

@@ -55,6 +55,8 @@ public final class CommonConstant {
     public final static String DEFAULT_DECIMAL = "0.0";
     public final static String DEFAULT_DATE = "00000000";
 
+    public final static String MOVE_IN_KEYWORD = "전입";
+
     /* 계산 유형 */
     public final static String CALC_TYPE_BUY = "01";            // 취득세
     public final static String CALC_TYPE_SELL = "02";           // 양도소득세

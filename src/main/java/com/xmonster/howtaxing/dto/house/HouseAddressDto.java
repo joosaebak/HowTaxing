@@ -69,7 +69,7 @@ public class HouseAddressDto {
 
         /* Jibun Addr Part */
         if(this.addressType == 1){
-            scAddr = this.appendStringWithSpace(this.dongRi, scAddr);        // 동/리
+            scAddr = this.appendStringWithSpace(this.dongRi, scAddr);        // 동/리/가
             scAddr = this.appendStringWithSpace(this.jibun, scAddr);         // 지번
         }
         /* Road Addr Part */
