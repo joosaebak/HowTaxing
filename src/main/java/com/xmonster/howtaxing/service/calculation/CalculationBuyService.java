@@ -821,15 +821,18 @@ public class CalculationBuyService {
             }
 
             for(CalculationProcess calculationProcess : list){
-                if(selectNo != 0 && selectNo == calculationProcess.getCalculationProcessId().getSelectNo()){
-                    log.info("selectNo : " + selectNo + ", selectContent : " + calculationProcess.getSelectContent());
+                if(selectNo != 0){
+                    if(selectNo == calculationProcess.getCalculationProcessId().getSelectNo()){
+                        log.info("selectNo : " + selectNo + ", selectContent : " + calculationProcess.getSelectContent());
 
-                    if(calculationProcess.isHasNextBranch()){
-                        nextBranchNo = calculationProcess.getNextBranchNo();
-                        hasNext = true;
-                    }else{
-                        taxRateCode = calculationProcess.getTaxRateCode();
-                        dedCode = calculationProcess.getDedCode();
+                        if(calculationProcess.isHasNextBranch()){
+                            nextBranchNo = calculationProcess.getNextBranchNo();
+                            hasNext = true;
+                        }else{
+                            taxRateCode = calculationProcess.getTaxRateCode();
+                            dedCode = calculationProcess.getDedCode();
+                        }
+                        break;
                     }
                 }else{
                     String dataMethod = StringUtils.defaultString(calculationProcess.getDataMethod());
@@ -846,6 +849,7 @@ public class CalculationBuyService {
                             taxRateCode = calculationProcess.getTaxRateCode();
                             dedCode = calculationProcess.getDedCode();
                         }
+                        break;
                     }
                 }
             }
@@ -1056,6 +1060,7 @@ public class CalculationBuyService {
 
             // 보유주택 수를 직접 입력한 경우
             if(calculationBuyResultRequest.getIsOwnHouseCntRegist()){
+                log.info("보유주택 수 직접 입력에 해당");
                 selectNo = 1;
             }
             // 보유주택 정보를 조회하여 가져오는 경우
@@ -1072,25 +1077,27 @@ public class CalculationBuyService {
 
                     // 일반 주택인 경우(3:입주권, 5:분양권)
                     if(!THREE.equals(houseType) && !FIVE.equals(houseType)){
+                        log.info("종전주택이 일반주택인 경우(분양권이나 입주권이 아닌 경우)에 해당");
                         selectNo = 1;
                     }
                 }
             }
 
             for(CalculationProcess calculationProcess : list){
-                if(selectNo != 0 && selectNo == calculationProcess.getCalculationProcessId().getSelectNo()){
-                    log.info("[GGMANYAR]Check Point 1");
-                    log.info("selectNo : " + selectNo + ", selectContent : " + calculationProcess.getSelectContent());
+                if(selectNo != 0){
+                    if(selectNo == calculationProcess.getCalculationProcessId().getSelectNo()){
+                        log.info("selectNo : " + selectNo + ", selectContent : " + calculationProcess.getSelectContent());
 
-                    if(calculationProcess.isHasNextBranch()){
-                        nextBranchNo = calculationProcess.getNextBranchNo();
-                        hasNext = true;
-                    }else{
-                        taxRateCode = calculationProcess.getTaxRateCode();
-                        dedCode = calculationProcess.getDedCode();
+                        if(calculationProcess.isHasNextBranch()){
+                            nextBranchNo = calculationProcess.getNextBranchNo();
+                            hasNext = true;
+                        }else{
+                            taxRateCode = calculationProcess.getTaxRateCode();
+                            dedCode = calculationProcess.getDedCode();
+                        }
+                        break;
                     }
                 }else{
-                    log.info("[GGMANYAR]Check Point 2");
                     String dataMethod = StringUtils.defaultString(calculationProcess.getDataMethod());
                     String variableData = StringUtils.defaultString(calculationProcess.getVariableData(), ZERO);
 
@@ -1105,16 +1112,13 @@ public class CalculationBuyService {
                             taxRateCode = calculationProcess.getTaxRateCode();
                             dedCode = calculationProcess.getDedCode();
                         }
+                        break;
                     }
                 }
-
-                if(!EMPTY.equals(nextBranchNo) || (!EMPTY.equals(taxRateCode) && !EMPTY.equals(dedCode))) break;
             }
 
             if(hasNext){
                 try{
-                    log.info("[GGMANYAR]Check Point 3");
-                    log.info("[GGMANYAR]nextBranchNo : " + nextBranchNo);
                     Method method = calculationBranchClass.getMethod("branchNo" + nextBranchNo, CalculationBuyResultRequest.class);
                     calculationBuyResultResponse = (CalculationBuyResultResponse) method.invoke(target, calculationBuyResultRequest);
                 }catch(Exception e){
