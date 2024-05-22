@@ -1107,6 +1107,8 @@ public class CalculationBuyService {
                         }
                     }
                 }
+
+                if(!EMPTY.equals(nextBranchNo) || (!EMPTY.equals(taxRateCode) && !EMPTY.equals(dedCode))) break;
             }
 
             if(hasNext){
