@@ -7,10 +7,7 @@ import com.xmonster.howtaxing.dto.calculation.CalculationBuyResultResponse.Calcu
 import com.xmonster.howtaxing.dto.common.ApiResponse;
 
 import com.xmonster.howtaxing.model.*;
-import com.xmonster.howtaxing.repository.calculation.CalculationBuyResultRepository;
-import com.xmonster.howtaxing.repository.calculation.CalculationProcessRepository;
-import com.xmonster.howtaxing.repository.calculation.DeductionInfoRepository;
-import com.xmonster.howtaxing.repository.calculation.TaxRateInfoRepository;
+import com.xmonster.howtaxing.repository.calculation.*;
 import com.xmonster.howtaxing.repository.house.HouseRepository;
 import com.xmonster.howtaxing.service.house.HouseAddressService;
 import com.xmonster.howtaxing.type.ErrorCode;
@@ -1082,6 +1079,7 @@ public class CalculationBuyService {
 
             for(CalculationProcess calculationProcess : list){
                 if(selectNo != 0 && selectNo == calculationProcess.getCalculationProcessId().getSelectNo()){
+                    log.info("[GGMANYAR]Check Point 1");
                     log.info("selectNo : " + selectNo + ", selectContent : " + calculationProcess.getSelectContent());
 
                     if(calculationProcess.isHasNextBranch()){
@@ -1092,6 +1090,7 @@ public class CalculationBuyService {
                         dedCode = calculationProcess.getDedCode();
                     }
                 }else{
+                    log.info("[GGMANYAR]Check Point 2");
                     String dataMethod = StringUtils.defaultString(calculationProcess.getDataMethod());
                     String variableData = StringUtils.defaultString(calculationProcess.getVariableData(), ZERO);
 
@@ -1112,6 +1111,8 @@ public class CalculationBuyService {
 
             if(hasNext){
                 try{
+                    log.info("[GGMANYAR]Check Point 3");
+                    log.info("[GGMANYAR]nextBranchNo : " + nextBranchNo);
                     Method method = calculationBranchClass.getMethod("branchNo" + nextBranchNo, CalculationBuyResultRequest.class);
                     calculationBuyResultResponse = (CalculationBuyResultResponse) method.invoke(target, calculationBuyResultRequest);
                 }catch(Exception e){
