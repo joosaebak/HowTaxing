@@ -122,6 +122,7 @@ public class HouseService {
                             .houseName(house.getHouseName())
                             .roadAddr(house.getRoadAddr())
                             .detailAdr(house.getDetailAdr())
+                            .isRequiredDataMissing(checkOwnHouseRequiredDataMissing(house, houseListSearchRequest.getCalcType()))
                             .build());
         }
 
@@ -207,6 +208,7 @@ public class HouseService {
                             .houseName(house.getHouseName())
                             .roadAddr(house.getRoadAddr())
                             .detailAdr(house.getDetailAdr())
+                            .isRequiredDataMissing(checkOwnHouseRequiredDataMissing(house, houseListSearchRequest.getCalcType()))
                             .build());
         }
 
@@ -218,7 +220,7 @@ public class HouseService {
     }
 
     // 보유주택 목록 조회(DB)
-    public Object getHouseList() {
+    public Object getHouseList(String calcType) {
         log.info(">> [Service]HouseService getHouseList - 보유주택 목록 조회(DB)");
 
         // 호출 사용자 조회
@@ -237,6 +239,7 @@ public class HouseService {
                             .houseName(house.getHouseName())
                             .roadAddr(house.getRoadAddr())
                             .detailAdr(house.getDetailAdr())
+                            .isRequiredDataMissing(checkOwnHouseRequiredDataMissing(house, calcType))
                             .build());
         }
 
@@ -1066,5 +1069,41 @@ public class HouseService {
             // TODO. 오류 처리 로직 추가
             log.error("House 정보 세팅 실패하였습니다.");
         }
+    }
+
+    private boolean checkOwnHouseRequiredDataMissing(House house, String calcType){
+        log.info(">>> HouseService checkOwnHouseRequiredDataMissing - 보유주택 필수 데이터 누락 여부 체크");
+
+        boolean isRequiredDataMissing = false;
+
+        // 주택유형 데이터가 없는 경우 필수 데이터 누락 '여'
+        if(house.getHouseType() == null || EMPTY.equals(house.getHouseType())){
+            isRequiredDataMissing = true;
+        }
+
+        // 상세주소 데이터가 없으면 필수데이터 누락 '여'
+        if(house.getDetailAdr() == null || EMPTY.equals(house.getDetailAdr())){
+            isRequiredDataMissing = true;
+        }
+
+        // 지번주소 및 도로명주소 데이터가 없으면 필수데이터 누락 '여'
+        if(house.getJibunAddr() == null || EMPTY.equals(house.getJibunAddr()) || house.getRoadAddr() == null || EMPTY.equals(house.getRoadAddr())){
+            isRequiredDataMissing = true;
+        }
+
+        // 건물관리번호 데이터가 없으면 필수데이터 누락 '여'
+        if(house.getBdMgtSn() == null || EMPTY.equals(house.getBdMgtSn())){
+            isRequiredDataMissing = true;
+        }
+
+        // 양도소득세 계산의 보유주택조회인 경우
+        if(CALC_TYPE_SELL.equals(calcType)){
+            // 취득일과 취득가격 데이터가 없으면 필수데이터 누락 '여'
+            if(house.getBuyDate() == null || house.getBuyPrice() == null){
+                isRequiredDataMissing = true;
+            }
+        }
+
+        return isRequiredDataMissing;
     }
 }

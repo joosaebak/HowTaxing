@@ -58,9 +58,9 @@ public class HouseController {
 
     // 보유주택 목록 조회
     @GetMapping("/house/list")
-    public Object getHouseList() throws Exception {
+    public Object getHouseList(@RequestParam String calcType) throws Exception {
         log.info(">> [Controller]HouseController getHouseList - 보유주택 목록 조회");
-        return houseService.getHouseList();
+        return houseService.getHouseList(calcType);
     }
 
     // 보유주택 상세 조회
