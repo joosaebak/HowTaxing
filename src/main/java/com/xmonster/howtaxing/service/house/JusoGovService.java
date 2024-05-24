@@ -134,7 +134,11 @@ public class JusoGovService {
                 lnbrMnnm = String.format("%4s", lnbrMnnm).replace(SPACE, ZERO);
                 lnbrSlno = String.format("%4s", lnbrSlno).replace(SPACE, ZERO);
 
-                String pnu = EMPTY + admCd + ((ZERO.equals(mtYn)) ? ONE : TWO) + lnbrMnnm + lnbrSlno;
+                //String pnu = EMPTY + admCd + ((ZERO.equals(mtYn)) ? ONE : TWO) + lnbrMnnm + lnbrSlno;
+                String pnu = EMPTY;
+                if(!EMPTY.equals(bdMgtSn) && bdMgtSn.length() == 25){
+                    pnu = bdMgtSn.substring(0, 19);
+                }
 
                 // 건물명이 없으면 건물본번 - 건물부번으로 대체함
                 if(EMPTY.equals(bdNm)){
