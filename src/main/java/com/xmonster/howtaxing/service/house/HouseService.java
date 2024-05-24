@@ -1071,6 +1071,7 @@ public class HouseService {
         }
     }
 
+    // 보유주택 필수 데이터 누락여부 체크
     private boolean checkOwnHouseRequiredDataMissing(House house, String calcType){
         log.info(">>> HouseService checkOwnHouseRequiredDataMissing - 보유주택 필수 데이터 누락 여부 체크");
 
@@ -1102,9 +1103,9 @@ public class HouseService {
 
         // 양도소득세 계산의 보유주택조회인 경우
         if(CALC_TYPE_SELL.equals(calcType)){
-            // 취득일과 취득가격 데이터가 없으면 필수데이터 누락 '여'
-            if(house.getBuyDate() == null || house.getBuyPrice() == null){
-                log.info("양도소득세 계산의 보유주택조회인 경우 - 취득일과 취득가격 데이터가 없으면 필수데이터 누락");
+            // 계약일자, 취득일자 또는 취득가격 데이터가 없으면 필수데이터 누락 '여'
+            if(house.getContractDate() == null || house.getBuyDate() == null || house.getBuyPrice() == null){
+                log.info("양도소득세 계산의 보유주택조회인 경우 - 계약일자, 취득일자 또는 취득가격 데이터가 없으면 필수데이터 누락");
                 isRequiredDataMissing = true;
             }
         }
