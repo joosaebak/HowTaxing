@@ -120,6 +120,7 @@ public class JusoGovService {
                 String jibunAddr = StringUtils.defaultString(jusoDetail.getJibunAddr());
                 String admCd = StringUtils.defaultString(jusoDetail.getAdmCd());
                 String rnMgtSn = StringUtils.defaultString(jusoDetail.getRnMgtSn());
+                String bdMgtSn = StringUtils.defaultString(jusoDetail.getBdMgtSn());
                 String detBdNmList = StringUtils.defaultString(jusoDetail.getDetBdNmList());
                 String bdNm = StringUtils.defaultString(jusoDetail.getBdNm());
                 String bdKdcd = StringUtils.defaultString(jusoDetail.getBdKdcd());
@@ -133,11 +134,7 @@ public class JusoGovService {
                 lnbrMnnm = String.format("%4s", lnbrMnnm).replace(SPACE, ZERO);
                 lnbrSlno = String.format("%4s", lnbrSlno).replace(SPACE, ZERO);
 
-                StringBuilder pnu = new StringBuilder(EMPTY);
-                pnu.append(admCd);
-                pnu.append((ZERO.equals(mtYn)) ? ONE : TWO);
-                pnu.append(lnbrMnnm);
-                pnu.append(lnbrSlno);
+                String pnu = EMPTY + admCd + ((ZERO.equals(mtYn)) ? ONE : TWO) + lnbrMnnm + lnbrSlno;
 
                 // 건물명이 없으면 건물본번 - 건물부번으로 대체함
                 if(EMPTY.equals(bdNm)){
@@ -152,13 +149,14 @@ public class JusoGovService {
                                 .jibunAddr(jibunAddr)
                                 .admCd(admCd)
                                 .rnMgtSn(rnMgtSn)
+                                .bdMgtSn(bdMgtSn)
                                 .detBdNmList(detBdNmList)
                                 .bdNm(bdNm)
                                 .bdKdcd(bdKdcd)
                                 .udrtYn(udrtYn)
                                 .buldMnnm(buldMnnm)
                                 .buldSlno(buldSlno)
-                                .pnu(pnu.toString())
+                                .pnu(pnu)
                                 .build());
             }
         }
