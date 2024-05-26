@@ -2528,7 +2528,7 @@ public class CalculationSellService {
                         CalculationSellOneResult.builder()
                                 .buyPrice(buyPriceStr)
                                 .buyDate(buyDateStr)
-                                .sellPrice(sellTaxPriceStr)
+                                .sellPrice(sellPriceStr)
                                 .sellDate(sellDateStr)
                                 .necExpensePrice(necExpensePriceStr)
                                 .sellProfitPrice(sellProfitPriceStr)
