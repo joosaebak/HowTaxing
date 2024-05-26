@@ -2400,6 +2400,9 @@ public class CalculationSellService {
                         // 과세표준금액(양도소득금액 - 기본공제금액)
                         taxableStdPrice = sellIncomePrice - BASIC_DEDUCTION_PRICE;
 
+                        // 누진공제금액
+                        progDeductionPrice = calculateProgDeductionPrice(taxableStdPrice);
+
                         if(taxRateInfo.getTaxRate1() != null && !taxRateInfo.getTaxRate1().isBlank()){
                             // 세율이 2개인 경우
                             if(taxRateInfo.getTaxRate2() != null && !taxRateInfo.getTaxRate2().isBlank()){
