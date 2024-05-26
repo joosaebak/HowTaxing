@@ -22,8 +22,8 @@ public class DeductionInfo extends DateEntity implements Serializable {
 
     private String dedContent;      // 공제내용
     private String unit;            // 단위
-    private Double unitDedRate;      // 단위공제율
+    private Double unitDedRate;     // 단위공제율
     private Integer limitYear;      // 한도연수
-    private Double limitDedRate;     // 한도공제율
+    private Double limitDedRate;    // 한도공제율
     private String remark;          // 비고
 }

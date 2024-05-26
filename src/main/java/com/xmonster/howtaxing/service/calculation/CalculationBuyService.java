@@ -1470,7 +1470,7 @@ public class CalculationBuyService {
                             // 세율1
                             if(GENERAL_TAX_RATE.equals(taxRateInfo.getTaxRate1())){
                                 taxRate1 = calculateGeneralTaxRate(calculationBuyResultRequest, ownHouseCount, buyPrice, isAdjustmentTargetArea);
-                            }else if(NON_TAX_RATE.equals(taxRateInfo.getTaxRate1())){
+                            }else if(NONE_TAX_RATE.equals(taxRateInfo.getTaxRate1())){
                                 taxRate1 = 0;
                             }else{
                                 taxRate1 = Double.parseDouble(StringUtils.defaultString(taxRateInfo.getTaxRate1(), ZERO));
@@ -1479,7 +1479,7 @@ public class CalculationBuyService {
                             // 세율2
                             if(GENERAL_TAX_RATE.equals(taxRateInfo.getTaxRate2())){
                                 taxRate2 = calculateGeneralTaxRate(calculationBuyResultRequest, ownHouseCount, buyPrice, isAdjustmentTargetArea);
-                            }else if(NON_TAX_RATE.equals(taxRateInfo.getTaxRate2())){
+                            }else if(NONE_TAX_RATE.equals(taxRateInfo.getTaxRate2())){
                                 taxRate2 = 0;
                             }else{
                                 taxRate2 = Double.parseDouble(StringUtils.defaultString(taxRateInfo.getTaxRate2(), ZERO));
@@ -1526,7 +1526,7 @@ public class CalculationBuyService {
                                 taxRate1 = calculateGeneralTaxRate(calculationBuyResultRequest, ownHouseCount, buyPrice, isAdjustmentTargetArea);
                             }
                             // 비과세
-                            else if(NON_TAX_RATE.equals(taxRateInfo.getTaxRate1())){
+                            else if(NONE_TAX_RATE.equals(taxRateInfo.getTaxRate1())){
                                 taxRate1 = 0;
                             }
 

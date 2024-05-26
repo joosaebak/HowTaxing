@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CalculationSellResult {
+public class CalculationSellResult extends DateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -26,7 +26,7 @@ public class CalculationSellResult {
     private Long sellProfitPrice;       // 양도차익금액
     private Integer retentionPeriod;    // 보유기간
     private Long taxableStdPrice;       // 과세표준금액
-    private Double sellTaxRate;          // 양도소득세율
+    private Double sellTaxRate;         // 양도소득세율
     private Long sellTaxPrice;          // 양도소득세액
     private Long localTaxPrice;         // 지방소득세액
     private Long nonTaxablePrice;       // 비과세대상양도차익금액

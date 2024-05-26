@@ -58,27 +58,35 @@ public final class CommonConstant {
     public final static String MOVE_IN_KEYWORD = "전입";
 
     /* 계산 유형 */
-    public final static String CALC_TYPE_BUY = "01";            // 취득세
-    public final static String CALC_TYPE_SELL = "02";           // 양도소득세
+    public final static String CALC_TYPE_BUY = "01";                // 취득세
+    public final static String CALC_TYPE_SELL = "02";               // 양도소득세
 
     /* 데이터 함수 */
-    public final static String BEFORE = "BEFORE";               // YYYYMMDD일 이전
-    public final static String OR_BEFORE = "OR_BEFORE";         // YYYYYMMDD일 포함 이전
-    public final static String AFTER = "AFTER";                 // YYYYMMDD일 이후
-    public final static String OR_AFTER = "OR_AFTER";           // YYYYMMDD일 포함 이후
-    public final static String FROM_TO = "FROM_TO";             // YYYYMMDD일 부터 YYYYMMDD일 까지
-    public final static String LESS = "LESS";                   // 미만
-    public final static String OR_LESS = "OR_LESS";             // 이하
-    public final static String MORE = "MORE";                   // 초과
-    public final static String OR_MORE = "OR_MORE";             // 이상
+    public final static String BEFORE = "BEFORE";                   // YYYYMMDD일 이전
+    public final static String OR_BEFORE = "OR_BEFORE";             // YYYYYMMDD일 포함 이전
+    public final static String AFTER = "AFTER";                     // YYYYMMDD일 이후
+    public final static String OR_AFTER = "OR_AFTER";               // YYYYMMDD일 포함 이후
+    public final static String FROM_TO = "FROM_TO";                 // YYYYMMDD일 부터 YYYYMMDD일 까지
+    public final static String LESS = "LESS";                       // 미만
+    public final static String OR_LESS = "OR_LESS";                 // 이하
+    public final static String MORE = "MORE";                       // 초과
+    public final static String OR_MORE = "OR_MORE";                 // 이상
+    public final static String WITHIN = "WITHIN";                   // n년이 된 날 이내
+    public final static String WITHIN_YST = "WITHIN_YST";           // n년이 된 날 전날 이내
+    public final static String WITHIN_TMR = "WITHIN_TMR";           // n년이 된 날 다음날 이내
+    public final static String NOT_WITHIN = "NOT_WITHIN";           // n년이 된 날 이후
+    public final static String NOT_WITHIN_YST = "NOT_WITHIN_YST";   // n년이 된 날 전날 이후
+    public final static String NOT_WITHIN_TMR = "NOT_WITHIN_TMR";   // n년이 된 날 다음날 이후
 
     /* 데이터 유형 */
-    public final static int DATA_TYPE_PRICE = 1;                // 금액
-    public final static int DATA_TYPE_DATE = 2;                 // 날짜
+    public final static int DATA_TYPE_PRICE = 1;                    // 금액
+    public final static int DATA_TYPE_DATE = 2;                     // 날짜
+    public final static int DATA_TYPE_PERIOD = 3;                   // 기간
 
     /* 세율 유형 */
-    public final static String GENERAL_TAX_RATE = "GEN";        // 일반과세(일반세율)
-    public final static String NON_TAX_RATE = "NON";            // 비과세
+    public final static String GENERAL_TAX_RATE = "GEN";                    // 일반과세(일반세율)
+    public final static String NONE_TAX_RATE = "NON";                       // 비과세
+    public final static String NONE_AND_GENERAL_TAX_RATE = "NON_GEN";       // 기준금액 이하 비과세, 기준금액 이상 일반과세
 
     /* 세율 함수 */
     public final static String MAX = "MAX";                     // 세율1과 세율2 중 최대값 사용
@@ -88,6 +96,15 @@ public final class CommonConstant {
     public final static long ONE_HND_MIL = 100000000;           // 1억(원)
     public final static long SIX_HND_MIL = 600000000;           // 6억(원)
     public final static long NINE_HND_MIL = 900000000;          // 9억(원)
+
+    /* 양도소득세 계산관련 금액 */
+    public final static long BASIC_DEDUCTION_PRICE = 2500000;   // 기본공제액 250만(원)
+    public final static double LOCAL_TAX_RATE = 0.1;            // 지방소득세율(양도소득세의 10%)
+    public final static int PERIOD_YEAR = 365;                  // 기간(대략 1년의 일자)
+    public final static int PERIOD_MONTH = 30;                  // 기간(대략 1개월의 일자)
+
+    /* 공제단위 */
+    public final static String UNIT_1YEAR = "1Y";                   // 1년
 
     /* 조정대상지역 (추후 DB로 관리 예정) */
     public final static String ADJUSTMENT_TARGET_AREA1 = "용산구";
