@@ -248,7 +248,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -305,7 +305,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -710,7 +710,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -767,7 +767,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -878,7 +878,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -997,7 +997,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -1895,7 +1895,7 @@ public class CalculationSellService {
             List<CalculationProcess> list = calculationProcessRepository.findByCalcTypeAndBranchNo(CALC_TYPE_SELL, "031")
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
-            String sellDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
             log.info("sellDate : " + sellDate);
 
             for(CalculationProcess calculationProcess : list){
@@ -2010,7 +2010,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -2067,7 +2067,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -2123,7 +2123,7 @@ public class CalculationSellService {
             List<CalculationProcess> list = calculationProcessRepository.findByCalcTypeAndBranchNo(CALC_TYPE_SELL, "039")
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
-            String sellDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
             log.info("sellDate : " + sellDate);
 
             for(CalculationProcess calculationProcess : list){
@@ -2183,7 +2183,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
@@ -2240,7 +2240,7 @@ public class CalculationSellService {
                     .orElseThrow(() -> new CustomException(ErrorCode.CALCULATION_SELL_TAX_FAILED, "양도소득세 프로세스 정보를 가져오는 중 오류가 발생했습니다."));
 
             String buyDate = (house.getBuyDate() != null) ? house.getBuyDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
-            String sellDate = (house.getSellDate() != null) ? house.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
+            String sellDate = (calculationSellResultRequest.getSellDate() != null) ? calculationSellResultRequest.getSellDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : EMPTY;
 
             log.info("buyDate : " + buyDate);
             log.info("sellDate : " + sellDate);
