@@ -2350,6 +2350,10 @@ public class CalculationSellService {
                 LocalDate sellDate = calculationSellResultRequest.getSellDate();                        // 양도일자
                 long necExpensePrice = calculationSellResultRequest.getNecExpensePrice();               // 필요경비금액
                 sellProfitPrice = sellPrice - (buyPrice + necExpensePrice);                             // 양도차익금액(양도가액 - (취득가액 + 필요경비))
+
+                // 양도차익금액이 0보다 작으면 0으로 세팅
+                if(sellProfitPrice < 0) sellProfitPrice = 0;
+
                 retentionPeriodDay = ChronoUnit.DAYS.between(buyDate, sellDate);                        // 보유기간(일)
                 retentionPeriodYear = ChronoUnit.YEARS.between(buyDate, sellDate);                      // 보유기간(년)
 
@@ -2385,6 +2389,9 @@ public class CalculationSellService {
                         // 과세대상양도차익금액
                         taxablePrice = sellProfitPrice - nonTaxablePrice;
 
+                        // 양도차익금액이 0보다 작으면 0으로 세팅
+                        if(taxablePrice < 0) taxablePrice = 0;
+
                         // 공제율 및 장기보유특별공제금액(공제정보가 존재하는 경우에만 계산)
                         if(deductionInfo != null){
                             // 공제율
@@ -2396,9 +2403,11 @@ public class CalculationSellService {
 
                         // 양도소득금액(과세대상양도차익금액 - 장기보유특별공제금액)
                         sellIncomePrice = taxablePrice - longDeductionPrice;
+                        if(sellIncomePrice < 0) sellIncomePrice = 0;
 
                         // 과세표준금액(양도소득금액 - 기본공제금액)
                         taxableStdPrice = sellIncomePrice - BASIC_DEDUCTION_PRICE;
+                        if(taxableStdPrice < 0) taxableStdPrice = 0;
 
                         // 누진공제금액
                         progDeductionPrice = calculateProgDeductionPrice(taxableStdPrice);
@@ -2451,6 +2460,7 @@ public class CalculationSellService {
 
                                     // 양도소득세액((과세표준 x 양도소득세율) - 누진공제금액)
                                     sellTaxPrice = (long)(taxableStdPrice * sellTaxRate) - progDeductionPrice;
+                                    if(sellTaxPrice < 0) sellTaxPrice = 0;
                                 }
                             }
                             // 세율이 1개인 경우
@@ -2478,6 +2488,7 @@ public class CalculationSellService {
                                 
                                 // 양도소득세액((과세표준 x 양도소득세율) - 누진공제금액)
                                 sellTaxPrice = (long)(taxableStdPrice * sellTaxRate) - progDeductionPrice;
+                                if(sellTaxPrice < 0) sellTaxPrice = 0;
                             }
                         }
                     }
