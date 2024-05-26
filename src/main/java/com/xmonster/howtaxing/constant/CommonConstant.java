@@ -103,6 +103,16 @@ public final class CommonConstant {
     public final static int PERIOD_YEAR = 365;                  // 기간(대략 1년의 일자)
     public final static int PERIOD_MONTH = 30;                  // 기간(대략 1개월의 일자)
 
+    /* 질의 데이터 코드 */
+    public final static String Q_0001 = "Q_0001";               // 질문1
+    public final static String Q_0002 = "Q_0002";               // 질문2
+    public final static String Q_0003 = "Q_0003";               // 질문3
+
+    /* 답변 데이터 코드 */
+    public final static String A_0001 = "A_0001";               // 답변1
+    public final static String A_0002 = "A_0002";               // 답변2
+    public final static String A_0003 = "A_0003";               // 답변3
+
     /* 공제단위 */
     public final static String UNIT_1YEAR = "1Y";                   // 1년
 
